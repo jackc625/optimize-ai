@@ -26,7 +26,7 @@ Track your habits, meal plans, and workouts — all in one place.
 
 ---
 
-## 📸 Screenshots (optional)
+## 📸 Screenshots
 
 Coming soon!
 

@@ -3,23 +3,41 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { useRouter } from "next/navigation";
+import MacroSummary from "@/components/MacroSummary";
 
-export default function Dashboard() {
+export default function DashboardPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
-  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [userName, setUserName] = useState<string | null>(null);
 
   useEffect(() => {
-    const getUser = async () => {
-      const { data, error } = await supabase.auth.getUser();
-      if (error || !data.user) {
+    const loadUserProfile = async () => {
+      const { data: authData, error: authError } =
+        await supabase.auth.getUser();
+      const user = authData?.user;
+
+      if (authError || !user) {
         router.push("/auth/login");
-      } else {
-        setUserEmail(data.user.email ?? null);
+        return;
       }
+
+      const { data: profile, error: profileError } = await supabase
+        .from("user_profiles")
+        .select("name")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (profileError) {
+        console.error("Failed to load profile name:", profileError.message);
+        setUserName("User");
+      } else {
+        setUserName(profile?.name ?? "User");
+      }
+
       setLoading(false);
     };
-    getUser();
+
+    loadUserProfile();
   }, [router]);
 
   const handleLogout = async () => {
@@ -27,17 +45,41 @@ export default function Dashboard() {
     router.push("/auth/login");
   };
 
-  if (loading) return <p className="p-4 text-center">Loading...</p>;
+  if (loading) {
+    return (
+      <main className="p-4 text-center text-gray-500">
+        Loading your dashboard...
+      </main>
+    );
+  }
 
   return (
-    <main className="flex flex-col items-center justify-center min-h-screen p-4">
-      <h1 className="text-2xl font-bold mb-4">Welcome, {userEmail}!</h1>
-      <button
-        onClick={handleLogout}
-        className="bg-red-500 text-white rounded p-2 hover:bg-red-600"
-      >
-        Log Out
-      </button>
-    </main>
+    <div className="min-h-screen flex flex-col">
+      <main className="max-w-3xl mx-auto p-6 space-y-6 flex-grow">
+        {/* Greeting & Logout */}
+        <div className="flex justify-between items-center bg-white border shadow-sm rounded-xl px-6 py-4">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">
+              Welcome back, {userName} 👋
+            </h1>
+            <p className="text-sm text-gray-500">
+              Here&apos;s your progress and targets.
+            </p>
+          </div>
+          <button
+            onClick={handleLogout}
+            className="text-sm bg-red-500 text-white px-3 py-1.5 rounded-lg hover:bg-red-600 transition"
+          >
+            Log Out
+          </button>
+        </div>
+
+        {/* Macro Summary */}
+        <MacroSummary />
+
+        {/* Future modules go here */}
+        {/* <YourNextModule /> */}
+      </main>
+    </div>
   );
 }

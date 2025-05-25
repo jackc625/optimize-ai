@@ -9,6 +9,7 @@ export default function SetupProfilePage() {
   const router = useRouter();
 
   const [form, setForm] = useState({
+    name: "",
     age: "",
     height_cm: "",
     weight_kg: "",
@@ -62,6 +63,7 @@ export default function SetupProfilePage() {
 
     const { error } = await supabase.from("user_profiles").insert({
       user_id: user.id,
+      name: form.name,
       age: Number(form.age),
       height_cm: Number(form.height_cm),
       weight_kg: Number(form.weight_kg),
@@ -110,6 +112,18 @@ export default function SetupProfilePage() {
             />
           </div>
         ))}
+
+        <div>
+          <label className="block text-sm font-medium">Name</label>
+          <input
+            name="name"
+            value={form.name}
+            onChange={handleChange}
+            type="text"
+            required
+            className="w-full border p-2 rounded"
+          />
+        </div>
 
         <div>
           <label className="block text-sm font-medium">Sex</label>

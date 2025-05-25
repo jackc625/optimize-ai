@@ -26,9 +26,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-gradient-to-br from-gray-100 via-white to-gray-200 text-gray-900`}
       >
-        <Toaster position="top-right" /> {/* ✅ Toasts now work */}
+        <Toaster position="top-right" />
         {children}
       </body>
     </html>

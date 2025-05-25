@@ -9,6 +9,7 @@ export default function EditProfilePage() {
   const router = useRouter();
 
   const [form, setForm] = useState({
+    name: "",
     age: "",
     height_cm: "",
     weight_kg: "",
@@ -44,6 +45,7 @@ export default function EditProfilePage() {
       }
 
       setForm({
+        name: data.name ?? "",
         age: data.age.toString(),
         height_cm: data.height_cm.toString(),
         weight_kg: data.weight_kg.toString(),
@@ -74,6 +76,7 @@ export default function EditProfilePage() {
     const { error } = await supabase
       .from("user_profiles")
       .update({
+        name: form.name,
         age: Number(form.age),
         height_cm: Number(form.height_cm),
         weight_kg: Number(form.weight_kg),
@@ -106,6 +109,18 @@ export default function EditProfilePage() {
       <h1 className="text-2xl font-bold mb-4">Edit Your Profile</h1>
 
       <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium">Name</label>
+          <input
+            name="name"
+            value={form.name}
+            onChange={handleChange}
+            type="text"
+            required
+            className="w-full border p-2 rounded"
+          />
+        </div>
+
         {[
           { label: "Age", name: "age", type: "number" },
           { label: "Height (cm)", name: "height_cm", type: "number" },

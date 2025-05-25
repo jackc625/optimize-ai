@@ -4,31 +4,50 @@ import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
+import toast from "react-hot-toast";
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const pathname = usePathname();
   const router = useRouter();
+  const pathname = usePathname();
 
-  const [checkingAuth, setCheckingAuth] = useState(true);
+  const [checkingProfile, setCheckingProfile] = useState(true);
 
-  // 🔐 Check auth on load
   useEffect(() => {
-    const checkAuth = async () => {
-      const { data } = await supabase.auth.getUser();
-      if (!data.user) {
+    const checkAuthAndProfile = async () => {
+      const { data: userData } = await supabase.auth.getUser();
+      const user = userData?.user;
+
+      if (!user) {
         router.push("/auth/login");
+        return;
+      }
+
+      const { data: profile, error } = await supabase
+        .from("user_profiles")
+        .select("user_id")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (error) {
+        console.error("Error checking profile:", error.message);
+        toast.error("Error checking profile.");
+        return;
+      }
+
+      if (!profile && pathname !== "/dashboard/profile/setup") {
+        router.push("/dashboard/profile/setup");
       } else {
-        setCheckingAuth(false);
+        setCheckingProfile(false);
       }
     };
-    checkAuth();
-  }, [router]);
 
-  // 🔌 Log out handler
+    checkAuthAndProfile();
+  }, [router, pathname]);
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
     router.push("/auth/login");
@@ -37,10 +56,10 @@ export default function DashboardLayout({
   const navLinks = [
     { href: "/dashboard", label: "Dashboard" },
     { href: "/dashboard/habits", label: "Habits" },
+    { href: "/dashboard/profile/edit", label: "Edit Profile" },
   ];
 
-  // ⏳ Show loading screen during auth check
-  if (checkingAuth) {
+  if (checkingProfile) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="h-6 w-6 animate-spin rounded-full border-2 border-blue-500 border-t-transparent"></div>
@@ -48,7 +67,6 @@ export default function DashboardLayout({
     );
   }
 
-  // ✅ Main layout
   return (
     <div className="min-h-screen flex flex-col bg-white text-gray-900">
       <nav className="border-b bg-white px-6 py-4 shadow-sm flex items-center justify-between">

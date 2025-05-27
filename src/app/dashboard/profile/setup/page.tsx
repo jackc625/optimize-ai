@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import toast from "react-hot-toast";
@@ -16,6 +16,7 @@ export default function SetupProfilePage() {
     sex: "male",
     goal: "fat_loss",
     activity_level: "moderate",
+    goal_weight_kg: "",
   });
 
   const [checking, setChecking] = useState(true);
@@ -28,20 +29,32 @@ export default function SetupProfilePage() {
 
       const { data, error } = await supabase
         .from("user_profiles")
-        .select("user_id")
+        .select(
+          "name, age, height_cm, weight_kg, sex, goal, activity_level, goal_weight_kg"
+        )
         .eq("user_id", user.id)
         .maybeSingle();
 
       if (error) {
-        console.error("Profile check error:", error.message);
-        toast.error("Could not check profile.");
+        console.error("Error checking profile:", error.message);
+        toast.error("Could not check user profile.");
         return;
       }
 
       if (data) {
-        router.push("/dashboard"); // already has profile
+        setForm({
+          name: data.name ?? "",
+          age: data.age.toString(),
+          height_cm: data.height_cm.toString(),
+          weight_kg: data.weight_kg.toString(),
+          sex: data.sex,
+          goal: data.goal,
+          activity_level: data.activity_level,
+          goal_weight_kg: data.goal_weight_kg?.toString() ?? "",
+        });
+        router.push("/dashboard");
       } else {
-        setChecking(false); // show the form
+        setChecking(false); // No profile exists, show the form
       }
     };
 
@@ -56,9 +69,7 @@ export default function SetupProfilePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    const { data: userData } = await supabase.auth.getUser();
-    const user = userData?.user;
+    const user = (await supabase.auth.getUser()).data.user;
     if (!user) return;
 
     const { error } = await supabase.from("user_profiles").insert({
@@ -70,10 +81,11 @@ export default function SetupProfilePage() {
       sex: form.sex,
       goal: form.goal,
       activity_level: form.activity_level,
+      goal_weight_kg: form.goal_weight_kg ? Number(form.goal_weight_kg) : null,
     });
 
     if (error) {
-      console.error("Insert error:", error.message);
+      console.error(error.message);
       toast.error("Failed to save profile");
       return;
     }
@@ -95,24 +107,6 @@ export default function SetupProfilePage() {
       <h1 className="text-2xl font-bold mb-4">Set Up Your Profile</h1>
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        {[
-          { label: "Age", name: "age", type: "number" },
-          { label: "Height (cm)", name: "height_cm", type: "number" },
-          { label: "Weight (kg)", name: "weight_kg", type: "number" },
-        ].map(({ label, name, type }) => (
-          <div key={name}>
-            <label className="block text-sm font-medium">{label}</label>
-            <input
-              name={name}
-              value={form[name as keyof typeof form]}
-              onChange={handleChange}
-              type={type}
-              required
-              className="w-full border p-2 rounded"
-            />
-          </div>
-        ))}
-
         <div>
           <label className="block text-sm font-medium">Name</label>
           <input
@@ -121,6 +115,53 @@ export default function SetupProfilePage() {
             onChange={handleChange}
             type="text"
             required
+            className="w-full border p-2 rounded"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium">Age</label>
+          <input
+            name="age"
+            value={form.age}
+            onChange={handleChange}
+            type="number"
+            required
+            className="w-full border p-2 rounded"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium">Height (cm)</label>
+          <input
+            name="height_cm"
+            value={form.height_cm}
+            onChange={handleChange}
+            type="number"
+            required
+            className="w-full border p-2 rounded"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium">Weight (kg)</label>
+          <input
+            name="weight_kg"
+            value={form.weight_kg}
+            onChange={handleChange}
+            type="number"
+            required
+            className="w-full border p-2 rounded"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium">Goal Weight (kg)</label>
+          <input
+            name="goal_weight_kg"
+            value={form.goal_weight_kg}
+            onChange={handleChange}
+            type="number"
             className="w-full border p-2 rounded"
           />
         </div>

@@ -16,31 +16,27 @@ export default function EditProfilePage() {
     sex: "male",
     goal: "fat_loss",
     activity_level: "moderate",
+    goal_weight_kg: "",
   });
 
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const loadProfile = async () => {
-      const { data: userData } = await supabase.auth.getUser();
-      const user = userData?.user;
+    const fetchProfile = async () => {
+      const user = (await supabase.auth.getUser()).data.user;
       if (!user) return;
 
       const { data, error } = await supabase
         .from("user_profiles")
-        .select("*")
+        .select(
+          "name, age, height_cm, weight_kg, sex, goal, activity_level, goal_weight_kg"
+        )
         .eq("user_id", user.id)
         .maybeSingle();
 
-      if (error) {
-        console.error("Profile fetch error:", error.message);
-        toast.error("Could not load profile.");
-        return;
-      }
-
-      if (!data) {
-        toast.error("No profile found.");
-        router.push("/dashboard/profile/setup");
+      if (error || !data) {
+        toast.error("Failed to load profile");
+        setLoading(false);
         return;
       }
 
@@ -51,14 +47,15 @@ export default function EditProfilePage() {
         weight_kg: data.weight_kg.toString(),
         sex: data.sex,
         goal: data.goal,
-        activity_level: data.activity_level ?? "moderate",
+        activity_level: data.activity_level,
+        goal_weight_kg: data.goal_weight_kg?.toString() ?? "",
       });
 
       setLoading(false);
     };
 
-    loadProfile();
-  }, [router]);
+    fetchProfile();
+  }, []);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -68,9 +65,7 @@ export default function EditProfilePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    const { data: userData } = await supabase.auth.getUser();
-    const user = userData?.user;
+    const user = (await supabase.auth.getUser()).data.user;
     if (!user) return;
 
     const { error } = await supabase
@@ -83,12 +78,15 @@ export default function EditProfilePage() {
         sex: form.sex,
         goal: form.goal,
         activity_level: form.activity_level,
+        goal_weight_kg: form.goal_weight_kg
+          ? Number(form.goal_weight_kg)
+          : null,
       })
       .eq("user_id", user.id);
 
     if (error) {
-      console.error("Update error:", error.message);
-      toast.error("Failed to update profile.");
+      console.error(error.message);
+      toast.error("Failed to update profile");
       return;
     }
 
@@ -121,23 +119,52 @@ export default function EditProfilePage() {
           />
         </div>
 
-        {[
-          { label: "Age", name: "age", type: "number" },
-          { label: "Height (cm)", name: "height_cm", type: "number" },
-          { label: "Weight (kg)", name: "weight_kg", type: "number" },
-        ].map(({ label, name, type }) => (
-          <div key={name}>
-            <label className="block text-sm font-medium">{label}</label>
-            <input
-              name={name}
-              value={form[name as keyof typeof form]}
-              onChange={handleChange}
-              type={type}
-              required
-              className="w-full border p-2 rounded"
-            />
-          </div>
-        ))}
+        <div>
+          <label className="block text-sm font-medium">Age</label>
+          <input
+            name="age"
+            value={form.age}
+            onChange={handleChange}
+            type="number"
+            required
+            className="w-full border p-2 rounded"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium">Height (cm)</label>
+          <input
+            name="height_cm"
+            value={form.height_cm}
+            onChange={handleChange}
+            type="number"
+            required
+            className="w-full border p-2 rounded"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium">Weight (kg)</label>
+          <input
+            name="weight_kg"
+            value={form.weight_kg}
+            onChange={handleChange}
+            type="number"
+            required
+            className="w-full border p-2 rounded"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium">Goal Weight (kg)</label>
+          <input
+            name="goal_weight_kg"
+            value={form.goal_weight_kg}
+            onChange={handleChange}
+            type="number"
+            className="w-full border p-2 rounded"
+          />
+        </div>
 
         <div>
           <label className="block text-sm font-medium">Sex</label>
@@ -184,7 +211,7 @@ export default function EditProfilePage() {
           type="submit"
           className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
         >
-          Update Profile
+          Save Changes
         </button>
       </form>
     </main>

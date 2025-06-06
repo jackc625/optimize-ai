@@ -8,6 +8,7 @@ import {
   type ProfileInput,
 } from "@/utils/calculateMacros";
 import toast from "react-hot-toast";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 export default function MacroSummary() {
   const [macros, setMacros] = useState<MacroOutput | null>(null);
@@ -49,19 +50,23 @@ export default function MacroSummary() {
 
   if (loading || !macros) {
     return (
-      <div className="border p-4 rounded shadow-sm animate-pulse bg-white">
-        <p className="text-sm text-gray-500">Calculating macros...</p>
-      </div>
+      <Card className="w-full max-w-md mx-auto animate-pulse">
+        <CardHeader>
+          <CardTitle>Calculating Macros...</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-gray-500">Loading profile data...</p>
+        </CardContent>
+      </Card>
     );
   }
 
   return (
-    <div className="border p-6 rounded-xl shadow bg-white max-w-md space-y-2">
-      <h2 className="text-lg font-semibold mb-2 text-blue-600">
-        Macro Breakdown
-      </h2>
-
-      <div className="grid grid-cols-2 gap-y-1 text-sm">
+    <Card className="w-full max-w-md mx-auto shadow-md">
+      <CardHeader>
+        <CardTitle>Macro Breakdown</CardTitle>
+      </CardHeader>
+      <CardContent className="grid grid-cols-2 gap-y-2 text-sm">
         <div className="font-medium text-gray-700">BMR:</div>
         <div>{macros.bmr} kcal</div>
 
@@ -79,7 +84,7 @@ export default function MacroSummary() {
 
         <div className="font-medium text-gray-700">Carbs:</div>
         <div>{macros.carbGrams} g</div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }

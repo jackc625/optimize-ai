@@ -1,3 +1,4 @@
+// src/app/dashboard/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -5,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import { useUser } from "@/hooks/useUser";
 import MacroSummary from "@/components/MacroSummary";
+import { Card, CardHeader } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
 
 export default function DashboardPage() {
   const { user, loading: userLoading } = useUser();
@@ -42,8 +45,10 @@ export default function DashboardPage() {
   // While checking auth or loading name, show a loading state
   if (userLoading || !user || !userName) {
     return (
-      <main className="p-4 text-center text-gray-500">
-        Loading your dashboard...
+      <main className="flex items-center justify-center min-h-screen bg-background text-foreground">
+        <div className="text-sm text-muted-foreground">
+          Loading your dashboard...
+        </div>
       </main>
     );
   }
@@ -54,25 +59,29 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <main className="max-w-3xl mx-auto p-6 space-y-6 flex-grow">
+    <div className="min-h-screen flex flex-col bg-background text-foreground">
+      <main className="flex-grow max-w-3xl mx-auto p-6 space-y-6">
         {/* Greeting & Logout */}
-        <div className="flex justify-between items-center bg-white border shadow-sm rounded-xl px-6 py-4">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">
-              Welcome back, {userName} 👋
-            </h1>
-            <p className="text-sm text-gray-500">
-              Here&apos;s your progress and targets.
-            </p>
-          </div>
-          <button
-            onClick={handleLogout}
-            className="text-sm bg-red-500 text-white px-3 py-1.5 rounded-lg hover:bg-red-600 transition"
-          >
-            Log Out
-          </button>
-        </div>
+        <Card>
+          <CardHeader className="flex justify-between items-center">
+            <div>
+              <h1 className="text-2xl font-semibold text-foreground mb-1">
+                Welcome back, {userName} 👋
+              </h1>
+              <p className="text-sm text-muted-foreground">
+                Here’s your progress and targets.
+              </p>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleLogout}
+              className="text-destructive hover:text-destructive-foreground"
+            >
+              Log Out
+            </Button>
+          </CardHeader>
+        </Card>
 
         {/* Macro Summary */}
         <MacroSummary />

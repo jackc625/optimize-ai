@@ -1,3 +1,4 @@
+// src/app/dashboard/profile/setup/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -6,6 +7,7 @@ import { supabase } from "@/lib/supabaseClient";
 import toast from "react-hot-toast";
 import { useUser } from "@/hooks/useUser";
 import { ProfileForm } from "@/components/ProfileForm";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 
 export default function SetupProfilePage() {
   const { user, loading: userLoading } = useUser();
@@ -49,16 +51,24 @@ export default function SetupProfilePage() {
 
   if (userLoading || checking) {
     return (
-      <main className="min-h-screen flex items-center justify-center">
-        <div className="h-6 w-6 animate-spin rounded-full border-2 border-blue-500 border-t-transparent"></div>
+      <main className="flex items-center justify-center min-h-screen bg-background text-foreground">
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
       </main>
     );
   }
 
   return (
-    <main className="max-w-md mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-4">Set Up Your Profile</h1>
-      <ProfileForm onSuccessRedirect="/dashboard" />
+    <main className="min-h-screen bg-background text-foreground p-4">
+      <div className="max-w-md mx-auto">
+        <Card>
+          <CardHeader>
+            <CardTitle>Set Up Your Profile</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ProfileForm onSuccessRedirect="/dashboard" />
+          </CardContent>
+        </Card>
+      </div>
     </main>
   );
 }

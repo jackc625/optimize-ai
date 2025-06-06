@@ -1,3 +1,4 @@
+// src/components/ProfileForm.tsx
 "use client";
 
 import { useState } from "react";
@@ -7,6 +8,7 @@ import toast from "react-hot-toast";
 import { ZodError } from "zod";
 import type { UserProfile } from "@/types/database";
 import { ProfileSchema } from "@/schemas/profileSchema";
+import { Button } from "@/components/ui/Button";
 
 type ProfileFormProps = {
   initialData?: UserProfile;
@@ -122,7 +124,10 @@ export function ProfileForm({
     <form onSubmit={handleSubmit} className="space-y-4">
       {/* Name */}
       <div className="flex flex-col">
-        <label htmlFor="name" className="text-sm font-medium mb-1">
+        <label
+          htmlFor="name"
+          className="text-sm font-medium text-foreground mb-1"
+        >
           Name
         </label>
         <input
@@ -130,14 +135,24 @@ export function ProfileForm({
           name="name"
           value={form.name}
           onChange={handleChange}
-          className="border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200"
+          className="
+            border-border
+            bg-input
+            text-foreground
+            rounded-[var(--radius)]
+            px-3 py-2
+            focus:outline-none focus:ring focus:ring-primary-300
+          "
           required
         />
       </div>
 
       {/* Age */}
       <div className="flex flex-col">
-        <label htmlFor="age" className="text-sm font-medium mb-1">
+        <label
+          htmlFor="age"
+          className="text-sm font-medium text-foreground mb-1"
+        >
           Age
         </label>
         <input
@@ -146,14 +161,24 @@ export function ProfileForm({
           type="number"
           value={form.age}
           onChange={handleChange}
-          className="border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200"
+          className="
+            border-border
+            bg-input
+            text-foreground
+            rounded-[var(--radius)]
+            px-3 py-2
+            focus:outline-none focus:ring focus:ring-primary-300
+          "
           required
         />
       </div>
 
       {/* Height (cm) */}
       <div className="flex flex-col">
-        <label htmlFor="height_cm" className="text-sm font-medium mb-1">
+        <label
+          htmlFor="height_cm"
+          className="text-sm font-medium text-foreground mb-1"
+        >
           Height (cm)
         </label>
         <input
@@ -162,14 +187,24 @@ export function ProfileForm({
           type="number"
           value={form.height_cm}
           onChange={handleChange}
-          className="border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200"
+          className="
+            border-border
+            bg-input
+            text-foreground
+            rounded-[var(--radius)]
+            px-3 py-2
+            focus:outline-none focus:ring focus:ring-primary-300
+          "
           required
         />
       </div>
 
       {/* Weight (kg) */}
       <div className="flex flex-col">
-        <label htmlFor="weight_kg" className="text-sm font-medium mb-1">
+        <label
+          htmlFor="weight_kg"
+          className="text-sm font-medium text-foreground mb-1"
+        >
           Current Weight (kg)
         </label>
         <input
@@ -178,14 +213,24 @@ export function ProfileForm({
           type="number"
           value={form.weight_kg}
           onChange={handleChange}
-          className="border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200"
+          className="
+            border-border
+            bg-input
+            text-foreground
+            rounded-[var(--radius)]
+            px-3 py-2
+            focus:outline-none focus:ring focus:ring-primary-300
+          "
           required
         />
       </div>
 
       {/* Sex */}
       <div className="flex flex-col">
-        <label htmlFor="sex" className="text-sm font-medium mb-1">
+        <label
+          htmlFor="sex"
+          className="text-sm font-medium text-foreground mb-1"
+        >
           Sex
         </label>
         <select
@@ -193,7 +238,14 @@ export function ProfileForm({
           name="sex"
           value={form.sex}
           onChange={handleChange}
-          className="border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200"
+          className="
+            border-border
+            bg-input
+            text-foreground
+            rounded-[var(--radius)]
+            px-3 py-2
+            focus:outline-none focus:ring focus:ring-primary-300
+          "
         >
           <option value="male">Male</option>
           <option value="female">Female</option>
@@ -202,7 +254,10 @@ export function ProfileForm({
 
       {/* Goal */}
       <div className="flex flex-col">
-        <label htmlFor="goal" className="text-sm font-medium mb-1">
+        <label
+          htmlFor="goal"
+          className="text-sm font-medium text-foreground mb-1"
+        >
           Fitness Goal
         </label>
         <select
@@ -210,7 +265,14 @@ export function ProfileForm({
           name="goal"
           value={form.goal}
           onChange={handleChange}
-          className="border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200"
+          className="
+            border-border
+            bg-input
+            text-foreground
+            rounded-[var(--radius)]
+            px-3 py-2
+            focus:outline-none focus:ring focus:ring-primary-300
+          "
         >
           <option value="fat_loss">Fat Loss</option>
           <option value="muscle_gain">Muscle Gain</option>
@@ -220,7 +282,10 @@ export function ProfileForm({
 
       {/* Activity Level */}
       <div className="flex flex-col">
-        <label htmlFor="activity_level" className="text-sm font-medium mb-1">
+        <label
+          htmlFor="activity_level"
+          className="text-sm font-medium text-foreground mb-1"
+        >
           Activity Level
         </label>
         <select
@@ -228,7 +293,14 @@ export function ProfileForm({
           name="activity_level"
           value={form.activity_level}
           onChange={handleChange}
-          className="border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200"
+          className="
+            border-border
+            bg-input
+            text-foreground
+            rounded-[var(--radius)]
+            px-3 py-2
+            focus:outline-none focus:ring focus:ring-primary-300
+          "
         >
           <option value="sedentary">Sedentary</option>
           <option value="moderate">Moderately Active</option>
@@ -238,7 +310,10 @@ export function ProfileForm({
 
       {/* Goal Weight (kg) */}
       <div className="flex flex-col">
-        <label htmlFor="goal_weight_kg" className="text-sm font-medium mb-1">
+        <label
+          htmlFor="goal_weight_kg"
+          className="text-sm font-medium text-foreground mb-1"
+        >
           Target Weight (kg) (optional)
         </label>
         <input
@@ -247,21 +322,30 @@ export function ProfileForm({
           type="number"
           value={form.goal_weight_kg}
           onChange={handleChange}
-          className="border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-200"
+          className="
+            border-border
+            bg-input
+            text-foreground
+            rounded-[var(--radius)]
+            px-3 py-2
+            focus:outline-none focus:ring focus:ring-primary-300
+          "
         />
       </div>
 
-      <button
+      <Button
         type="submit"
-        className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
+        variant="primary"
+        size="md"
         disabled={loading}
+        className="w-full"
       >
         {loading
           ? "Saving..."
           : initialData
           ? "Save Changes"
           : "Set Up Profile"}
-      </button>
+      </Button>
     </form>
   );
 }

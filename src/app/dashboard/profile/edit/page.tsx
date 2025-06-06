@@ -1,3 +1,4 @@
+// src/app/dashboard/profile/edit/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -6,11 +7,13 @@ import { supabase } from "@/lib/supabaseClient";
 import toast from "react-hot-toast";
 import { useUser } from "@/hooks/useUser";
 import { ProfileForm } from "@/components/ProfileForm";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
+import type { UserProfile } from "@/types/database";
 
 export default function EditProfilePage() {
   const { user, loading: userLoading } = useUser();
   const router = useRouter();
-  const [initialData, setInitialData] = useState(null);
+  const [initialData, setInitialData] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -37,7 +40,7 @@ export default function EditProfilePage() {
         return;
       }
 
-      setInitialData(data);
+      setInitialData(data as UserProfile);
       setLoading(false);
     };
 
@@ -46,8 +49,8 @@ export default function EditProfilePage() {
 
   if (userLoading || loading) {
     return (
-      <main className="min-h-screen flex items-center justify-center">
-        <div className="h-6 w-6 animate-spin rounded-full border-2 border-blue-500 border-t-transparent"></div>
+      <main className="flex items-center justify-center min-h-screen bg-background text-foreground">
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
       </main>
     );
   }
@@ -59,9 +62,20 @@ export default function EditProfilePage() {
   }
 
   return (
-    <main className="max-w-md mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-4">Edit Your Profile</h1>
-      <ProfileForm initialData={initialData} onSuccessRedirect="/dashboard" />
+    <main className="min-h-screen bg-background text-foreground p-4">
+      <div className="max-w-md mx-auto">
+        <Card>
+          <CardHeader>
+            <CardTitle>Edit Your Profile</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ProfileForm
+              initialData={initialData}
+              onSuccessRedirect="/dashboard"
+            />
+          </CardContent>
+        </Card>
+      </div>
     </main>
   );
 }

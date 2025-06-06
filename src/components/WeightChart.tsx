@@ -1,3 +1,4 @@
+// src/components/WeightChart.tsx
 "use client";
 
 import {
@@ -34,7 +35,7 @@ export default function WeightChart({ logs, goalWeight }: Props) {
         label: "Weight (kg)",
         data: sortedLogs.map((log) => log.weight_kg),
         fill: false,
-        borderColor: "#3B82F6", // Tailwind blue-500
+        borderColor: "hsl(var(--primary))", // uses primary from CSS vars
         tension: 0.25,
       },
       ...(goalWeight !== undefined
@@ -42,7 +43,7 @@ export default function WeightChart({ logs, goalWeight }: Props) {
             {
               label: "Goal Weight",
               data: sortedLogs.map(() => goalWeight),
-              borderColor: "#10B981",
+              borderColor: "hsl(var(--chart-2))", // uses chart-2 from CSS vars
               borderDash: [6, 6],
               pointRadius: 0,
               borderWidth: 2,

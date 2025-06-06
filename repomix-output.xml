@@ -1,0 +1,2286 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+.gitignore
+components.json
+eslint.config.mjs
+next.config.ts
+package.json
+postcss.config.mjs
+public/file.svg
+public/globe.svg
+public/next.svg
+public/vercel.svg
+public/window.svg
+README.md
+src/app/auth/login/page.tsx
+src/app/auth/signup/page.tsx
+src/app/dashboard/habits/page.tsx
+src/app/dashboard/layout.tsx
+src/app/dashboard/page.tsx
+src/app/dashboard/profile/edit/page.tsx
+src/app/dashboard/profile/setup/page.tsx
+src/app/dashboard/weight/page.tsx
+src/app/globals.css
+src/app/layout.tsx
+src/app/page.tsx
+src/components/MacroSummary.tsx
+src/components/ui/card.tsx
+src/components/WeightChart.tsx
+src/lib/supabaseClient.ts
+src/lib/utils.ts
+src/utils/calculateMacros.ts
+tailwind.config.ts
+tsconfig.json
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path=".gitignore">
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files (can opt-in for committing if needed)
+.env*
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+</file>
+
+<file path="components.json">
+{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "new-york",
+  "rsc": true,
+  "tsx": true,
+  "tailwind": {
+    "config": "tailwind.config.ts",
+    "css": "src/app/globals.css",
+    "baseColor": "neutral",
+    "cssVariables": true,
+    "prefix": ""
+  },
+  "aliases": {
+    "components": "@/components",
+    "utils": "@/lib/utils",
+    "ui": "@/components/ui",
+    "lib": "@/lib",
+    "hooks": "@/hooks"
+  },
+  "iconLibrary": "lucide"
+}
+</file>
+
+<file path="eslint.config.mjs">
+import { dirname } from "path";
+import { fileURLToPath } from "url";
+import { FlatCompat } from "@eslint/eslintrc";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const compat = new FlatCompat({
+  baseDirectory: __dirname,
+});
+
+const eslintConfig = [
+  ...compat.extends("next/core-web-vitals", "next/typescript"),
+];
+
+export default eslintConfig;
+</file>
+
+<file path="next.config.ts">
+import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = {
+  /* config options here */
+};
+
+export default nextConfig;
+</file>
+
+<file path="postcss.config.mjs">
+/** @type {import('postcss-load-config').Config} */
+const config = {
+  plugins: {
+    tailwindcss: {},
+  },
+};
+
+export default config;
+</file>
+
+<file path="public/file.svg">
+<svg fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path d="M14.5 13.5V5.41a1 1 0 0 0-.3-.7L9.8.29A1 1 0 0 0 9.08 0H1.5v13.5A2.5 2.5 0 0 0 4 16h8a2.5 2.5 0 0 0 2.5-2.5m-1.5 0v-7H8v-5H3v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1M9.5 5V2.12L12.38 5zM5.13 5h-.62v1.25h2.12V5zm-.62 3h7.12v1.25H4.5zm.62 3h-.62v1.25h7.12V11z" clip-rule="evenodd" fill="#666" fill-rule="evenodd"/></svg>
+</file>
+
+<file path="public/globe.svg">
+<svg fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><g clip-path="url(#a)"><path fill-rule="evenodd" clip-rule="evenodd" d="M10.27 14.1a6.5 6.5 0 0 0 3.67-3.45q-1.24.21-2.7.34-.31 1.83-.97 3.1M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m.48-1.52a7 7 0 0 1-.96 0H7.5a4 4 0 0 1-.84-1.32q-.38-.89-.63-2.08a40 40 0 0 0 3.92 0q-.25 1.2-.63 2.08a4 4 0 0 1-.84 1.31zm2.94-4.76q1.66-.15 2.95-.43a7 7 0 0 0 0-2.58q-1.3-.27-2.95-.43a18 18 0 0 1 0 3.44m-1.27-3.54a17 17 0 0 1 0 3.64 39 39 0 0 1-4.3 0 17 17 0 0 1 0-3.64 39 39 0 0 1 4.3 0m1.1-1.17q1.45.13 2.69.34a6.5 6.5 0 0 0-3.67-3.44q.65 1.26.98 3.1M8.48 1.5l.01.02q.41.37.84 1.31.38.89.63 2.08a40 40 0 0 0-3.92 0q.25-1.2.63-2.08a4 4 0 0 1 .85-1.32 7 7 0 0 1 .96 0m-2.75.4a6.5 6.5 0 0 0-3.67 3.44 29 29 0 0 1 2.7-.34q.31-1.83.97-3.1M4.58 6.28q-1.66.16-2.95.43a7 7 0 0 0 0 2.58q1.3.27 2.95.43a18 18 0 0 1 0-3.44m.17 4.71q-1.45-.12-2.69-.34a6.5 6.5 0 0 0 3.67 3.44q-.65-1.27-.98-3.1" fill="#666"/></g><defs><clipPath id="a"><path fill="#fff" d="M0 0h16v16H0z"/></clipPath></defs></svg>
+</file>
+
+<file path="public/next.svg">
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 394 80"><path fill="#000" d="M262 0h68.5v12.7h-27.2v66.6h-13.6V12.7H262V0ZM149 0v12.7H94v20.4h44.3v12.6H94v21h55v12.6H80.5V0h68.7zm34.3 0h-17.8l63.8 79.4h17.9l-32-39.7 32-39.6h-17.9l-23 28.6-23-28.6zm18.3 56.7-9-11-27.1 33.7h17.8l18.3-22.7z"/><path fill="#000" d="M81 79.3 17 0H0v79.3h13.6V17l50.2 62.3H81Zm252.6-.4c-1 0-1.8-.4-2.5-1s-1.1-1.6-1.1-2.6.3-1.8 1-2.5 1.6-1 2.6-1 1.8.3 2.5 1a3.4 3.4 0 0 1 .6 4.3 3.7 3.7 0 0 1-3 1.8zm23.2-33.5h6v23.3c0 2.1-.4 4-1.3 5.5a9.1 9.1 0 0 1-3.8 3.5c-1.6.8-3.5 1.3-5.7 1.3-2 0-3.7-.4-5.3-1s-2.8-1.8-3.7-3.2c-.9-1.3-1.4-3-1.4-5h6c.1.8.3 1.6.7 2.2s1 1.2 1.6 1.5c.7.4 1.5.5 2.4.5 1 0 1.8-.2 2.4-.6a4 4 0 0 0 1.6-1.8c.3-.8.5-1.8.5-3V45.5zm30.9 9.1a4.4 4.4 0 0 0-2-3.3 7.5 7.5 0 0 0-4.3-1.1c-1.3 0-2.4.2-3.3.5-.9.4-1.6 1-2 1.6a3.5 3.5 0 0 0-.3 4c.3.5.7.9 1.3 1.2l1.8 1 2 .5 3.2.8c1.3.3 2.5.7 3.7 1.2a13 13 0 0 1 3.2 1.8 8.1 8.1 0 0 1 3 6.5c0 2-.5 3.7-1.5 5.1a10 10 0 0 1-4.4 3.5c-1.8.8-4.1 1.2-6.8 1.2-2.6 0-4.9-.4-6.8-1.2-2-.8-3.4-2-4.5-3.5a10 10 0 0 1-1.7-5.6h6a5 5 0 0 0 3.5 4.6c1 .4 2.2.6 3.4.6 1.3 0 2.5-.2 3.5-.6 1-.4 1.8-1 2.4-1.7a4 4 0 0 0 .8-2.4c0-.9-.2-1.6-.7-2.2a11 11 0 0 0-2.1-1.4l-3.2-1-3.8-1c-2.8-.7-5-1.7-6.6-3.2a7.2 7.2 0 0 1-2.4-5.7 8 8 0 0 1 1.7-5 10 10 0 0 1 4.3-3.5c2-.8 4-1.2 6.4-1.2 2.3 0 4.4.4 6.2 1.2 1.8.8 3.2 2 4.3 3.4 1 1.4 1.5 3 1.5 5h-5.8z"/></svg>
+</file>
+
+<file path="public/vercel.svg">
+<svg fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1155 1000"><path d="m577.3 0 577.4 1000H0z" fill="#fff"/></svg>
+</file>
+
+<file path="public/window.svg">
+<svg fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path fill-rule="evenodd" clip-rule="evenodd" d="M1.5 2.5h13v10a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1zM0 1h16v11.5a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 0 12.5zm3.75 4.5a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5M7 4.75a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0m1.75.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5" fill="#666"/></svg>
+</file>
+
+<file path="src/app/auth/login/page.tsx">
+"use client";
+
+import { useState } from "react";
+import { supabase } from "@/lib/supabaseClient";
+import { useRouter } from "next/navigation";
+
+export default function Login() {
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    if (error) return setError(error.message);
+    router.push("/dashboard");
+  };
+
+  return (
+    <main className="flex flex-col items-center justify-center min-h-screen p-4">
+      <form
+        onSubmit={handleLogin}
+        className="flex flex-col gap-4 w-full max-w-sm"
+      >
+        <h2 className="text-2xl font-bold text-center">Log In</h2>
+        <input
+          className="border p-2 rounded"
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        <input
+          className="border p-2 rounded"
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+        {error && <p className="text-red-500 text-sm">{error}</p>}
+        <button className="bg-blue-500 text-white rounded p-2 hover:bg-blue-600">
+          Log In
+        </button>
+        <button
+          type="button"
+          onClick={() => router.push("/auth/signup")}
+          className="text-sm text-blue-600 hover:underline mt-2"
+        >
+          Don&apos;t have an account? Sign up
+        </button>
+      </form>
+    </main>
+  );
+}
+</file>
+
+<file path="src/app/auth/signup/page.tsx">
+"use client";
+
+import { useState } from "react";
+import { supabase } from "@/lib/supabaseClient";
+import { useRouter } from "next/navigation";
+
+export default function Signup() {
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
+  const handleSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const { error } = await supabase.auth.signUp({ email, password });
+    if (error) return setError(error.message);
+    router.push("/dashboard");
+  };
+
+  return (
+    <main className="flex flex-col items-center justify-center min-h-screen p-4">
+      <form
+        onSubmit={handleSignup}
+        className="flex flex-col gap-4 w-full max-w-sm"
+      >
+        <h2 className="text-2xl font-bold text-center">Sign Up</h2>
+        <input
+          className="border p-2 rounded"
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        <input
+          className="border p-2 rounded"
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+        {error && <p className="text-red-500 text-sm">{error}</p>}
+        <button className="bg-blue-500 text-white rounded p-2 hover:bg-blue-600">
+          Sign Up
+        </button>
+        <button
+          type="button"
+          onClick={() => router.push("/auth/login")}
+          className="text-sm text-blue-600 hover:underline mt-2"
+        >
+          Already have an account? Log in
+        </button>
+      </form>
+    </main>
+  );
+}
+</file>
+
+<file path="src/app/dashboard/habits/page.tsx">
+"use client";
+
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabaseClient";
+import toast from "react-hot-toast";
+
+type Habit = {
+  id: string;
+  title: string;
+  streak: number;
+};
+
+function getTodayDate(): string {
+  return new Date().toISOString().split("T")[0];
+}
+
+function calculateStreak(logDates: string[]): number {
+  const normalizedDates = logDates
+    .map((date) => new Date(date).toISOString().split("T")[0])
+    .sort((a, b) => (a > b ? -1 : 1));
+
+  let streak = 0;
+  const currentDate = new Date();
+
+  for (const dateString of normalizedDates) {
+    const expected = new Date(currentDate).toISOString().split("T")[0];
+    if (dateString === expected) {
+      streak++;
+      currentDate.setDate(currentDate.getDate() - 1);
+    } else {
+      break;
+    }
+  }
+
+  return streak;
+}
+
+export default function HabitsPage() {
+  const [habits, setHabits] = useState<Habit[]>([]);
+  const [completedHabitIds, setCompletedHabitIds] = useState<string[]>([]);
+  const [newHabit, setNewHabit] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  const fetchHabits = async () => {
+    setLoading(true);
+
+    const { data: habitsData, error: habitsError } = await supabase
+      .from("habits")
+      .select("*")
+      .order("created_at");
+
+    if (habitsError) {
+      console.error("Error fetching habits:", habitsError.message);
+      toast.error("Failed to load habits");
+      setLoading(false);
+      return;
+    }
+
+    const updatedHabits = await Promise.all(
+      (habitsData ?? []).map(async (habit) => {
+        const { data: logs, error: logError } = await supabase
+          .from("habit_logs")
+          .select("date")
+          .eq("habit_id", habit.id)
+          .eq("completed", true);
+
+        if (logError) {
+          console.error(
+            `Error fetching logs for habit ${habit.id}:`,
+            logError.message
+          );
+          return { ...habit, streak: 0 };
+        }
+
+        const logDates = logs?.map((log) => log.date) ?? [];
+        const streak = calculateStreak(logDates);
+
+        return {
+          id: habit.id,
+          title: habit.title,
+          streak,
+        };
+      })
+    );
+
+    setHabits(updatedHabits);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchHabits();
+  }, []);
+
+  useEffect(() => {
+    const fetchTodayLogs = async () => {
+      const today = getTodayDate();
+      const { data, error } = await supabase
+        .from("habit_logs")
+        .select("habit_id")
+        .eq("date", today)
+        .eq("completed", true);
+
+      if (error) {
+        console.error("Error fetching today's habit logs:", error.message);
+        toast.error("Failed to load today's logs");
+        return;
+      }
+
+      setCompletedHabitIds(data?.map((log) => log.habit_id) ?? []);
+    };
+
+    fetchTodayLogs();
+  }, []);
+
+  const addHabit = async () => {
+    if (!newHabit.trim()) return;
+
+    const user = (await supabase.auth.getUser()).data.user;
+    if (!user) return;
+
+    const { data, error } = await supabase
+      .from("habits")
+      .insert({ title: newHabit, user_id: user.id })
+      .select();
+
+    if (error) {
+      console.error("Error adding habit:", error.message);
+      toast.error("Failed to add habit");
+      return;
+    }
+
+    setHabits((prev) => [...prev, ...(data ?? [])]);
+    setNewHabit("");
+    toast.success("Habit added");
+  };
+
+  const handleCheck = async (habitId: string) => {
+    const today = getTodayDate();
+    const user = (await supabase.auth.getUser()).data.user;
+    if (!user) return;
+
+    const { error } = await supabase.from("habit_logs").insert({
+      habit_id: habitId,
+      user_id: user.id,
+      date: today,
+      completed: true,
+    });
+
+    if (error) {
+      console.error("Error checking off habit:", error.message);
+      toast.error("Failed to complete habit");
+      return;
+    }
+
+    setCompletedHabitIds((prev) => [...prev, habitId]);
+    fetchHabits();
+    toast.success("Habit completed!");
+  };
+
+  const handleDelete = async (habitId: string) => {
+    const { error } = await supabase.from("habits").delete().eq("id", habitId);
+
+    if (error) {
+      console.error("Error deleting habit:", error.message);
+      toast.error("Failed to delete habit");
+      return;
+    }
+
+    setHabits((prev) => prev.filter((h) => h.id !== habitId));
+    setCompletedHabitIds((prev) => prev.filter((id) => id !== habitId));
+    toast.success("Habit deleted");
+  };
+
+  return (
+    <main className="p-4 max-w-md mx-auto">
+      <h1 className="text-xl font-bold mb-4">Your Habits</h1>
+
+      {/* Add new habit */}
+      <div className="flex gap-2 mb-4">
+        <input
+          className="border p-2 rounded w-full"
+          placeholder="New habit"
+          value={newHabit}
+          onChange={(e) => setNewHabit(e.target.value)}
+        />
+        <button
+          onClick={addHabit}
+          className="bg-green-500 text-white px-4 rounded hover:bg-green-600"
+        >
+          Add
+        </button>
+      </div>
+
+      {/* Habit List */}
+
+      {loading ? (
+        <ul className="space-y-4">
+          {[...Array(3)].map((_, index) => (
+            <li
+              key={index}
+              className="flex items-center justify-between border-b py-2 animate-pulse"
+            >
+              <div className="flex flex-col gap-1 w-3/4">
+                <div className="h-4 bg-gray-300 rounded w-2/3"></div>
+                <div className="h-3 bg-gray-200 rounded w-1/4"></div>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="h-5 w-5 bg-gray-300 rounded"></div>
+                <div className="h-5 w-5 bg-gray-200 rounded"></div>
+              </div>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <ul>
+          {habits.map((habit) => {
+            const isCompleted = completedHabitIds.includes(habit.id);
+            return (
+              <li
+                key={habit.id}
+                className="flex items-center justify-between border-b py-2"
+              >
+                <span>
+                  {habit.title}
+                  <span className="text-sm text-gray-500 ml-2">
+                    🔥 {habit.streak}
+                  </span>
+                </span>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={isCompleted}
+                    disabled={isCompleted}
+                    onChange={() => handleCheck(habit.id)}
+                    className="w-5 h-5"
+                  />
+                  <button
+                    onClick={() => handleDelete(habit.id)}
+                    className="text-red-500 hover:text-red-700 text-sm"
+                    title="Delete habit"
+                  >
+                    🗑️
+                  </button>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </main>
+  );
+}
+</file>
+
+<file path="src/app/dashboard/weight/page.tsx">
+"use client";
+
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabaseClient";
+import toast from "react-hot-toast";
+import WeightChart from "@/components/WeightChart";
+
+type WeightLog = {
+  id: string;
+  date: string;
+  weight_kg: number;
+};
+
+export default function WeightTrackerPage() {
+  const [weight, setWeight] = useState("");
+  const [logs, setLogs] = useState<WeightLog[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingWeight, setEditingWeight] = useState("");
+  const [goalWeight, setGoalWeight] = useState<number | null>(null);
+
+  const fetchLogs = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("weight_logs")
+      .select("*")
+      .order("date", { ascending: false });
+
+    if (error) {
+      toast.error("Failed to load weight logs");
+      console.error(error.message);
+    } else {
+      setLogs(data || []);
+    }
+
+    setLoading(false);
+  };
+
+  const fetchGoalWeight = async () => {
+    const user = (await supabase.auth.getUser()).data.user;
+    if (!user) return;
+
+    const { data, error } = await supabase
+      .from("user_profiles")
+      .select("goal_weight_kg")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (error) {
+      console.error(error.message);
+    } else {
+      setGoalWeight(data?.goal_weight_kg ?? null);
+    }
+  };
+
+  const handleLog = async () => {
+    if (!weight.trim()) return;
+
+    const user = (await supabase.auth.getUser()).data.user;
+    if (!user) return;
+
+    const today = new Date().toISOString().split("T")[0];
+
+    const { data: existing, error: checkError } = await supabase
+      .from("weight_logs")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("date", today)
+      .maybeSingle();
+
+    if (checkError) {
+      toast.error("Error checking for existing entry");
+      console.error(checkError.message);
+      return;
+    }
+
+    if (existing) {
+      toast.error("You’ve already logged your weight for today.");
+      return;
+    }
+
+    const { error } = await supabase.from("weight_logs").insert({
+      user_id: user.id,
+      weight_kg: Number(weight),
+      date: today,
+    });
+
+    if (error) {
+      toast.error("Error saving weight log");
+      console.error(error.message);
+    } else {
+      toast.success("Weight logged!");
+      setWeight("");
+      fetchLogs();
+    }
+  };
+
+  const handleDelete = async (logId: string) => {
+    const { error } = await supabase
+      .from("weight_logs")
+      .delete()
+      .eq("id", logId);
+
+    if (error) {
+      toast.error("Failed to delete entry");
+      console.error(error.message);
+    } else {
+      toast.success("Entry deleted");
+      fetchLogs();
+    }
+  };
+
+  const handleUpdate = async () => {
+    if (!editingId || !editingWeight.trim()) return;
+
+    const { error } = await supabase
+      .from("weight_logs")
+      .update({ weight_kg: Number(editingWeight) })
+      .eq("id", editingId);
+
+    if (error) {
+      toast.error("Update failed");
+      console.error(error.message);
+    } else {
+      toast.success("Weight updated");
+      setEditingId(null);
+      setEditingWeight("");
+      fetchLogs();
+    }
+  };
+
+  useEffect(() => {
+    fetchLogs();
+    fetchGoalWeight();
+  }, []);
+
+  return (
+    <main className="max-w-md mx-auto p-6 space-y-6">
+      <div className="bg-white rounded-xl border shadow p-6 space-y-4">
+        <h1 className="text-2xl font-bold text-gray-900">Weight Tracker</h1>
+        <p className="text-sm text-gray-500">
+          Log your current weight to track your progress over time.
+        </p>
+
+        <div className="space-y-2">
+          <input
+            type="number"
+            inputMode="decimal"
+            value={weight}
+            onChange={(e) => setWeight(e.target.value)}
+            placeholder="Enter today’s weight (kg)"
+            className="w-full border p-3 rounded-lg text-sm"
+          />
+          <button
+            onClick={handleLog}
+            className="w-full bg-blue-600 text-white py-2 rounded-lg text-sm hover:bg-blue-700 transition"
+          >
+            Log Weight
+          </button>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-xl border shadow p-6">
+        <h2 className="text-lg font-semibold mb-3">Recent Logs</h2>
+        {loading ? (
+          <p className="text-sm text-gray-500">Loading...</p>
+        ) : logs.length === 0 ? (
+          <p className="text-sm text-gray-500">No logs yet.</p>
+        ) : (
+          <ul className="space-y-2">
+            {logs.map((log) => (
+              <li
+                key={log.id}
+                className="text-sm flex justify-between items-center border-b pb-1 text-gray-800"
+              >
+                <span>{log.date}</span>
+                <span className="flex items-center gap-2">
+                  {editingId === log.id ? (
+                    <>
+                      <input
+                        type="number"
+                        value={editingWeight}
+                        onChange={(e) => setEditingWeight(e.target.value)}
+                        className="w-20 text-sm border px-1 py-0.5 rounded"
+                      />
+                      <button
+                        onClick={handleUpdate}
+                        className="text-green-600 text-xs hover:text-green-800"
+                      >
+                        ✅
+                      </button>
+                      <button
+                        onClick={() => {
+                          setEditingId(null);
+                          setEditingWeight("");
+                        }}
+                        className="text-gray-400 text-xs hover:text-gray-600"
+                      >
+                        ❌
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <span className="font-semibold">{log.weight_kg} kg</span>
+                      <button
+                        onClick={() => {
+                          setEditingId(log.id);
+                          setEditingWeight(log.weight_kg.toString());
+                        }}
+                        className="text-blue-500 text-xs hover:text-blue-700"
+                        title="Edit entry"
+                      >
+                        ✏️
+                      </button>
+                      <button
+                        onClick={() => handleDelete(log.id)}
+                        className="text-red-500 text-xs hover:text-red-700"
+                        title="Delete entry"
+                      >
+                        🗑️
+                      </button>
+                    </>
+                  )}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      {logs.length >= 1 && (
+        <div className="bg-white rounded-xl border shadow p-6">
+          <h2 className="text-lg font-semibold mb-3">Progress Chart</h2>
+          <WeightChart logs={logs} goalWeight={goalWeight ?? undefined} />
+        </div>
+      )}
+    </main>
+  );
+}
+</file>
+
+<file path="src/app/page.tsx">
+import Image from "next/image";
+
+export default function Home() {
+  return (
+    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
+      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
+        <Image
+          className="dark:invert"
+          src="/next.svg"
+          alt="Next.js logo"
+          width={180}
+          height={38}
+          priority
+        />
+        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
+          <li className="mb-2">
+            Get started by editing{" "}
+            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
+              src/app/page.tsx
+            </code>
+            .
+          </li>
+          <li>Save and see your changes instantly.</li>
+        </ol>
+
+        <div className="flex gap-4 items-center flex-col sm:flex-row">
+          <a
+            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
+            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Image
+              className="dark:invert"
+              src="/vercel.svg"
+              alt="Vercel logomark"
+              width={20}
+              height={20}
+            />
+            Deploy now
+          </a>
+          <a
+            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
+            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Read our docs
+          </a>
+        </div>
+      </main>
+      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
+        <a
+          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
+          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <Image
+            aria-hidden
+            src="/file.svg"
+            alt="File icon"
+            width={16}
+            height={16}
+          />
+          Learn
+        </a>
+        <a
+          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
+          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <Image
+            aria-hidden
+            src="/window.svg"
+            alt="Window icon"
+            width={16}
+            height={16}
+          />
+          Examples
+        </a>
+        <a
+          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
+          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <Image
+            aria-hidden
+            src="/globe.svg"
+            alt="Globe icon"
+            width={16}
+            height={16}
+          />
+          Go to nextjs.org →
+        </a>
+      </footer>
+    </div>
+  );
+}
+</file>
+
+<file path="src/components/ui/card.tsx">
+import * as React from "react"
+
+import { cn } from "@/lib/utils"
+
+const Card = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn(
+      "rounded-xl border bg-card text-card-foreground shadow",
+      className
+    )}
+    {...props}
+  />
+))
+Card.displayName = "Card"
+
+const CardHeader = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn("flex flex-col space-y-1.5 p-6", className)}
+    {...props}
+  />
+))
+CardHeader.displayName = "CardHeader"
+
+const CardTitle = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn("font-semibold leading-none tracking-tight", className)}
+    {...props}
+  />
+))
+CardTitle.displayName = "CardTitle"
+
+const CardDescription = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn("text-sm text-muted-foreground", className)}
+    {...props}
+  />
+))
+CardDescription.displayName = "CardDescription"
+
+const CardContent = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div ref={ref} className={cn("p-6 pt-0", className)} {...props} />
+))
+CardContent.displayName = "CardContent"
+
+const CardFooter = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn("flex items-center p-6 pt-0", className)}
+    {...props}
+  />
+))
+CardFooter.displayName = "CardFooter"
+
+export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent }
+</file>
+
+<file path="src/components/WeightChart.tsx">
+"use client";
+
+import {
+  Chart as ChartJS,
+  LineElement,
+  PointElement,
+  CategoryScale,
+  LinearScale,
+  Tooltip,
+  TooltipItem,
+} from "chart.js";
+import { Line } from "react-chartjs-2";
+
+ChartJS.register(
+  LineElement,
+  PointElement,
+  CategoryScale,
+  LinearScale,
+  Tooltip
+);
+
+type Props = {
+  logs: { date: string; weight_kg: number }[];
+  goalWeight?: number;
+};
+
+export default function WeightChart({ logs, goalWeight }: Props) {
+  const sortedLogs = [...logs].sort((a, b) => a.date.localeCompare(b.date));
+
+  const data = {
+    labels: sortedLogs.map((log) => log.date),
+    datasets: [
+      {
+        label: "Weight (kg)",
+        data: sortedLogs.map((log) => log.weight_kg),
+        fill: false,
+        borderColor: "#3B82F6", // Tailwind blue-500
+        tension: 0.25,
+      },
+      ...(goalWeight !== undefined
+        ? [
+            {
+              label: "Goal Weight",
+              data: sortedLogs.map(() => goalWeight),
+              borderColor: "#10B981",
+              borderDash: [6, 6],
+              pointRadius: 0,
+              borderWidth: 2,
+              fill: false,
+            },
+          ]
+        : []),
+    ],
+  };
+
+  const options = {
+    responsive: true,
+    scales: {
+      y: {
+        beginAtZero: false,
+        ticks: {
+          precision: 0,
+        },
+      },
+    },
+    plugins: {
+      tooltip: {
+        callbacks: {
+          label: (ctx: TooltipItem<"line">) => `${ctx.parsed.y} kg`,
+        },
+      },
+    },
+  };
+
+  return <Line data={data} options={options} />;
+}
+</file>
+
+<file path="src/lib/supabaseClient.ts">
+import { createClient } from "@supabase/supabase-js";
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+</file>
+
+<file path="src/lib/utils.ts">
+import { clsx, type ClassValue } from "clsx"
+import { twMerge } from "tailwind-merge"
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs))
+}
+</file>
+
+<file path="src/utils/calculateMacros.ts">
+export type ProfileInput = {
+  age: number;
+  height_cm: number;
+  weight_kg: number;
+  sex: "male" | "female";
+  activity_level: "sedentary" | "moderate" | "active";
+  goal: "fat_loss" | "muscle_gain" | "recomp";
+};
+
+export type MacroOutput = {
+  bmr: number;
+  maintenanceCalories: number;
+  targetCalories: number;
+  proteinGrams: number;
+  fatGrams: number;
+  carbGrams: number;
+};
+
+export function calculateMacros(profile: ProfileInput): MacroOutput {
+  const { age, height_cm, weight_kg, sex, activity_level, goal } = profile;
+
+  // 1. BMR calculation (Mifflin-St Jeor)
+  const bmr =
+    sex === "male"
+      ? 10 * weight_kg + 6.25 * height_cm - 5 * age + 5
+      : 10 * weight_kg + 6.25 * height_cm - 5 * age - 161;
+
+  // 2. Activity multiplier
+  const activityMultipliers: Record<ProfileInput["activity_level"], number> = {
+    sedentary: 1.2,
+    moderate: 1.55,
+    active: 1.75,
+  };
+
+  const maintenanceCalories = Math.round(
+    bmr * activityMultipliers[activity_level]
+  );
+
+  // 3. Goal adjustment
+  const goalAdjustments: Record<ProfileInput["goal"], number> = {
+    fat_loss: 0.8,
+    recomp: 1.0,
+    muscle_gain: 1.1,
+  };
+
+  const targetCalories = Math.round(
+    maintenanceCalories * goalAdjustments[goal]
+  );
+
+  // 4. Macros
+  const proteinGrams = Math.round(2.2 * weight_kg); // ~1g/lb of bodyweight
+  const fatGrams = Math.round((targetCalories * 0.25) / 9);
+  const fatCalories = fatGrams * 9;
+  const proteinCalories = proteinGrams * 4;
+
+  const carbCalories = targetCalories - fatCalories - proteinCalories;
+  const carbGrams = Math.round(carbCalories / 4);
+
+  return {
+    bmr: Math.round(bmr),
+    maintenanceCalories,
+    targetCalories,
+    proteinGrams,
+    fatGrams,
+    carbGrams,
+  };
+}
+</file>
+
+<file path="tsconfig.json">
+{
+  "compilerOptions": {
+    "target": "ES2017",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
+}
+</file>
+
+<file path="src/app/dashboard/layout.tsx">
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import { supabase } from "@/lib/supabaseClient";
+import Link from "next/link";
+import toast from "react-hot-toast";
+
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const [checkingProfile, setCheckingProfile] = useState(true);
+
+  useEffect(() => {
+    const checkAuthAndProfile = async () => {
+      const { data: userData } = await supabase.auth.getUser();
+      const user = userData?.user;
+
+      if (!user) {
+        router.push("/auth/login");
+        return;
+      }
+
+      const { data: profile, error } = await supabase
+        .from("user_profiles")
+        .select("user_id")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (error) {
+        console.error("Error checking profile:", error.message);
+        toast.error("Error checking profile.");
+        return;
+      }
+
+      if (!profile && pathname !== "/dashboard/profile/setup") {
+        router.push("/dashboard/profile/setup");
+      } else {
+        setCheckingProfile(false);
+      }
+    };
+
+    checkAuthAndProfile();
+  }, [router, pathname]);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.push("/auth/login");
+  };
+
+  const navLinks = [
+    { href: "/dashboard", label: "Dashboard" },
+    { href: "/dashboard/habits", label: "Habits" },
+    { href: "/dashboard/profile/edit", label: "Edit Profile" },
+  ];
+
+  if (checkingProfile) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-blue-500 border-t-transparent"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen flex flex-col bg-white text-gray-900">
+      <nav className="border-b bg-white px-6 py-4 shadow-sm flex items-center justify-between">
+        <h1 className="text-xl font-bold tracking-tight text-blue-600">
+          optimize.ai
+        </h1>
+
+        <div className="flex items-center gap-6">
+          <ul className="flex gap-6">
+            {navLinks.map((link) => (
+              <li key={link.href}>
+                <Link
+                  href={link.href}
+                  className={`text-sm font-medium ${
+                    pathname === link.href
+                      ? "text-blue-600 border-b-2 border-blue-600 pb-1"
+                      : "text-gray-600 hover:text-blue-600 hover:border-b-2 hover:border-blue-300 pb-1"
+                  } transition-all`}
+                >
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+
+          <button
+            onClick={handleLogout}
+            className="text-sm text-red-500 hover:text-red-600 font-medium border border-red-300 px-3 py-1 rounded hover:bg-red-50 transition"
+          >
+            Log Out
+          </button>
+        </div>
+      </nav>
+
+      <main className="p-6">{children}</main>
+    </div>
+  );
+}
+</file>
+
+<file path="src/app/dashboard/page.tsx">
+"use client";
+
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabaseClient";
+import { useRouter } from "next/navigation";
+import MacroSummary from "@/components/MacroSummary";
+
+export default function DashboardPage() {
+  const router = useRouter();
+  const [loading, setLoading] = useState(true);
+  const [userName, setUserName] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadUserProfile = async () => {
+      const { data: authData, error: authError } =
+        await supabase.auth.getUser();
+      const user = authData?.user;
+
+      if (authError || !user) {
+        router.push("/auth/login");
+        return;
+      }
+
+      const { data: profile, error: profileError } = await supabase
+        .from("user_profiles")
+        .select("name")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (profileError) {
+        console.error("Failed to load profile name:", profileError.message);
+        setUserName("User");
+      } else {
+        setUserName(profile?.name ?? "User");
+      }
+
+      setLoading(false);
+    };
+
+    loadUserProfile();
+  }, [router]);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.push("/auth/login");
+  };
+
+  if (loading) {
+    return (
+      <main className="p-4 text-center text-gray-500">
+        Loading your dashboard...
+      </main>
+    );
+  }
+
+  return (
+    <div className="min-h-screen flex flex-col">
+      <main className="max-w-3xl mx-auto p-6 space-y-6 flex-grow">
+        {/* Greeting & Logout */}
+        <div className="flex justify-between items-center bg-white border shadow-sm rounded-xl px-6 py-4">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">
+              Welcome back, {userName} 👋
+            </h1>
+            <p className="text-sm text-gray-500">
+              Here&apos;s your progress and targets.
+            </p>
+          </div>
+          <button
+            onClick={handleLogout}
+            className="text-sm bg-red-500 text-white px-3 py-1.5 rounded-lg hover:bg-red-600 transition"
+          >
+            Log Out
+          </button>
+        </div>
+
+        {/* Macro Summary */}
+        <MacroSummary />
+
+        {/* Future modules go here */}
+        {/* <YourNextModule /> */}
+      </main>
+    </div>
+  );
+}
+</file>
+
+<file path="src/components/MacroSummary.tsx">
+"use client";
+
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabaseClient";
+import {
+  calculateMacros,
+  type MacroOutput,
+  type ProfileInput,
+} from "@/utils/calculateMacros";
+import toast from "react-hot-toast";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+
+export default function MacroSummary() {
+  const [macros, setMacros] = useState<MacroOutput | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadProfileAndCalculate = async () => {
+      const { data: userData } = await supabase.auth.getUser();
+      const user = userData?.user;
+      if (!user) return;
+
+      const { data: profile, error } = await supabase
+        .from("user_profiles")
+        .select("*")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (error || !profile) {
+        toast.error("Failed to load profile.");
+        return;
+      }
+
+      const formattedProfile: ProfileInput = {
+        age: profile.age,
+        height_cm: profile.height_cm,
+        weight_kg: profile.weight_kg,
+        sex: profile.sex,
+        goal: profile.goal,
+        activity_level: profile.activity_level || "moderate",
+      };
+
+      const result = calculateMacros(formattedProfile);
+      setMacros(result);
+      setLoading(false);
+    };
+
+    loadProfileAndCalculate();
+  }, []);
+
+  if (loading || !macros) {
+    return (
+      <Card className="w-full max-w-md mx-auto animate-pulse">
+        <CardHeader>
+          <CardTitle>Calculating Macros...</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-gray-500">Loading profile data...</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="w-full max-w-md mx-auto shadow-md">
+      <CardHeader>
+        <CardTitle>Macro Breakdown</CardTitle>
+      </CardHeader>
+      <CardContent className="grid grid-cols-2 gap-y-2 text-sm">
+        <div className="font-medium text-gray-700">BMR:</div>
+        <div>{macros.bmr} kcal</div>
+
+        <div className="font-medium text-gray-700">Maintenance:</div>
+        <div>{macros.maintenanceCalories} kcal</div>
+
+        <div className="font-medium text-gray-700">Target Calories:</div>
+        <div>{macros.targetCalories} kcal</div>
+
+        <div className="font-medium text-gray-700">Protein:</div>
+        <div>{macros.proteinGrams} g</div>
+
+        <div className="font-medium text-gray-700">Fat:</div>
+        <div>{macros.fatGrams} g</div>
+
+        <div className="font-medium text-gray-700">Carbs:</div>
+        <div>{macros.carbGrams} g</div>
+      </CardContent>
+    </Card>
+  );
+}
+</file>
+
+<file path="tailwind.config.ts">
+import type { Config } from "tailwindcss";
+
+export default {
+    darkMode: ["class"],
+    content: [
+    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+  ],
+  theme: {
+  	extend: {
+  		colors: {
+  			background: 'hsl(var(--background))',
+  			foreground: 'hsl(var(--foreground))',
+  			card: {
+  				DEFAULT: 'hsl(var(--card))',
+  				foreground: 'hsl(var(--card-foreground))'
+  			},
+  			popover: {
+  				DEFAULT: 'hsl(var(--popover))',
+  				foreground: 'hsl(var(--popover-foreground))'
+  			},
+  			primary: {
+  				DEFAULT: 'hsl(var(--primary))',
+  				foreground: 'hsl(var(--primary-foreground))'
+  			},
+  			secondary: {
+  				DEFAULT: 'hsl(var(--secondary))',
+  				foreground: 'hsl(var(--secondary-foreground))'
+  			},
+  			muted: {
+  				DEFAULT: 'hsl(var(--muted))',
+  				foreground: 'hsl(var(--muted-foreground))'
+  			},
+  			accent: {
+  				DEFAULT: 'hsl(var(--accent))',
+  				foreground: 'hsl(var(--accent-foreground))'
+  			},
+  			destructive: {
+  				DEFAULT: 'hsl(var(--destructive))',
+  				foreground: 'hsl(var(--destructive-foreground))'
+  			},
+  			border: 'hsl(var(--border))',
+  			input: 'hsl(var(--input))',
+  			ring: 'hsl(var(--ring))',
+  			chart: {
+  				'1': 'hsl(var(--chart-1))',
+  				'2': 'hsl(var(--chart-2))',
+  				'3': 'hsl(var(--chart-3))',
+  				'4': 'hsl(var(--chart-4))',
+  				'5': 'hsl(var(--chart-5))'
+  			}
+  		},
+  		borderRadius: {
+  			lg: 'var(--radius)',
+  			md: 'calc(var(--radius) - 2px)',
+  			sm: 'calc(var(--radius) - 4px)'
+  		}
+  	}
+  },
+  plugins: [require("tailwindcss-animate")],
+} satisfies Config;
+</file>
+
+<file path="README.md">
+# optimize.ai 🧠⚡
+
+A self-improvement web app built with **Next.js**, **Supabase**, and **Tailwind CSS**.  
+Track your habits, meal plans, and workouts — all in one place.
+
+---
+
+## 🚀 Features
+
+- ✅ User authentication (Supabase Auth)
+- 🔄 Habit tracker with daily check-offs and streaks
+- 🔔 Toast notifications for actions
+- 💨 Skeleton loaders for smooth UX
+- 📦 Supabase integration for real-time data
+- 🧠 Plans for meal tracking, workout planning, and more
+
+---
+
+## 🖥️ Tech Stack
+
+- [Next.js (App Router)](https://nextjs.org/)
+- [Supabase](https://supabase.com/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [react-hot-toast](https://react-hot-toast.com/)
+- TypeScript
+
+---
+
+## 📸 Screenshots
+
+Coming soon!
+
+---
+
+## 🛠️ Local Development
+
+1. Clone the repo
+
+   ```bash
+   git clone https://github.com/YOUR_USERNAME/optimize-ai.git
+   cd optimize-ai
+   ```
+
+2. Install dependencies
+
+   ```bash
+   npm install
+   ```
+
+3. Set up Supabase:
+
+   - Create a project at [supabase.com](https://supabase.com)
+   - Copy your API keys into an `.env.local` file:
+     ```
+     NEXT_PUBLIC_SUPABASE_URL=your-url
+     NEXT_PUBLIC_SUPABASE_ANON_KEY=your-key
+     ```
+
+4. Run the dev server
+   ```bash
+   npm run dev
+   ```
+
+---
+
+## ✅ To Do (Future Features)
+
+- [ ] Meal planner with macro targets
+- [ ] Workout routine builder
+- [ ] Calendar view for habit logs
+- [ ] Dark mode
+- [ ] Settings & profile
+
+---
+
+## 📄 License
+
+MIT — use this freely to build your own system of discipline and progress.
+</file>
+
+<file path="src/app/dashboard/profile/edit/page.tsx">
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabaseClient";
+import toast from "react-hot-toast";
+
+export default function EditProfilePage() {
+  const router = useRouter();
+
+  const [form, setForm] = useState({
+    name: "",
+    age: "",
+    height_cm: "",
+    weight_kg: "",
+    sex: "male",
+    goal: "fat_loss",
+    activity_level: "moderate",
+    goal_weight_kg: "",
+  });
+
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      const user = (await supabase.auth.getUser()).data.user;
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from("user_profiles")
+        .select(
+          "name, age, height_cm, weight_kg, sex, goal, activity_level, goal_weight_kg"
+        )
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (error || !data) {
+        toast.error("Failed to load profile");
+        setLoading(false);
+        return;
+      }
+
+      setForm({
+        name: data.name ?? "",
+        age: data.age.toString(),
+        height_cm: data.height_cm.toString(),
+        weight_kg: data.weight_kg.toString(),
+        sex: data.sex,
+        goal: data.goal,
+        activity_level: data.activity_level,
+        goal_weight_kg: data.goal_weight_kg?.toString() ?? "",
+      });
+
+      setLoading(false);
+    };
+
+    fetchProfile();
+  }, []);
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const user = (await supabase.auth.getUser()).data.user;
+    if (!user) return;
+
+    const { error } = await supabase
+      .from("user_profiles")
+      .update({
+        name: form.name,
+        age: Number(form.age),
+        height_cm: Number(form.height_cm),
+        weight_kg: Number(form.weight_kg),
+        sex: form.sex,
+        goal: form.goal,
+        activity_level: form.activity_level,
+        goal_weight_kg: form.goal_weight_kg
+          ? Number(form.goal_weight_kg)
+          : null,
+      })
+      .eq("user_id", user.id);
+
+    if (error) {
+      console.error(error.message);
+      toast.error("Failed to update profile");
+      return;
+    }
+
+    toast.success("Profile updated!");
+    router.push("/dashboard");
+  };
+
+  if (loading) {
+    return (
+      <main className="min-h-screen flex items-center justify-center">
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-blue-500 border-t-transparent"></div>
+      </main>
+    );
+  }
+
+  return (
+    <main className="max-w-md mx-auto p-6">
+      <h1 className="text-2xl font-bold mb-4">Edit Your Profile</h1>
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium">Name</label>
+          <input
+            name="name"
+            value={form.name}
+            onChange={handleChange}
+            type="text"
+            required
+            className="w-full border p-2 rounded"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium">Age</label>
+          <input
+            name="age"
+            value={form.age}
+            onChange={handleChange}
+            type="number"
+            required
+            className="w-full border p-2 rounded"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium">Height (cm)</label>
+          <input
+            name="height_cm"
+            value={form.height_cm}
+            onChange={handleChange}
+            type="number"
+            required
+            className="w-full border p-2 rounded"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium">Weight (kg)</label>
+          <input
+            name="weight_kg"
+            value={form.weight_kg}
+            onChange={handleChange}
+            type="number"
+            required
+            className="w-full border p-2 rounded"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium">Goal Weight (kg)</label>
+          <input
+            name="goal_weight_kg"
+            value={form.goal_weight_kg}
+            onChange={handleChange}
+            type="number"
+            className="w-full border p-2 rounded"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium">Sex</label>
+          <select
+            name="sex"
+            value={form.sex}
+            onChange={handleChange}
+            className="w-full border p-2 rounded"
+          >
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium">Goal</label>
+          <select
+            name="goal"
+            value={form.goal}
+            onChange={handleChange}
+            className="w-full border p-2 rounded"
+          >
+            <option value="fat_loss">Fat Loss</option>
+            <option value="muscle_gain">Muscle Gain</option>
+            <option value="recomp">Body Recomp</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium">Activity Level</label>
+          <select
+            name="activity_level"
+            value={form.activity_level}
+            onChange={handleChange}
+            className="w-full border p-2 rounded"
+          >
+            <option value="sedentary">Sedentary</option>
+            <option value="moderate">Moderate</option>
+            <option value="active">Active</option>
+          </select>
+        </div>
+
+        <button
+          type="submit"
+          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
+        >
+          Save Changes
+        </button>
+      </form>
+    </main>
+  );
+}
+</file>
+
+<file path="src/app/dashboard/profile/setup/page.tsx">
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabaseClient";
+import toast from "react-hot-toast";
+
+export default function SetupProfilePage() {
+  const router = useRouter();
+
+  const [form, setForm] = useState({
+    name: "",
+    age: "",
+    height_cm: "",
+    weight_kg: "",
+    sex: "male",
+    goal: "fat_loss",
+    activity_level: "moderate",
+    goal_weight_kg: "",
+  });
+
+  const [checking, setChecking] = useState(true);
+
+  useEffect(() => {
+    const checkProfile = async () => {
+      const { data: userData } = await supabase.auth.getUser();
+      const user = userData?.user;
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from("user_profiles")
+        .select(
+          "name, age, height_cm, weight_kg, sex, goal, activity_level, goal_weight_kg"
+        )
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (error) {
+        console.error("Error checking profile:", error.message);
+        toast.error("Could not check user profile.");
+        return;
+      }
+
+      if (data) {
+        setForm({
+          name: data.name ?? "",
+          age: data.age.toString(),
+          height_cm: data.height_cm.toString(),
+          weight_kg: data.weight_kg.toString(),
+          sex: data.sex,
+          goal: data.goal,
+          activity_level: data.activity_level,
+          goal_weight_kg: data.goal_weight_kg?.toString() ?? "",
+        });
+        router.push("/dashboard");
+      } else {
+        setChecking(false); // No profile exists, show the form
+      }
+    };
+
+    checkProfile();
+  }, [router]);
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const user = (await supabase.auth.getUser()).data.user;
+    if (!user) return;
+
+    const { error } = await supabase.from("user_profiles").insert({
+      user_id: user.id,
+      name: form.name,
+      age: Number(form.age),
+      height_cm: Number(form.height_cm),
+      weight_kg: Number(form.weight_kg),
+      sex: form.sex,
+      goal: form.goal,
+      activity_level: form.activity_level,
+      goal_weight_kg: form.goal_weight_kg ? Number(form.goal_weight_kg) : null,
+    });
+
+    if (error) {
+      console.error(error.message);
+      toast.error("Failed to save profile");
+      return;
+    }
+
+    toast.success("Profile saved!");
+    router.push("/dashboard");
+  };
+
+  if (checking) {
+    return (
+      <main className="min-h-screen flex items-center justify-center">
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-blue-500 border-t-transparent"></div>
+      </main>
+    );
+  }
+
+  return (
+    <main className="max-w-md mx-auto p-6">
+      <h1 className="text-2xl font-bold mb-4">Set Up Your Profile</h1>
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium">Name</label>
+          <input
+            name="name"
+            value={form.name}
+            onChange={handleChange}
+            type="text"
+            required
+            className="w-full border p-2 rounded"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium">Age</label>
+          <input
+            name="age"
+            value={form.age}
+            onChange={handleChange}
+            type="number"
+            required
+            className="w-full border p-2 rounded"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium">Height (cm)</label>
+          <input
+            name="height_cm"
+            value={form.height_cm}
+            onChange={handleChange}
+            type="number"
+            required
+            className="w-full border p-2 rounded"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium">Weight (kg)</label>
+          <input
+            name="weight_kg"
+            value={form.weight_kg}
+            onChange={handleChange}
+            type="number"
+            required
+            className="w-full border p-2 rounded"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium">Goal Weight (kg)</label>
+          <input
+            name="goal_weight_kg"
+            value={form.goal_weight_kg}
+            onChange={handleChange}
+            type="number"
+            className="w-full border p-2 rounded"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium">Sex</label>
+          <select
+            name="sex"
+            value={form.sex}
+            onChange={handleChange}
+            className="w-full border p-2 rounded"
+          >
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium">Goal</label>
+          <select
+            name="goal"
+            value={form.goal}
+            onChange={handleChange}
+            className="w-full border p-2 rounded"
+          >
+            <option value="fat_loss">Fat Loss</option>
+            <option value="muscle_gain">Muscle Gain</option>
+            <option value="recomp">Body Recomp</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium">Activity Level</label>
+          <select
+            name="activity_level"
+            value={form.activity_level}
+            onChange={handleChange}
+            className="w-full border p-2 rounded"
+          >
+            <option value="sedentary">Sedentary</option>
+            <option value="moderate">Moderate</option>
+            <option value="active">Active</option>
+          </select>
+        </div>
+
+        <button
+          type="submit"
+          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
+        >
+          Save Profile
+        </button>
+      </form>
+    </main>
+  );
+}
+</file>
+
+<file path="src/app/globals.css">
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+
+@layer base {
+  :root {
+
+    --background: 0 0% 100%;
+
+    --foreground: 0 0% 3.9%;
+
+    --card: 0 0% 100%;
+
+    --card-foreground: 0 0% 3.9%;
+
+    --popover: 0 0% 100%;
+
+    --popover-foreground: 0 0% 3.9%;
+
+    --primary: 0 0% 9%;
+
+    --primary-foreground: 0 0% 98%;
+
+    --secondary: 0 0% 96.1%;
+
+    --secondary-foreground: 0 0% 9%;
+
+    --muted: 0 0% 96.1%;
+
+    --muted-foreground: 0 0% 45.1%;
+
+    --accent: 0 0% 96.1%;
+
+    --accent-foreground: 0 0% 9%;
+
+    --destructive: 0 84.2% 60.2%;
+
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 89.8%;
+
+    --input: 0 0% 89.8%;
+
+    --ring: 0 0% 3.9%;
+
+    --chart-1: 12 76% 61%;
+
+    --chart-2: 173 58% 39%;
+
+    --chart-3: 197 37% 24%;
+
+    --chart-4: 43 74% 66%;
+
+    --chart-5: 27 87% 67%;
+
+    --radius: 0.5rem
+  }
+  .dark {
+
+    --background: 0 0% 3.9%;
+
+    --foreground: 0 0% 98%;
+
+    --card: 0 0% 3.9%;
+
+    --card-foreground: 0 0% 98%;
+
+    --popover: 0 0% 3.9%;
+
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 0 0% 98%;
+
+    --primary-foreground: 0 0% 9%;
+
+    --secondary: 0 0% 14.9%;
+
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 0 0% 14.9%;
+
+    --muted-foreground: 0 0% 63.9%;
+
+    --accent: 0 0% 14.9%;
+
+    --accent-foreground: 0 0% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 14.9%;
+
+    --input: 0 0% 14.9%;
+
+    --ring: 0 0% 83.1%;
+
+    --chart-1: 220 70% 50%;
+
+    --chart-2: 160 60% 45%;
+
+    --chart-3: 30 80% 55%;
+
+    --chart-4: 280 65% 60%;
+
+    --chart-5: 340 75% 55%
+  }
+}
+
+
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+</file>
+
+<file path="src/app/layout.tsx">
+import type { Metadata } from "next";
+import { Geist, Geist_Mono } from "next/font/google";
+import "./globals.css";
+import { Toaster } from "react-hot-toast";
+
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+export const metadata: Metadata = {
+  title: "Optimize AI",
+  description: "Your personal self-improvement hub",
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="en">
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-gradient-to-br from-gray-100 via-white to-gray-200 text-gray-900`}
+      >
+        <Toaster position="top-right" />
+        {children}
+      </body>
+    </html>
+  );
+}
+</file>
+
+<file path="package.json">
+{
+  "name": "optimize-ai",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.49.8",
+    "chart.js": "^4.4.9",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.513.0",
+    "next": "^15.3.2",
+    "react": "^19.0.0",
+    "react-chartjs-2": "^5.3.0",
+    "react-dom": "^19.0.0",
+    "react-hot-toast": "^2.5.2",
+    "tailwind-merge": "^3.3.0",
+    "tailwindcss-animate": "^1.0.7"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "15.1.8",
+    "postcss": "^8",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5"
+  }
+}
+</file>
+
+</files>

@@ -1,54 +1,43 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
-import {
-  calculateMacros,
-  type MacroOutput,
-  type ProfileInput,
-} from "@/utils/calculateMacros";
-import toast from "react-hot-toast";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { useUser } from "@/hooks/useUser";
+import { useMacros } from "@/hooks/useMacros";
 
 export default function MacroSummary() {
-  const [macros, setMacros] = useState<MacroOutput | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { user, loading: userLoading } = useUser();
+  const { macros, loading: macrosLoading } = useMacros();
 
-  useEffect(() => {
-    const loadProfileAndCalculate = async () => {
-      const { data: userData } = await supabase.auth.getUser();
-      const user = userData?.user;
-      if (!user) return;
+  // 1) Wait for auth check
+  if (userLoading) {
+    return (
+      <Card className="w-full max-w-md mx-auto animate-pulse">
+        <CardHeader>
+          <CardTitle>Calculating Macros...</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-gray-500">Checking authentication...</p>
+        </CardContent>
+      </Card>
+    );
+  }
 
-      const { data: profile, error } = await supabase
-        .from("user_profiles")
-        .select("*")
-        .eq("user_id", user.id)
-        .maybeSingle();
+  // 2) If not logged in, show placeholder (this component should only be rendered on dashboard once guard passes)
+  if (!user) {
+    return (
+      <Card className="w-full max-w-md mx-auto animate-pulse">
+        <CardHeader>
+          <CardTitle>Calculating Macros...</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-gray-500">Waiting for login...</p>
+        </CardContent>
+      </Card>
+    );
+  }
 
-      if (error || !profile) {
-        toast.error("Failed to load profile.");
-        return;
-      }
-
-      const formattedProfile: ProfileInput = {
-        age: profile.age,
-        height_cm: profile.height_cm,
-        weight_kg: profile.weight_kg,
-        sex: profile.sex,
-        goal: profile.goal,
-        activity_level: profile.activity_level || "moderate",
-      };
-
-      const result = calculateMacros(formattedProfile);
-      setMacros(result);
-      setLoading(false);
-    };
-
-    loadProfileAndCalculate();
-  }, []);
-
-  if (loading || !macros) {
+  // 3) While macros are loading (or not yet available), show skeleton
+  if (macrosLoading || !macros) {
     return (
       <Card className="w-full max-w-md mx-auto animate-pulse">
         <CardHeader>
@@ -61,6 +50,7 @@ export default function MacroSummary() {
     );
   }
 
+  // 4) Display final macro values
   return (
     <Card className="w-full max-w-md mx-auto shadow-md">
       <CardHeader>

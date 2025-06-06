@@ -1,26 +1,28 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
 import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabaseClient";
+import { useUser } from "@/hooks/useUser";
 import MacroSummary from "@/components/MacroSummary";
 
 export default function DashboardPage() {
+  const { user, loading: userLoading } = useUser();
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
-  const [userName, setUserName] = useState<string | null>(null);
+  const [userName, setUserName] = useState<string>("");
 
+  // Redirect if not logged in
   useEffect(() => {
-    const loadUserProfile = async () => {
-      const { data: authData, error: authError } =
-        await supabase.auth.getUser();
-      const user = authData?.user;
+    if (userLoading) return;
+    if (!user) {
+      router.push("/auth/login");
+    }
+  }, [user, userLoading, router]);
 
-      if (authError || !user) {
-        router.push("/auth/login");
-        return;
-      }
-
+  // Fetch profile name once we have a user
+  useEffect(() => {
+    if (!user) return;
+    const loadProfileName = async () => {
       const { data: profile, error: profileError } = await supabase
         .from("user_profiles")
         .select("name")
@@ -33,25 +35,23 @@ export default function DashboardPage() {
       } else {
         setUserName(profile?.name ?? "User");
       }
-
-      setLoading(false);
     };
+    loadProfileName();
+  }, [user]);
 
-    loadUserProfile();
-  }, [router]);
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    router.push("/auth/login");
-  };
-
-  if (loading) {
+  // While checking auth or loading name, show a loading state
+  if (userLoading || !user || !userName) {
     return (
       <main className="p-4 text-center text-gray-500">
         Loading your dashboard...
       </main>
     );
   }
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.push("/auth/login");
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -78,7 +78,7 @@ export default function DashboardPage() {
         <MacroSummary />
 
         {/* Future modules go here */}
-        {/* <YourNextModule /> */}
+        {/* e.g., <YourNextModule /> */}
       </main>
     </div>
   );

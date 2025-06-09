@@ -63,6 +63,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const navLinks = [
     { href: "/dashboard", label: "Dashboard" },
     { href: "/dashboard/habits", label: "Habits" },
+    { href: "/dashboard/workouts", label: "Workouts" },
     { href: "/dashboard/weight", label: "Weight" },
     { href: "/dashboard/macros/history", label: "Macro History" },
     { href: "/dashboard/profile/edit", label: "Edit Profile" },

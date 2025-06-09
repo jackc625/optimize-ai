@@ -18,7 +18,11 @@ export default function MacroSummary() {
   const { user, loading: userLoading } = useUser();
   const { macros, loading: macrosLoading, refresh } = useMacros();
 
-  // Local state for editable fields (all strings so that inputs remain controlled)
+  // Formatter: rounds finite numbers, or returns a dash
+  const fmt = (n: number | undefined) =>
+    Number.isFinite(n ?? NaN) ? Math.round(n as number).toString() : "—";
+
+  // Local state for editable override fields
   const [targetCalories, setTargetCalories] = useState("");
   const [proteinGrams, setProteinGrams] = useState("");
   const [fatGrams, setFatGrams] = useState("");
@@ -31,10 +35,10 @@ export default function MacroSummary() {
   // When macros arrive, populate override fields:
   useEffect(() => {
     if (macros) {
-      setTargetCalories(macros.targetCalories.toString());
-      setProteinGrams(macros.proteinGrams.toString());
-      setFatGrams(macros.fatGrams.toString());
-      setCarbGrams(macros.carbGrams.toString());
+      setTargetCalories(fmt(macros.targetCalories));
+      setProteinGrams(fmt(macros.proteinGrams));
+      setFatGrams(fmt(macros.fatGrams));
+      setCarbGrams(fmt(macros.carbGrams));
     }
   }, [macros]);
 
@@ -160,11 +164,11 @@ export default function MacroSummary() {
       <CardContent className="grid grid-cols-2 gap-3 text-sm text-foreground">
         {/* BMR (read-only display) */}
         <div className="font-medium">BMR (kcal):</div>
-        <div>{macros.bmr}</div>
+        <div>{fmt(macros.bmr)}</div>
 
         {/* Maintenance (read-only display) */}
         <div className="font-medium">Maintenance (kcal):</div>
-        <div>{macros.maintenanceCalories}</div>
+        <div>{fmt(macros.maintenanceCalories)}</div>
 
         {/* Target Calories (editable) */}
         <div className="font-medium">Target Calories (kcal):</div>

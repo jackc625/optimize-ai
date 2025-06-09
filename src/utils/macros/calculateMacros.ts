@@ -3,21 +3,32 @@ import { calculateTDEE } from "./calculateTDEE";
 import { getMacroSplit } from "./getMacroSplit";
 
 export function calculateMacros(params: ProfileInput): MacroOutput {
+  // 1) baseline
   const bmr = calculateBMR(
     params.weightKg,
     params.heightCm,
     params.age,
     params.sex
   );
-  const tdee = calculateTDEE(bmr, params.activityLevel);
+  const maintenanceCalories = calculateTDEE(bmr, params.activityLevel);
 
-  let calories = tdee;
-  if (params.goal === "fat_loss") calories -= 400;
-  if (params.goal === "muscle_gain") calories += 250;
+  // 2) adjust for goal
+  let targetCalories = maintenanceCalories;
+  if (params.goal === "fat_loss") targetCalories -= 400;
+  if (params.goal === "muscle_gain") targetCalories += 250;
 
-  const { protein, fat, carbs } = getMacroSplit(calories, params.goal);
+  // 3) split macros
+  const { protein, fat, carbs } = getMacroSplit(targetCalories, params.goal);
 
-  return { calories, protein, fat, carbs };
+  // 4) return everything
+  return {
+    bmr,
+    maintenanceCalories,
+    targetCalories,
+    proteinGrams: protein,
+    fatGrams: fat,
+    carbGrams: carbs,
+  };
 }
 
 export type ProfileInput = {
@@ -30,8 +41,10 @@ export type ProfileInput = {
 };
 
 export type MacroOutput = {
-  calories: number;
-  protein: number;
-  fat: number;
-  carbs: number;
+  bmr: number;
+  maintenanceCalories: number; // your TDEE
+  targetCalories: number; // adjusted for goal
+  proteinGrams: number;
+  fatGrams: number;
+  carbGrams: number;
 };

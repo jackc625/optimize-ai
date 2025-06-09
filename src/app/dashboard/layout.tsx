@@ -5,7 +5,7 @@ import { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import toast from "react-hot-toast";
-import { useUser } from "@/hooks/useUser";
+import { useUser } from "@/hooks/profile/useUser";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 

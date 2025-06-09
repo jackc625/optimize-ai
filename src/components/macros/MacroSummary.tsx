@@ -9,8 +9,8 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/Card";
-import { useUser } from "@/hooks/useUser";
-import { useMacros } from "@/hooks/useMacros";
+import { useUser } from "@/hooks/profile/useUser";
+import { useMacros } from "@/hooks/macros/useMacros";
 import { supabase } from "@/lib/supabaseClient";
 import toast from "react-hot-toast";
 

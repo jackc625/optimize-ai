@@ -3,9 +3,9 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useUser } from "@/hooks/useUser";
-import { useWeightLogs } from "@/hooks/useWeightLogs";
-import WeightChart from "@/components/WeightChart";
+import { useUser } from "@/hooks/profile/useUser";
+import { useWeightLogs } from "@/hooks/weight/useWeightLogs";
+import WeightChart from "@/components/weight/WeightChart";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 

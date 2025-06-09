@@ -40,6 +40,7 @@ The content is organized as follows:
 </file_summary>
 
 <directory_structure>
+.github/workflows/ci.yml
 .gitignore
 components.json
 eslint.config.mjs
@@ -56,6 +57,7 @@ src/app/auth/login/page.tsx
 src/app/auth/signup/page.tsx
 src/app/dashboard/habits/page.tsx
 src/app/dashboard/layout.tsx
+src/app/dashboard/macros/history/page.tsx
 src/app/dashboard/page.tsx
 src/app/dashboard/profile/edit/page.tsx
 src/app/dashboard/profile/setup/page.tsx
@@ -64,10 +66,18 @@ src/app/globals.css
 src/app/layout.tsx
 src/app/page.tsx
 src/components/MacroSummary.tsx
-src/components/ui/card.tsx
+src/components/ProfileForm.tsx
+src/components/ui/Button.tsx
+src/components/ui/Card.tsx
 src/components/WeightChart.tsx
+src/hooks/useHabits.ts
+src/hooks/useMacros.ts
+src/hooks/useUser.ts
+src/hooks/useWeightLogs.ts
 src/lib/supabaseClient.ts
 src/lib/utils.ts
+src/schemas/profileSchema.ts
+src/types/database.ts
 src/utils/calculateMacros.ts
 tailwind.config.ts
 tsconfig.json
@@ -75,6 +85,115 @@ tsconfig.json
 
 <files>
 This section contains the contents of the repository's files.
+
+<file path="src/components/ui/Card.tsx">
+// src/components/ui/Card.tsx
+
+import { ReactNode } from "react";
+
+type CardProps = {
+  children: ReactNode;
+  className?: string;
+};
+
+export function Card({ children, className = "" }: CardProps) {
+  return (
+    <div
+      className={`
+        bg-card
+        dark:bg-card-foreground
+        rounded-[var(--radius)]
+        border-border
+        shadow-md
+        ${className}
+      `}
+    >
+      {children}
+    </div>
+  );
+}
+
+type CardSectionProps = {
+  children: ReactNode;
+  className?: string;
+};
+
+export function CardHeader({ children, className = "" }: CardSectionProps) {
+  return (
+    <div
+      className={`
+        px-6 py-4
+        border-b border-border
+        dark:border-neutral-700
+        ${className}
+      `}
+    >
+      {children}
+    </div>
+  );
+}
+
+export function CardContent({ children, className = "" }: CardSectionProps) {
+  return <div className={`px-6 py-6 ${className}`}>{children}</div>;
+}
+
+export function CardFooter({ children, className = "" }: CardSectionProps) {
+  return (
+    <div
+      className={`
+        px-6 py-4
+        border-t border-border
+        dark:border-neutral-700
+        ${className}
+      `}
+    >
+      {children}
+    </div>
+  );
+}
+
+export function CardTitle({ children, className = "" }: CardSectionProps) {
+  return (
+    <h2
+      className={`text-xl font-semibold text-foreground dark:text-background ${className}`}
+    >
+      {children}
+    </h2>
+  );
+}
+</file>
+
+<file path=".github/workflows/ci.yml">
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-and-typecheck:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "16"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        run: npm run lint
+
+      - name: Run TypeScript type-check
+        run: npm run type-check
+</file>
 
 <file path=".gitignore">
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
@@ -204,155 +323,262 @@ export default config;
 <svg fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path fill-rule="evenodd" clip-rule="evenodd" d="M1.5 2.5h13v10a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1zM0 1h16v11.5a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 0 12.5zm3.75 4.5a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5M7 4.75a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0m1.75.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5" fill="#666"/></svg>
 </file>
 
-<file path="src/app/auth/login/page.tsx">
+<file path="src/app/dashboard/macros/history/page.tsx">
+// src/app/dashboard/macros/history/page.tsx
 "use client";
 
-import { useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabaseClient";
+import { useUser } from "@/hooks/useUser";
+import toast from "react-hot-toast";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 
-export default function Login() {
+type MacroRecord = {
+  id: string;
+  created_at: string; // timestamp when inserted
+  bmr: number;
+  maintenance_calories: number;
+  target_calories: number;
+  protein_grams: number;
+  fat_grams: number;
+  carb_grams: number;
+};
+
+export default function MacroHistoryPage() {
+  const { user, loading: userLoading } = useUser();
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [history, setHistory] = useState<MacroRecord[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    if (error) return setError(error.message);
-    router.push("/dashboard");
-  };
+  useEffect(() => {
+    // 1) Wait for auth check
+    if (userLoading) return;
+
+    // 2) If not logged in, send to login
+    if (!user) {
+      router.push("/auth/login");
+      return;
+    }
+
+    // 3) Fetch macro history for this user
+    const fetchHistory = async () => {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from("user_macros")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        console.error("Error fetching macro history:", error.message);
+        toast.error("Failed to load macro history");
+      } else {
+        setHistory((data as MacroRecord[]) || []);
+      }
+      setLoading(false);
+    };
+
+    fetchHistory();
+  }, [user, userLoading, router]);
+
+  if (userLoading || loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-background text-foreground">
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
+      </div>
+    );
+  }
 
   return (
-    <main className="flex flex-col items-center justify-center min-h-screen p-4">
-      <form
-        onSubmit={handleLogin}
-        className="flex flex-col gap-4 w-full max-w-sm"
-      >
-        <h2 className="text-2xl font-bold text-center">Log In</h2>
-        <input
-          className="border p-2 rounded"
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <input
-          className="border p-2 rounded"
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        {error && <p className="text-red-500 text-sm">{error}</p>}
-        <button className="bg-blue-500 text-white rounded p-2 hover:bg-blue-600">
-          Log In
-        </button>
-        <button
-          type="button"
-          onClick={() => router.push("/auth/signup")}
-          className="text-sm text-blue-600 hover:underline mt-2"
-        >
-          Don&apos;t have an account? Sign up
-        </button>
-      </form>
+    <main className="min-h-screen bg-background text-foreground p-4">
+      <div className="max-w-3xl mx-auto">
+        <Card>
+          <CardHeader>
+            <CardTitle>Macro History</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {history.length === 0 ? (
+              <p className="text-muted-foreground">
+                No history found. Recalculate your macros to start tracking.
+              </p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full table-auto border-collapse">
+                  <thead>
+                    <tr className="bg-muted">
+                      <th className="px-4 py-2 border-border text-sm text-foreground">
+                        Date
+                      </th>
+                      <th className="px-4 py-2 border-border text-sm text-foreground">
+                        BMR (kcal)
+                      </th>
+                      <th className="px-4 py-2 border-border text-sm text-foreground">
+                        Maintenance (kcal)
+                      </th>
+                      <th className="px-4 py-2 border-border text-sm text-foreground">
+                        Target (kcal)
+                      </th>
+                      <th className="px-4 py-2 border-border text-sm text-foreground">
+                        Protein (g)
+                      </th>
+                      <th className="px-4 py-2 border-border text-sm text-foreground">
+                        Fat (g)
+                      </th>
+                      <th className="px-4 py-2 border-border text-sm text-foreground">
+                        Carbs (g)
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {history.map((record) => (
+                      <tr
+                        key={record.id}
+                        className="hover:bg-muted/[.2] transition-colors"
+                      >
+                        <td className="px-4 py-2 border-border text-sm">
+                          {new Date(record.created_at).toLocaleDateString()}
+                        </td>
+                        <td className="px-4 py-2 border-border text-sm">
+                          {record.bmr}
+                        </td>
+                        <td className="px-4 py-2 border-border text-sm">
+                          {record.maintenance_calories}
+                        </td>
+                        <td className="px-4 py-2 border-border text-sm">
+                          {record.target_calories}
+                        </td>
+                        <td className="px-4 py-2 border-border text-sm">
+                          {record.protein_grams}
+                        </td>
+                        <td className="px-4 py-2 border-border text-sm">
+                          {record.fat_grams}
+                        </td>
+                        <td className="px-4 py-2 border-border text-sm">
+                          {record.carb_grams}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </main>
   );
 }
 </file>
 
-<file path="src/app/auth/signup/page.tsx">
-"use client";
+<file path="src/components/ui/Button.tsx">
+// src/components/ui/Button.tsx
 
-import { useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
-import { useRouter } from "next/navigation";
+import { ReactNode } from "react";
 
-export default function Signup() {
-  const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+type ButtonProps = {
+  children: ReactNode;
+  variant?: "primary" | "outline" | "ghost";
+  size?: "sm" | "md" | "lg";
+  onClick?: () => void;
+  disabled?: boolean;
+  className?: string;
+  type?: "button" | "submit" | "reset";
+};
 
-  const handleSignup = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const { error } = await supabase.auth.signUp({ email, password });
-    if (error) return setError(error.message);
-    router.push("/dashboard");
+export function Button({
+  children,
+  variant = "primary",
+  size = "md",
+  onClick,
+  disabled = false,
+  className = "",
+  type = "button",
+}: ButtonProps) {
+  const base =
+    "font-medium rounded-[var(--radius)] transition focus:outline-none focus:ring-2 focus:ring-offset-2";
+  const sizes = {
+    sm: "px-3 py-1 text-sm",
+    md: "px-4 py-2 text-base",
+    lg: "px-6 py-3 text-lg",
+  };
+
+  const variants = {
+    primary: `
+      bg-primary
+      text-primary-foreground
+      hover:bg-primary-600
+      focus:ring-primary-300
+      disabled:bg-muted
+      disabled:text-muted-foreground
+    `,
+    outline: `
+      border-border
+      text-foreground
+      hover:bg-muted
+      focus:ring-primary-300
+      disabled:border-muted
+      disabled:text-muted-foreground
+    `,
+    ghost: `
+      text-foreground
+      hover:bg-muted
+      focus:ring-primary-300
+      disabled:text-muted-foreground
+    `,
   };
 
   return (
-    <main className="flex flex-col items-center justify-center min-h-screen p-4">
-      <form
-        onSubmit={handleSignup}
-        className="flex flex-col gap-4 w-full max-w-sm"
-      >
-        <h2 className="text-2xl font-bold text-center">Sign Up</h2>
-        <input
-          className="border p-2 rounded"
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <input
-          className="border p-2 rounded"
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        {error && <p className="text-red-500 text-sm">{error}</p>}
-        <button className="bg-blue-500 text-white rounded p-2 hover:bg-blue-600">
-          Sign Up
-        </button>
-        <button
-          type="button"
-          onClick={() => router.push("/auth/login")}
-          className="text-sm text-blue-600 hover:underline mt-2"
-        >
-          Already have an account? Log in
-        </button>
-      </form>
-    </main>
+    <button
+      type={type}
+      onClick={onClick}
+      disabled={disabled}
+      className={`
+        ${base}
+        ${sizes[size]}
+        ${variants[variant]}
+        ${className}
+      `}
+    >
+      {children}
+    </button>
   );
 }
 </file>
 
-<file path="src/app/dashboard/habits/page.tsx">
-"use client";
+<file path="src/hooks/useHabits.ts">
+// src/hooks/useHabits.ts
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import toast from "react-hot-toast";
 
-type Habit = {
+/**
+ * Represents a habit with its current streak.
+ */
+export type HabitWithStreak = {
   id: string;
   title: string;
   streak: number;
 };
 
-function getTodayDate(): string {
-  return new Date().toISOString().split("T")[0];
-}
-
+/**
+ * Calculate a consecutive-day streak given ISO dates (YYYY-MM-DD).
+ */
 function calculateStreak(logDates: string[]): number {
-  const normalizedDates = logDates
-    .map((date) => new Date(date).toISOString().split("T")[0])
+  // Sort descending (most recent first)
+  const normalized = logDates
+    .map((d) => d.split("T")[0])
     .sort((a, b) => (a > b ? -1 : 1));
 
   let streak = 0;
-  const currentDate = new Date();
+  const current = new Date();
 
-  for (const dateString of normalizedDates) {
-    const expected = new Date(currentDate).toISOString().split("T")[0];
-    if (dateString === expected) {
+  for (const dateString of normalized) {
+    const isoToday = current.toISOString().split("T")[0];
+    if (dateString === isoToday) {
       streak++;
-      currentDate.setDate(currentDate.getDate() - 1);
+      current.setDate(current.getDate() - 1);
     } else {
       break;
     }
@@ -361,108 +587,100 @@ function calculateStreak(logDates: string[]): number {
   return streak;
 }
 
-export default function HabitsPage() {
-  const [habits, setHabits] = useState<Habit[]>([]);
-  const [completedHabitIds, setCompletedHabitIds] = useState<string[]>([]);
-  const [newHabit, setNewHabit] = useState("");
+/** Return today in “YYYY-MM-DD” format. */
+function getTodayDate(): string {
+  return new Date().toISOString().split("T")[0];
+}
+
+export function useHabits() {
+  const [habits, setHabits] = useState<HabitWithStreak[]>([]);
+  const [todayCompleted, setTodayCompleted] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
 
-  const fetchHabits = async () => {
+  const fetchAll = async () => {
     setLoading(true);
+    try {
+      // 1) Fetch all habits: { id, title }
+      const { data: habitData, error: habitError } = await supabase
+        .from("habits")
+        .select("id, title")
+        .order("created_at");
+      if (habitError) throw habitError;
 
-    const { data: habitsData, error: habitsError } = await supabase
-      .from("habits")
-      .select("*")
-      .order("created_at");
+      // habitData is any[]; each element has shape { id, title }
+      const habitRows: { id: string; title: string }[] = habitData || [];
+      const ids = habitRows.map((h) => h.id);
 
-    if (habitsError) {
-      console.error("Error fetching habits:", habitsError.message);
-      toast.error("Failed to load habits");
-      setLoading(false);
-      return;
-    }
+      // 2) Fetch all completed logs for those habits: { habit_id, date }
+      const { data: logData, error: logError } = await supabase
+        .from("habit_logs")
+        .select("habit_id, date")
+        .in("habit_id", ids)
+        .eq("completed", true);
+      if (logError) throw logError;
 
-    const updatedHabits = await Promise.all(
-      (habitsData ?? []).map(async (habit) => {
-        const { data: logs, error: logError } = await supabase
-          .from("habit_logs")
-          .select("date")
-          .eq("habit_id", habit.id)
-          .eq("completed", true);
+      const logRows: { habit_id: string; date: string }[] = logData || [];
 
-        if (logError) {
-          console.error(
-            `Error fetching logs for habit ${habit.id}:`,
-            logError.message
-          );
-          return { ...habit, streak: 0 };
-        }
+      // 3) Group log dates by habit_id
+      const grouped: Record<string, string[]> = {};
+      logRows.forEach((log) => {
+        if (!grouped[log.habit_id]) grouped[log.habit_id] = [];
+        grouped[log.habit_id].push(log.date);
+      });
 
-        const logDates = logs?.map((log) => log.date) ?? [];
-        const streak = calculateStreak(logDates);
+      // 4) Build HabitWithStreak array
+      const computed: HabitWithStreak[] = habitRows.map((h) => ({
+        id: h.id,
+        title: h.title,
+        streak: calculateStreak(grouped[h.id] || []),
+      }));
+      setHabits(computed);
 
-        return {
-          id: habit.id,
-          title: habit.title,
-          streak,
-        };
-      })
-    );
-
-    setHabits(updatedHabits);
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    fetchHabits();
-  }, []);
-
-  useEffect(() => {
-    const fetchTodayLogs = async () => {
+      // 5) Fetch today’s completed logs: { habit_id }
       const today = getTodayDate();
-      const { data, error } = await supabase
+      const { data: todayLogs, error: todayError } = await supabase
         .from("habit_logs")
         .select("habit_id")
         .eq("date", today)
         .eq("completed", true);
+      if (todayError) throw todayError;
 
-      if (error) {
-        console.error("Error fetching today's habit logs:", error.message);
-        toast.error("Failed to load today's logs");
-        return;
-      }
+      const todayRows: { habit_id: string }[] = todayLogs || [];
+      setTodayCompleted(new Set(todayRows.map((l) => l.habit_id)));
+    } catch (err) {
+      console.error("useHabits fetchAll error:", err);
+      toast.error("Failed to load habits");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-      setCompletedHabitIds(data?.map((log) => log.habit_id) ?? []);
-    };
-
-    fetchTodayLogs();
+  useEffect(() => {
+    fetchAll();
   }, []);
 
-  const addHabit = async () => {
-    if (!newHabit.trim()) return;
-
-    const user = (await supabase.auth.getUser()).data.user;
+  const addHabit = async (title: string) => {
+    if (!title.trim()) return;
+    const { data: sessionData } = await supabase.auth.getUser();
+    const user = sessionData?.user;
     if (!user) return;
 
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from("habits")
-      .insert({ title: newHabit, user_id: user.id })
-      .select();
-
+      .insert({ title, user_id: user.id });
     if (error) {
       console.error("Error adding habit:", error.message);
       toast.error("Failed to add habit");
-      return;
+    } else {
+      toast.success("Habit added");
+      fetchAll();
     }
-
-    setHabits((prev) => [...prev, ...(data ?? [])]);
-    setNewHabit("");
-    toast.success("Habit added");
   };
 
-  const handleCheck = async (habitId: string) => {
+  const completeHabit = async (habitId: string) => {
     const today = getTodayDate();
-    const user = (await supabase.auth.getUser()).data.user;
+    const { data: sessionData } = await supabase.auth.getUser();
+    const user = sessionData?.user;
     if (!user) return;
 
     const { error } = await supabase.from("habit_logs").insert({
@@ -471,134 +689,170 @@ export default function HabitsPage() {
       date: today,
       completed: true,
     });
-
     if (error) {
-      console.error("Error checking off habit:", error.message);
+      console.error("Error completing habit:", error.message);
       toast.error("Failed to complete habit");
-      return;
+    } else {
+      toast.success("Habit completed!");
+      fetchAll();
     }
-
-    setCompletedHabitIds((prev) => [...prev, habitId]);
-    fetchHabits();
-    toast.success("Habit completed!");
   };
 
-  const handleDelete = async (habitId: string) => {
+  const deleteHabit = async (habitId: string) => {
     const { error } = await supabase.from("habits").delete().eq("id", habitId);
-
     if (error) {
       console.error("Error deleting habit:", error.message);
       toast.error("Failed to delete habit");
-      return;
+    } else {
+      toast.success("Habit deleted");
+      fetchAll();
     }
-
-    setHabits((prev) => prev.filter((h) => h.id !== habitId));
-    setCompletedHabitIds((prev) => prev.filter((id) => id !== habitId));
-    toast.success("Habit deleted");
   };
 
-  return (
-    <main className="p-4 max-w-md mx-auto">
-      <h1 className="text-xl font-bold mb-4">Your Habits</h1>
-
-      {/* Add new habit */}
-      <div className="flex gap-2 mb-4">
-        <input
-          className="border p-2 rounded w-full"
-          placeholder="New habit"
-          value={newHabit}
-          onChange={(e) => setNewHabit(e.target.value)}
-        />
-        <button
-          onClick={addHabit}
-          className="bg-green-500 text-white px-4 rounded hover:bg-green-600"
-        >
-          Add
-        </button>
-      </div>
-
-      {/* Habit List */}
-
-      {loading ? (
-        <ul className="space-y-4">
-          {[...Array(3)].map((_, index) => (
-            <li
-              key={index}
-              className="flex items-center justify-between border-b py-2 animate-pulse"
-            >
-              <div className="flex flex-col gap-1 w-3/4">
-                <div className="h-4 bg-gray-300 rounded w-2/3"></div>
-                <div className="h-3 bg-gray-200 rounded w-1/4"></div>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="h-5 w-5 bg-gray-300 rounded"></div>
-                <div className="h-5 w-5 bg-gray-200 rounded"></div>
-              </div>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <ul>
-          {habits.map((habit) => {
-            const isCompleted = completedHabitIds.includes(habit.id);
-            return (
-              <li
-                key={habit.id}
-                className="flex items-center justify-between border-b py-2"
-              >
-                <span>
-                  {habit.title}
-                  <span className="text-sm text-gray-500 ml-2">
-                    🔥 {habit.streak}
-                  </span>
-                </span>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={isCompleted}
-                    disabled={isCompleted}
-                    onChange={() => handleCheck(habit.id)}
-                    className="w-5 h-5"
-                  />
-                  <button
-                    onClick={() => handleDelete(habit.id)}
-                    className="text-red-500 hover:text-red-700 text-sm"
-                    title="Delete habit"
-                  >
-                    🗑️
-                  </button>
-                </div>
-              </li>
-            );
-          })}
-        </ul>
-      )}
-    </main>
-  );
+  return {
+    habits,
+    todayCompleted,
+    loading,
+    addHabit,
+    completeHabit,
+    deleteHabit,
+  };
 }
 </file>
 
-<file path="src/app/dashboard/weight/page.tsx">
-"use client";
+<file path="src/hooks/useMacros.ts">
+// src/hooks/useMacros.ts
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import toast from "react-hot-toast";
-import WeightChart from "@/components/WeightChart";
+import type { ProfileInput, MacroOutput } from "@/utils/calculateMacros";
 
-type WeightLog = {
-  id: string;
-  date: string;
-  weight_kg: number;
-};
-
-export default function WeightTrackerPage() {
-  const [weight, setWeight] = useState("");
-  const [logs, setLogs] = useState<WeightLog[]>([]);
+/**
+ * Fetch the user’s profile, calculate macros, and return the results.
+ */
+export function useMacros() {
+  const [macros, setMacros] = useState<MacroOutput | null>(null);
   const [loading, setLoading] = useState(true);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [editingWeight, setEditingWeight] = useState("");
+
+  const refresh = async () => {
+    setLoading(true);
+    try {
+      // 1) Get current user
+      const { data: sessionData } = await supabase.auth.getUser();
+      const user = sessionData?.user;
+      if (!user) {
+        setMacros(null);
+        setLoading(false);
+        return;
+      }
+
+      // 2) Fetch profile fields needed for calculation
+      const { data: profileData, error: profileError } = await supabase
+        .from("user_profiles")
+        .select("age, height_cm, weight_kg, sex, goal, activity_level")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (profileError || !profileData) {
+        toast.error("Failed to load profile.");
+        setLoading(false);
+        return;
+      }
+
+      // 3) Build ProfileInput shape
+      const input: ProfileInput = {
+        age: profileData.age,
+        height_cm: profileData.height_cm,
+        weight_kg: profileData.weight_kg,
+        sex: profileData.sex,
+        goal: profileData.goal,
+        activity_level: profileData.activity_level || "moderate",
+      };
+
+      // 4) Calculate macros
+      const result = calculateMacros(input);
+      setMacros(result);
+    } catch (err) {
+      console.error("useMacros refresh error:", err);
+      toast.error("Failed to calculate macros");
+      setMacros(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    refresh();
+  }, []);
+
+  return { macros, loading, refresh };
+}
+
+// Import calculateMacros here
+import { calculateMacros } from "@/utils/calculateMacros";
+</file>
+
+<file path="src/hooks/useUser.ts">
+// src/hooks/useUser.ts
+
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabaseClient";
+import type { User } from "@supabase/supabase-js";
+
+/**
+ * useUser hook
+ * - `user`: the currently authenticated Supabase user (or null)
+ * - `loading`: true while retrieving the session; false afterward
+ */
+export function useUser() {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // 1) On mount, check existing session
+    supabase.auth.getUser().then(({ data }) => {
+      setUser(data.user);
+      setLoading(false);
+    });
+
+    // 2) Listen for any login/logout events
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setUser(session?.user ?? null);
+      }
+    );
+
+    // 3) Cleanup subscription on unmount
+    return () => {
+      listener.subscription.unsubscribe();
+    };
+  }, []);
+
+  return { user, loading };
+}
+</file>
+
+<file path="src/hooks/useWeightLogs.ts">
+// src/hooks/useWeightLogs.ts
+
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabaseClient";
+import toast from "react-hot-toast";
+
+/**
+ * Represents a row in `weight_logs`
+ */
+export interface WeightLog {
+  id: string;
+  user_id: string;
+  date: string; // “YYYY-MM-DD”
+  weight_kg: number;
+}
+
+export function useWeightLogs() {
+  const [logs, setLogs] = useState<WeightLog[]>([]);
   const [goalWeight, setGoalWeight] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const fetchLogs = async () => {
     setLoading(true);
@@ -606,19 +860,18 @@ export default function WeightTrackerPage() {
       .from("weight_logs")
       .select("*")
       .order("date", { ascending: false });
-
     if (error) {
       toast.error("Failed to load weight logs");
       console.error(error.message);
     } else {
       setLogs(data || []);
     }
-
     setLoading(false);
   };
 
-  const fetchGoalWeight = async () => {
-    const user = (await supabase.auth.getUser()).data.user;
+  const fetchGoal = async () => {
+    const { data: sessionData } = await supabase.auth.getUser();
+    const user = sessionData?.user;
     if (!user) return;
 
     const { data, error } = await supabase
@@ -626,7 +879,6 @@ export default function WeightTrackerPage() {
       .select("goal_weight_kg")
       .eq("user_id", user.id)
       .maybeSingle();
-
     if (error) {
       console.error(error.message);
     } else {
@@ -634,54 +886,54 @@ export default function WeightTrackerPage() {
     }
   };
 
-  const handleLog = async () => {
-    if (!weight.trim()) return;
+  useEffect(() => {
+    fetchLogs();
+    fetchGoal();
+  }, []);
 
-    const user = (await supabase.auth.getUser()).data.user;
+  const addLog = async (weightValue: number) => {
+    const { data: sessionData } = await supabase.auth.getUser();
+    const user = sessionData?.user;
     if (!user) return;
 
     const today = new Date().toISOString().split("T")[0];
 
+    // Prevent duplicate per day
     const { data: existing, error: checkError } = await supabase
       .from("weight_logs")
       .select("id")
       .eq("user_id", user.id)
       .eq("date", today)
       .maybeSingle();
-
     if (checkError) {
-      toast.error("Error checking for existing entry");
+      toast.error("Error checking existing entry");
       console.error(checkError.message);
       return;
     }
-
     if (existing) {
-      toast.error("You’ve already logged your weight for today.");
+      toast.error("Already logged today");
       return;
     }
 
     const { error } = await supabase.from("weight_logs").insert({
       user_id: user.id,
-      weight_kg: Number(weight),
       date: today,
+      weight_kg: weightValue,
     });
-
     if (error) {
       toast.error("Error saving weight log");
       console.error(error.message);
     } else {
       toast.success("Weight logged!");
-      setWeight("");
       fetchLogs();
     }
   };
 
-  const handleDelete = async (logId: string) => {
+  const deleteLog = async (logId: string) => {
     const { error } = await supabase
       .from("weight_logs")
       .delete()
       .eq("id", logId);
-
     if (error) {
       toast.error("Failed to delete entry");
       console.error(error.message);
@@ -691,394 +943,28 @@ export default function WeightTrackerPage() {
     }
   };
 
-  const handleUpdate = async () => {
-    if (!editingId || !editingWeight.trim()) return;
-
+  const updateLog = async (logId: string, newWeight: number) => {
     const { error } = await supabase
       .from("weight_logs")
-      .update({ weight_kg: Number(editingWeight) })
-      .eq("id", editingId);
-
+      .update({ weight_kg: newWeight })
+      .eq("id", logId);
     if (error) {
       toast.error("Update failed");
       console.error(error.message);
     } else {
       toast.success("Weight updated");
-      setEditingId(null);
-      setEditingWeight("");
       fetchLogs();
     }
   };
 
-  useEffect(() => {
-    fetchLogs();
-    fetchGoalWeight();
-  }, []);
-
-  return (
-    <main className="max-w-md mx-auto p-6 space-y-6">
-      <div className="bg-white rounded-xl border shadow p-6 space-y-4">
-        <h1 className="text-2xl font-bold text-gray-900">Weight Tracker</h1>
-        <p className="text-sm text-gray-500">
-          Log your current weight to track your progress over time.
-        </p>
-
-        <div className="space-y-2">
-          <input
-            type="number"
-            inputMode="decimal"
-            value={weight}
-            onChange={(e) => setWeight(e.target.value)}
-            placeholder="Enter today’s weight (kg)"
-            className="w-full border p-3 rounded-lg text-sm"
-          />
-          <button
-            onClick={handleLog}
-            className="w-full bg-blue-600 text-white py-2 rounded-lg text-sm hover:bg-blue-700 transition"
-          >
-            Log Weight
-          </button>
-        </div>
-      </div>
-
-      <div className="bg-white rounded-xl border shadow p-6">
-        <h2 className="text-lg font-semibold mb-3">Recent Logs</h2>
-        {loading ? (
-          <p className="text-sm text-gray-500">Loading...</p>
-        ) : logs.length === 0 ? (
-          <p className="text-sm text-gray-500">No logs yet.</p>
-        ) : (
-          <ul className="space-y-2">
-            {logs.map((log) => (
-              <li
-                key={log.id}
-                className="text-sm flex justify-between items-center border-b pb-1 text-gray-800"
-              >
-                <span>{log.date}</span>
-                <span className="flex items-center gap-2">
-                  {editingId === log.id ? (
-                    <>
-                      <input
-                        type="number"
-                        value={editingWeight}
-                        onChange={(e) => setEditingWeight(e.target.value)}
-                        className="w-20 text-sm border px-1 py-0.5 rounded"
-                      />
-                      <button
-                        onClick={handleUpdate}
-                        className="text-green-600 text-xs hover:text-green-800"
-                      >
-                        ✅
-                      </button>
-                      <button
-                        onClick={() => {
-                          setEditingId(null);
-                          setEditingWeight("");
-                        }}
-                        className="text-gray-400 text-xs hover:text-gray-600"
-                      >
-                        ❌
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <span className="font-semibold">{log.weight_kg} kg</span>
-                      <button
-                        onClick={() => {
-                          setEditingId(log.id);
-                          setEditingWeight(log.weight_kg.toString());
-                        }}
-                        className="text-blue-500 text-xs hover:text-blue-700"
-                        title="Edit entry"
-                      >
-                        ✏️
-                      </button>
-                      <button
-                        onClick={() => handleDelete(log.id)}
-                        className="text-red-500 text-xs hover:text-red-700"
-                        title="Delete entry"
-                      >
-                        🗑️
-                      </button>
-                    </>
-                  )}
-                </span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-
-      {logs.length >= 1 && (
-        <div className="bg-white rounded-xl border shadow p-6">
-          <h2 className="text-lg font-semibold mb-3">Progress Chart</h2>
-          <WeightChart logs={logs} goalWeight={goalWeight ?? undefined} />
-        </div>
-      )}
-    </main>
-  );
-}
-</file>
-
-<file path="src/app/page.tsx">
-import Image from "next/image";
-
-export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
-}
-</file>
-
-<file path="src/components/ui/card.tsx">
-import * as React from "react"
-
-import { cn } from "@/lib/utils"
-
-const Card = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn(
-      "rounded-xl border bg-card text-card-foreground shadow",
-      className
-    )}
-    {...props}
-  />
-))
-Card.displayName = "Card"
-
-const CardHeader = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn("flex flex-col space-y-1.5 p-6", className)}
-    {...props}
-  />
-))
-CardHeader.displayName = "CardHeader"
-
-const CardTitle = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn("font-semibold leading-none tracking-tight", className)}
-    {...props}
-  />
-))
-CardTitle.displayName = "CardTitle"
-
-const CardDescription = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn("text-sm text-muted-foreground", className)}
-    {...props}
-  />
-))
-CardDescription.displayName = "CardDescription"
-
-const CardContent = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
-  <div ref={ref} className={cn("p-6 pt-0", className)} {...props} />
-))
-CardContent.displayName = "CardContent"
-
-const CardFooter = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn("flex items-center p-6 pt-0", className)}
-    {...props}
-  />
-))
-CardFooter.displayName = "CardFooter"
-
-export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent }
-</file>
-
-<file path="src/components/WeightChart.tsx">
-"use client";
-
-import {
-  Chart as ChartJS,
-  LineElement,
-  PointElement,
-  CategoryScale,
-  LinearScale,
-  Tooltip,
-  TooltipItem,
-} from "chart.js";
-import { Line } from "react-chartjs-2";
-
-ChartJS.register(
-  LineElement,
-  PointElement,
-  CategoryScale,
-  LinearScale,
-  Tooltip
-);
-
-type Props = {
-  logs: { date: string; weight_kg: number }[];
-  goalWeight?: number;
-};
-
-export default function WeightChart({ logs, goalWeight }: Props) {
-  const sortedLogs = [...logs].sort((a, b) => a.date.localeCompare(b.date));
-
-  const data = {
-    labels: sortedLogs.map((log) => log.date),
-    datasets: [
-      {
-        label: "Weight (kg)",
-        data: sortedLogs.map((log) => log.weight_kg),
-        fill: false,
-        borderColor: "#3B82F6", // Tailwind blue-500
-        tension: 0.25,
-      },
-      ...(goalWeight !== undefined
-        ? [
-            {
-              label: "Goal Weight",
-              data: sortedLogs.map(() => goalWeight),
-              borderColor: "#10B981",
-              borderDash: [6, 6],
-              pointRadius: 0,
-              borderWidth: 2,
-              fill: false,
-            },
-          ]
-        : []),
-    ],
+  return {
+    logs,
+    goalWeight,
+    loading,
+    addLog,
+    deleteLog,
+    updateLog,
   };
-
-  const options = {
-    responsive: true,
-    scales: {
-      y: {
-        beginAtZero: false,
-        ticks: {
-          precision: 0,
-        },
-      },
-    },
-    plugins: {
-      tooltip: {
-        callbacks: {
-          label: (ctx: TooltipItem<"line">) => `${ctx.parsed.y} kg`,
-        },
-      },
-    },
-  };
-
-  return <Line data={data} options={options} />;
 }
 </file>
 
@@ -1097,6 +983,106 @@ import { twMerge } from "tailwind-merge"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
+}
+</file>
+
+<file path="src/schemas/profileSchema.ts">
+// src/schemas/profileSchema.ts
+import { z } from "zod";
+
+/**
+ * Zod schema for validating user profile input.
+ */
+export const ProfileSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  age: z
+    .number({ invalid_type_error: "Age must be a number" })
+    .int("Age must be an integer")
+    .min(10, "Age must be at least 10")
+    .max(120, "Age must be 120 or less"),
+  height_cm: z
+    .number({ invalid_type_error: "Height must be a number" })
+    .int("Height must be an integer")
+    .min(50, "Height must be at least 50 cm")
+    .max(300, "Height cannot exceed 300 cm"),
+  weight_kg: z
+    .number({ invalid_type_error: "Weight must be a number" })
+    .int("Weight must be an integer")
+    .min(30, "Weight must be at least 30 kg")
+    .max(300, "Weight cannot exceed 300 kg"),
+  sex: z.enum(["male", "female"]),
+  goal: z.enum(["fat_loss", "muscle_gain", "recomp"]),
+  activity_level: z.enum(["sedentary", "moderate", "active"]),
+  goal_weight_kg: z
+    .number({ invalid_type_error: "Goal weight must be a number" })
+    .int("Goal weight must be an integer")
+    .min(30, "Goal weight must be at least 30 kg")
+    .max(300, "Goal weight cannot exceed 300 kg")
+    .optional(),
+});
+</file>
+
+<file path="src/types/database.ts">
+// src/types/database.ts
+
+/**
+ * Represents the “user_profiles” table
+ * (each column must match exactly what your Supabase schema uses)
+ */
+export interface UserProfile {
+  user_id: string;
+  name: string;
+  age: number;
+  height_cm: number;
+  weight_kg: number;
+  sex: "male" | "female";
+  goal: "fat_loss" | "muscle_gain" | "recomp";
+  activity_level: "sedentary" | "moderate" | "active";
+  goal_weight_kg: number | null;
+}
+
+/**
+ * Represents a row in “habits”
+ */
+export interface Habit {
+  id: string;
+  user_id: string;
+  title: string;
+  created_at: string;
+}
+
+/**
+ * Represents a row in “habit_logs”
+ */
+export interface HabitLog {
+  id: string;
+  habit_id: string;
+  user_id: string;
+  date: string; // stored in "YYYY-MM-DD" format
+  completed: boolean;
+}
+
+/**
+ * Represents a row in “weight_logs”
+ */
+export interface WeightLog {
+  id: string;
+  user_id: string;
+  date: string; // stored in "YYYY-MM-DD" format
+  weight_kg: number;
+}
+
+/**
+ * Represents a row in “user_macros”
+ */
+export interface UserMacro {
+  id: string;
+  user_id: string;
+  calories: number;
+  protein_grams: number;
+  fat_grams: number;
+  carb_grams: number;
+  created_at: string;
 }
 </file>
 
@@ -1200,388 +1186,1112 @@ export function calculateMacros(profile: ProfileInput): MacroOutput {
 }
 </file>
 
-<file path="src/app/dashboard/layout.tsx">
+<file path="src/app/auth/login/page.tsx">
+// src/app/auth/login/page.tsx
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import Link from "next/link";
-import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/Button";
 
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function Login() {
   const router = useRouter();
-  const pathname = usePathname();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
-  const [checkingProfile, setCheckingProfile] = useState(true);
-
-  useEffect(() => {
-    const checkAuthAndProfile = async () => {
-      const { data: userData } = await supabase.auth.getUser();
-      const user = userData?.user;
-
-      if (!user) {
-        router.push("/auth/login");
-        return;
-      }
-
-      const { data: profile, error } = await supabase
-        .from("user_profiles")
-        .select("user_id")
-        .eq("user_id", user.id)
-        .maybeSingle();
-
-      if (error) {
-        console.error("Error checking profile:", error.message);
-        toast.error("Error checking profile.");
-        return;
-      }
-
-      if (!profile && pathname !== "/dashboard/profile/setup") {
-        router.push("/dashboard/profile/setup");
-      } else {
-        setCheckingProfile(false);
-      }
-    };
-
-    checkAuthAndProfile();
-  }, [router, pathname]);
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    router.push("/auth/login");
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    if (error) return setError(error.message);
+    router.push("/dashboard");
   };
 
-  const navLinks = [
-    { href: "/dashboard", label: "Dashboard" },
-    { href: "/dashboard/habits", label: "Habits" },
-    { href: "/dashboard/profile/edit", label: "Edit Profile" },
-  ];
+  return (
+    <main className="flex flex-col items-center justify-center min-h-screen p-4 bg-background text-foreground">
+      <form
+        onSubmit={handleLogin}
+        className="flex flex-col gap-4 w-full max-w-sm bg-card border-border rounded-[var(--radius)] shadow-md p-6"
+      >
+        <h2 className="text-2xl font-semibold text-foreground text-center">
+          Log In
+        </h2>
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="border-border bg-input text-foreground rounded-[var(--radius)] px-3 py-2 focus:outline-none focus:ring focus:ring-primary-300"
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="border-border bg-input text-foreground rounded-[var(--radius)] px-3 py-2 focus:outline-none focus:ring focus:ring-primary-300"
+        />
+        {error && (
+          <p className="text-destructive-foreground text-sm">{error}</p>
+        )}
+        <Button type="submit" variant="primary" size="md">
+          Log In
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => router.push("/auth/signup")}
+          className="justify-center text-primary hover:underline"
+        >
+          Don&apos;t have an account? Sign up
+        </Button>
+      </form>
+    </main>
+  );
+}
+</file>
 
-  if (checkingProfile) {
+<file path="src/app/auth/signup/page.tsx">
+"use client";
+
+import { useState } from "react";
+import { supabase } from "@/lib/supabaseClient";
+import { useRouter } from "next/navigation";
+import { Card, CardContent } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
+
+export default function Signup() {
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
+  // This will be called by the form's onSubmit
+  const handleSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const { error } = await supabase.auth.signUp({ email, password });
+    if (error) return setError(error.message);
+    router.push("/dashboard");
+  };
+
+  return (
+    <main className="flex flex-col items-center justify-center min-h-screen p-4 bg-background text-foreground">
+      <Card className="w-full max-w-sm bg-card border-border rounded-[var(--radius)] shadow-md">
+        <CardContent className="flex flex-col gap-4 p-6">
+          <h2 className="text-2xl font-semibold text-foreground text-center">
+            Sign Up
+          </h2>
+          <form onSubmit={handleSignup} className="flex flex-col gap-4">
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="border-border bg-input text-foreground rounded-[var(--radius)] px-3 py-2 focus:outline-none focus:ring focus:ring-primary-300"
+            />
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="border-border bg-input text-foreground rounded-[var(--radius)] px-3 py-2 focus:outline-none focus:ring focus:ring-primary-300"
+            />
+            {error && (
+              <p className="text-destructive-foreground text-sm">{error}</p>
+            )}
+            {/* The submit button has no onClick—form submission handles it */}
+            <Button type="submit" variant="primary" size="md">
+              Sign Up
+            </Button>
+          </form>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => router.push("/auth/login")}
+            className="justify-center text-primary hover:underline mt-2"
+          >
+            Already have an account? Log in
+          </Button>
+        </CardContent>
+      </Card>
+    </main>
+  );
+}
+</file>
+
+<file path="src/app/page.tsx">
+// src/app/page.tsx
+import Image from "next/image";
+
+export default function Home() {
+  return (
+    <div className="min-h-screen bg-background text-foreground grid grid-rows-[20px_1fr_20px] items-center justify-items-center p-8 sm:p-20 gap-16">
+      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
+        <Image
+          className="dark:invert"
+          src="/next.svg"
+          alt="Next.js logo"
+          width={180}
+          height={38}
+          priority
+        />
+
+        <ol className="list-inside list-decimal text-sm text-center sm:text-left leading-relaxed">
+          <li className="mb-2">
+            Get started by editing{" "}
+            <code className="bg-muted text-foreground px-1 py-0.5 rounded font-mono">
+              src/app/page.tsx
+            </code>
+            .
+          </li>
+          <li>Save and see your changes instantly.</li>
+        </ol>
+
+        <div className="flex gap-4 items-center flex-col sm:flex-row">
+          <a
+            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="
+              inline-flex items-center gap-2 
+              bg-primary text-primary-foreground 
+              rounded-[var(--radius)] 
+              px-4 py-2 h-10 sm:h-12 
+              hover:bg-primary-600 
+              transition-colors
+            "
+          >
+            <Image
+              className="dark:invert"
+              src="/vercel.svg"
+              alt="Vercel logomark"
+              width={20}
+              height={20}
+            />
+            <span className="text-sm sm:text-base">Deploy now</span>
+          </a>
+
+          <a
+            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="
+              inline-flex items-center gap-2 
+              border-border border 
+              text-foreground 
+              bg-input 
+              rounded-[var(--radius)] 
+              px-4 py-2 h-10 sm:h-12 sm:min-w-[176px]
+              hover:bg-muted 
+              transition-colors
+            "
+          >
+            <span className="text-sm sm:text-base">Read our docs</span>
+          </a>
+        </div>
+      </main>
+
+      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
+        <a
+          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-2 text-sm text-foreground hover:text-primary hover:underline hover:underline-offset-4 transition-colors"
+        >
+          <Image
+            aria-hidden
+            src="/file.svg"
+            alt="File icon"
+            width={16}
+            height={16}
+          />
+          <span>Learn</span>
+        </a>
+        <a
+          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-2 text-sm text-foreground hover:text-primary hover:underline hover:underline-offset-4 transition-colors"
+        >
+          <Image
+            aria-hidden
+            src="/window.svg"
+            alt="Window icon"
+            width={16}
+            height={16}
+          />
+          <span>Examples</span>
+        </a>
+        <a
+          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-2 text-sm text-foreground hover:text-primary hover:underline hover:underline-offset-4 transition-colors"
+        >
+          <Image
+            aria-hidden
+            src="/globe.svg"
+            alt="Globe icon"
+            width={16}
+            height={16}
+          />
+          <span>Go to nextjs.org →</span>
+        </a>
+      </footer>
+    </div>
+  );
+}
+</file>
+
+<file path="src/components/ProfileForm.tsx">
+// src/components/ProfileForm.tsx
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabaseClient";
+import toast from "react-hot-toast";
+import { ZodError } from "zod";
+import type { UserProfile } from "@/types/database";
+import { ProfileSchema } from "@/schemas/profileSchema";
+import { Button } from "@/components/ui/Button";
+
+type ProfileFormProps = {
+  initialData?: UserProfile;
+  onSuccessRedirect?: string;
+};
+
+export function ProfileForm({
+  initialData,
+  onSuccessRedirect = "/dashboard",
+}: ProfileFormProps) {
+  const router = useRouter();
+  const [form, setForm] = useState({
+    name: initialData?.name ?? "",
+    age: initialData?.age.toString() ?? "",
+    height_cm: initialData?.height_cm.toString() ?? "",
+    weight_kg: initialData?.weight_kg.toString() ?? "",
+    sex: initialData?.sex ?? "male",
+    goal: initialData?.goal ?? "fat_loss",
+    activity_level: initialData?.activity_level ?? "moderate",
+    goal_weight_kg: initialData?.goal_weight_kg?.toString() ?? "",
+  });
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    // 1) Convert string inputs to correct types
+    const parsedInput = {
+      name: form.name.trim(),
+      age: Number(form.age),
+      height_cm: Number(form.height_cm),
+      weight_kg: Number(form.weight_kg),
+      sex: form.sex as "male" | "female",
+      goal: form.goal as "fat_loss" | "muscle_gain" | "recomp",
+      activity_level: form.activity_level as
+        | "sedentary"
+        | "moderate"
+        | "active",
+      goal_weight_kg:
+        form.goal_weight_kg.trim() !== ""
+          ? Number(form.goal_weight_kg)
+          : undefined,
+    };
+
+    // 2) Validate with Zod
+    try {
+      ProfileSchema.parse(parsedInput);
+    } catch (err) {
+      if (err instanceof ZodError) {
+        const firstError = err.errors[0];
+        toast.error(firstError.message);
+      } else {
+        toast.error("Validation failed");
+      }
+      setLoading(false);
+      return;
+    }
+
+    // 3) Fetch current user
+    const { data: sessionData } = await supabase.auth.getUser();
+    const user = sessionData?.user;
+    if (!user) {
+      toast.error("You must be logged in.");
+      setLoading(false);
+      return;
+    }
+
+    // 4) Build payload for Supabase
+    const payload = {
+      user_id: user.id,
+      name: parsedInput.name,
+      age: parsedInput.age,
+      height_cm: parsedInput.height_cm,
+      weight_kg: parsedInput.weight_kg,
+      sex: parsedInput.sex,
+      goal: parsedInput.goal,
+      activity_level: parsedInput.activity_level,
+      goal_weight_kg: parsedInput.goal_weight_kg ?? null,
+    };
+
+    // 5) Insert or update
+    let resultError = null;
+    if (initialData) {
+      const { error } = await supabase
+        .from("user_profiles")
+        .update(payload)
+        .eq("user_id", user.id);
+      resultError = error;
+    } else {
+      const { error } = await supabase.from("user_profiles").insert(payload);
+      resultError = error;
+    }
+
+    if (resultError) {
+      console.error("Profile save error:", resultError.message);
+      toast.error("Failed to save profile");
+      setLoading(false);
+      return;
+    }
+
+    toast.success("Profile saved!");
+    router.push(onSuccessRedirect);
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      {/* Name */}
+      <div className="flex flex-col">
+        <label
+          htmlFor="name"
+          className="text-sm font-medium text-foreground mb-1"
+        >
+          Name
+        </label>
+        <input
+          id="name"
+          name="name"
+          value={form.name}
+          onChange={handleChange}
+          className="
+            border-border
+            bg-input
+            text-foreground
+            rounded-[var(--radius)]
+            px-3 py-2
+            focus:outline-none focus:ring focus:ring-primary-300
+          "
+          required
+        />
+      </div>
+
+      {/* Age */}
+      <div className="flex flex-col">
+        <label
+          htmlFor="age"
+          className="text-sm font-medium text-foreground mb-1"
+        >
+          Age
+        </label>
+        <input
+          id="age"
+          name="age"
+          type="number"
+          value={form.age}
+          onChange={handleChange}
+          className="
+            border-border
+            bg-input
+            text-foreground
+            rounded-[var(--radius)]
+            px-3 py-2
+            focus:outline-none focus:ring focus:ring-primary-300
+          "
+          required
+        />
+      </div>
+
+      {/* Height (cm) */}
+      <div className="flex flex-col">
+        <label
+          htmlFor="height_cm"
+          className="text-sm font-medium text-foreground mb-1"
+        >
+          Height (cm)
+        </label>
+        <input
+          id="height_cm"
+          name="height_cm"
+          type="number"
+          value={form.height_cm}
+          onChange={handleChange}
+          className="
+            border-border
+            bg-input
+            text-foreground
+            rounded-[var(--radius)]
+            px-3 py-2
+            focus:outline-none focus:ring focus:ring-primary-300
+          "
+          required
+        />
+      </div>
+
+      {/* Weight (kg) */}
+      <div className="flex flex-col">
+        <label
+          htmlFor="weight_kg"
+          className="text-sm font-medium text-foreground mb-1"
+        >
+          Current Weight (kg)
+        </label>
+        <input
+          id="weight_kg"
+          name="weight_kg"
+          type="number"
+          value={form.weight_kg}
+          onChange={handleChange}
+          className="
+            border-border
+            bg-input
+            text-foreground
+            rounded-[var(--radius)]
+            px-3 py-2
+            focus:outline-none focus:ring focus:ring-primary-300
+          "
+          required
+        />
+      </div>
+
+      {/* Sex */}
+      <div className="flex flex-col">
+        <label
+          htmlFor="sex"
+          className="text-sm font-medium text-foreground mb-1"
+        >
+          Sex
+        </label>
+        <select
+          id="sex"
+          name="sex"
+          value={form.sex}
+          onChange={handleChange}
+          className="
+            border-border
+            bg-input
+            text-foreground
+            rounded-[var(--radius)]
+            px-3 py-2
+            focus:outline-none focus:ring focus:ring-primary-300
+          "
+        >
+          <option value="male">Male</option>
+          <option value="female">Female</option>
+        </select>
+      </div>
+
+      {/* Goal */}
+      <div className="flex flex-col">
+        <label
+          htmlFor="goal"
+          className="text-sm font-medium text-foreground mb-1"
+        >
+          Fitness Goal
+        </label>
+        <select
+          id="goal"
+          name="goal"
+          value={form.goal}
+          onChange={handleChange}
+          className="
+            border-border
+            bg-input
+            text-foreground
+            rounded-[var(--radius)]
+            px-3 py-2
+            focus:outline-none focus:ring focus:ring-primary-300
+          "
+        >
+          <option value="fat_loss">Fat Loss</option>
+          <option value="muscle_gain">Muscle Gain</option>
+          <option value="recomp">Body Recomposition</option>
+        </select>
+      </div>
+
+      {/* Activity Level */}
+      <div className="flex flex-col">
+        <label
+          htmlFor="activity_level"
+          className="text-sm font-medium text-foreground mb-1"
+        >
+          Activity Level
+        </label>
+        <select
+          id="activity_level"
+          name="activity_level"
+          value={form.activity_level}
+          onChange={handleChange}
+          className="
+            border-border
+            bg-input
+            text-foreground
+            rounded-[var(--radius)]
+            px-3 py-2
+            focus:outline-none focus:ring focus:ring-primary-300
+          "
+        >
+          <option value="sedentary">Sedentary</option>
+          <option value="moderate">Moderately Active</option>
+          <option value="active">Highly Active</option>
+        </select>
+      </div>
+
+      {/* Goal Weight (kg) */}
+      <div className="flex flex-col">
+        <label
+          htmlFor="goal_weight_kg"
+          className="text-sm font-medium text-foreground mb-1"
+        >
+          Target Weight (kg) (optional)
+        </label>
+        <input
+          id="goal_weight_kg"
+          name="goal_weight_kg"
+          type="number"
+          value={form.goal_weight_kg}
+          onChange={handleChange}
+          className="
+            border-border
+            bg-input
+            text-foreground
+            rounded-[var(--radius)]
+            px-3 py-2
+            focus:outline-none focus:ring focus:ring-primary-300
+          "
+        />
+      </div>
+
+      <Button
+        type="submit"
+        variant="primary"
+        size="md"
+        disabled={loading}
+        className="w-full"
+      >
+        {loading
+          ? "Saving..."
+          : initialData
+          ? "Save Changes"
+          : "Set Up Profile"}
+      </Button>
+    </form>
+  );
+}
+</file>
+
+<file path="src/components/WeightChart.tsx">
+// src/components/WeightChart.tsx
+"use client";
+
+import {
+  Chart as ChartJS,
+  LineElement,
+  PointElement,
+  CategoryScale,
+  LinearScale,
+  Tooltip,
+  TooltipItem,
+} from "chart.js";
+import { Line } from "react-chartjs-2";
+
+ChartJS.register(
+  LineElement,
+  PointElement,
+  CategoryScale,
+  LinearScale,
+  Tooltip
+);
+
+type Props = {
+  logs: { date: string; weight_kg: number }[];
+  goalWeight?: number;
+};
+
+export default function WeightChart({ logs, goalWeight }: Props) {
+  const sortedLogs = [...logs].sort((a, b) => a.date.localeCompare(b.date));
+
+  const data = {
+    labels: sortedLogs.map((log) => log.date),
+    datasets: [
+      {
+        label: "Weight (kg)",
+        data: sortedLogs.map((log) => log.weight_kg),
+        fill: false,
+        borderColor: "hsl(var(--primary))", // uses primary from CSS vars
+        tension: 0.25,
+      },
+      ...(goalWeight !== undefined
+        ? [
+            {
+              label: "Goal Weight",
+              data: sortedLogs.map(() => goalWeight),
+              borderColor: "hsl(var(--chart-2))", // uses chart-2 from CSS vars
+              borderDash: [6, 6],
+              pointRadius: 0,
+              borderWidth: 2,
+              fill: false,
+            },
+          ]
+        : []),
+    ],
+  };
+
+  const options = {
+    responsive: true,
+    scales: {
+      y: {
+        beginAtZero: false,
+        ticks: {
+          precision: 0,
+        },
+      },
+    },
+    plugins: {
+      tooltip: {
+        callbacks: {
+          label: (ctx: TooltipItem<"line">) => `${ctx.parsed.y} kg`,
+        },
+      },
+    },
+  };
+
+  return <Line data={data} options={options} />;
+}
+</file>
+
+<file path="src/app/dashboard/habits/page.tsx">
+// src/app/dashboard/habits/page.tsx
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useUser } from "@/hooks/useUser";
+import { useHabits, type HabitWithStreak } from "@/hooks/useHabits";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
+
+export default function HabitsPage() {
+  const { user, loading: userLoading } = useUser();
+  const router = useRouter();
+  const {
+    habits,
+    todayCompleted,
+    loading: habitsLoading,
+    addHabit,
+    completeHabit,
+    deleteHabit,
+  } = useHabits();
+  const [newHabit, setNewHabit] = useState("");
+
+  // Redirect if not logged in
+  useEffect(() => {
+    if (userLoading) return;
+    if (!user) {
+      router.push("/auth/login");
+    }
+  }, [user, userLoading, router]);
+
+  if (userLoading || !user) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="h-6 w-6 animate-spin rounded-full border-2 border-blue-500 border-t-transparent"></div>
+      <div className="flex items-center justify-center min-h-screen bg-background text-foreground">
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-white text-gray-900">
-      <nav className="border-b bg-white px-6 py-4 shadow-sm flex items-center justify-between">
-        <h1 className="text-xl font-bold tracking-tight text-blue-600">
-          optimize.ai
-        </h1>
-
-        <div className="flex items-center gap-6">
-          <ul className="flex gap-6">
-            {navLinks.map((link) => (
-              <li key={link.href}>
-                <Link
-                  href={link.href}
-                  className={`text-sm font-medium ${
-                    pathname === link.href
-                      ? "text-blue-600 border-b-2 border-blue-600 pb-1"
-                      : "text-gray-600 hover:text-blue-600 hover:border-b-2 hover:border-blue-300 pb-1"
-                  } transition-all`}
-                >
-                  {link.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-
-          <button
-            onClick={handleLogout}
-            className="text-sm text-red-500 hover:text-red-600 font-medium border border-red-300 px-3 py-1 rounded hover:bg-red-50 transition"
-          >
-            Log Out
-          </button>
-        </div>
-      </nav>
-
-      <main className="p-6">{children}</main>
-    </div>
-  );
-}
-</file>
-
-<file path="src/app/dashboard/page.tsx">
-"use client";
-
-import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
-import { useRouter } from "next/navigation";
-import MacroSummary from "@/components/MacroSummary";
-
-export default function DashboardPage() {
-  const router = useRouter();
-  const [loading, setLoading] = useState(true);
-  const [userName, setUserName] = useState<string | null>(null);
-
-  useEffect(() => {
-    const loadUserProfile = async () => {
-      const { data: authData, error: authError } =
-        await supabase.auth.getUser();
-      const user = authData?.user;
-
-      if (authError || !user) {
-        router.push("/auth/login");
-        return;
-      }
-
-      const { data: profile, error: profileError } = await supabase
-        .from("user_profiles")
-        .select("name")
-        .eq("user_id", user.id)
-        .maybeSingle();
-
-      if (profileError) {
-        console.error("Failed to load profile name:", profileError.message);
-        setUserName("User");
-      } else {
-        setUserName(profile?.name ?? "User");
-      }
-
-      setLoading(false);
-    };
-
-    loadUserProfile();
-  }, [router]);
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    router.push("/auth/login");
-  };
-
-  if (loading) {
-    return (
-      <main className="p-4 text-center text-gray-500">
-        Loading your dashboard...
-      </main>
-    );
-  }
-
-  return (
-    <div className="min-h-screen flex flex-col">
-      <main className="max-w-3xl mx-auto p-6 space-y-6 flex-grow">
-        {/* Greeting & Logout */}
-        <div className="flex justify-between items-center bg-white border shadow-sm rounded-xl px-6 py-4">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">
-              Welcome back, {userName} 👋
-            </h1>
-            <p className="text-sm text-gray-500">
-              Here&apos;s your progress and targets.
-            </p>
-          </div>
-          <button
-            onClick={handleLogout}
-            className="text-sm bg-red-500 text-white px-3 py-1.5 rounded-lg hover:bg-red-600 transition"
-          >
-            Log Out
-          </button>
-        </div>
-
-        {/* Macro Summary */}
-        <MacroSummary />
-
-        {/* Future modules go here */}
-        {/* <YourNextModule /> */}
-      </main>
-    </div>
-  );
-}
-</file>
-
-<file path="src/components/MacroSummary.tsx">
-"use client";
-
-import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
-import {
-  calculateMacros,
-  type MacroOutput,
-  type ProfileInput,
-} from "@/utils/calculateMacros";
-import toast from "react-hot-toast";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-
-export default function MacroSummary() {
-  const [macros, setMacros] = useState<MacroOutput | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const loadProfileAndCalculate = async () => {
-      const { data: userData } = await supabase.auth.getUser();
-      const user = userData?.user;
-      if (!user) return;
-
-      const { data: profile, error } = await supabase
-        .from("user_profiles")
-        .select("*")
-        .eq("user_id", user.id)
-        .maybeSingle();
-
-      if (error || !profile) {
-        toast.error("Failed to load profile.");
-        return;
-      }
-
-      const formattedProfile: ProfileInput = {
-        age: profile.age,
-        height_cm: profile.height_cm,
-        weight_kg: profile.weight_kg,
-        sex: profile.sex,
-        goal: profile.goal,
-        activity_level: profile.activity_level || "moderate",
-      };
-
-      const result = calculateMacros(formattedProfile);
-      setMacros(result);
-      setLoading(false);
-    };
-
-    loadProfileAndCalculate();
-  }, []);
-
-  if (loading || !macros) {
-    return (
-      <Card className="w-full max-w-md mx-auto animate-pulse">
+    <main className="p-4 bg-background text-foreground min-h-screen">
+      {/* Add New Habit */}
+      <Card className="max-w-md mx-auto mb-6">
         <CardHeader>
-          <CardTitle>Calculating Macros...</CardTitle>
+          <CardTitle>Your Habits</CardTitle>
         </CardHeader>
-        <CardContent>
-          <p className="text-sm text-gray-500">Loading profile data...</p>
+        <CardContent className="flex gap-2">
+          <input
+            type="text"
+            value={newHabit}
+            onChange={(e) => setNewHabit(e.target.value)}
+            placeholder="New habit"
+            className="
+              flex-1
+              border-border
+              bg-input
+              text-foreground
+              rounded-[var(--radius)]
+              px-3 py-2
+              focus:outline-none focus:ring focus:ring-primary-300
+            "
+          />
+          <Button
+            variant="primary"
+            size="md"
+            onClick={() => {
+              if (newHabit.trim()) {
+                addHabit(newHabit);
+                setNewHabit("");
+              }
+            }}
+          >
+            Add
+          </Button>
         </CardContent>
       </Card>
+
+      {habitsLoading ? (
+        // Skeleton loader
+        <ul className="max-w-md mx-auto space-y-4">
+          {[...Array(3)].map((_, i) => (
+            <li key={i} className="flex items-center animate-pulse space-x-4">
+              <div className="h-4 w-32 bg-muted rounded"></div>
+              <div className="h-4 w-12 bg-muted rounded"></div>
+              <div className="h-5 w-5 bg-muted rounded-full"></div>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <ul className="max-w-md mx-auto divide-y divide-border">
+          {habits.map((habit: HabitWithStreak) => {
+            const isDone = todayCompleted.has(habit.id);
+            return (
+              <li
+                key={habit.id}
+                className="flex items-center justify-between py-4"
+              >
+                <span className="text-foreground">
+                  {habit.title}
+                  <span className="ml-2 text-sm text-muted-foreground">
+                    🔥 {habit.streak}
+                  </span>
+                </span>
+                <div className="flex gap-2 items-center">
+                  <input
+                    type="checkbox"
+                    checked={isDone}
+                    disabled={isDone}
+                    onChange={() => completeHabit(habit.id)}
+                    className="
+                      w-5 h-5
+                      border-border
+                      bg-input
+                      focus:outline-none focus:ring focus:ring-primary-300
+                      disabled:opacity-50
+                    "
+                  />
+                  <button
+                    onClick={() => deleteHabit(habit.id)}
+                    className="text-destructive-foreground hover:text-destructive-foreground/80 text-sm"
+                    title="Delete habit"
+                  >
+                    🗑️
+                  </button>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </main>
+  );
+}
+</file>
+
+<file path="src/app/dashboard/weight/page.tsx">
+// src/app/dashboard/weight/page.tsx
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useUser } from "@/hooks/useUser";
+import { useWeightLogs } from "@/hooks/useWeightLogs";
+import WeightChart from "@/components/WeightChart";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
+
+export default function WeightTrackerPage() {
+  const { user, loading: userLoading } = useUser();
+  const router = useRouter();
+  const {
+    logs,
+    goalWeight,
+    loading: logsLoading,
+    addLog,
+    deleteLog,
+    updateLog,
+  } = useWeightLogs();
+  const [weightInput, setWeightInput] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingWeight, setEditingWeight] = useState("");
+
+  // Redirect if not logged in
+  useEffect(() => {
+    if (userLoading) return;
+    if (!user) {
+      router.push("/auth/login");
+    }
+  }, [user, userLoading, router]);
+
+  if (userLoading || !user) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-background text-foreground">
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
+      </div>
     );
   }
 
   return (
-    <Card className="w-full max-w-md mx-auto shadow-md">
-      <CardHeader>
-        <CardTitle>Macro Breakdown</CardTitle>
-      </CardHeader>
-      <CardContent className="grid grid-cols-2 gap-y-2 text-sm">
-        <div className="font-medium text-gray-700">BMR:</div>
-        <div>{macros.bmr} kcal</div>
+    <main className="min-h-screen bg-background text-foreground p-4">
+      <div className="max-w-md mx-auto space-y-6">
+        {/* Log Input Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Log Your Weight</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <input
+              type="number"
+              placeholder="Enter today’s weight (kg)"
+              value={weightInput}
+              onChange={(e) => setWeightInput(e.target.value)}
+              className="
+                w-full
+                border-border
+                bg-input
+                text-foreground
+                rounded-[var(--radius)]
+                px-3 py-2
+                focus:outline-none focus:ring focus:ring-primary-300
+              "
+            />
+            <Button
+              variant="primary"
+              size="md"
+              onClick={() => {
+                if (weightInput.trim()) {
+                  addLog(Number(weightInput));
+                  setWeightInput("");
+                }
+              }}
+            >
+              Log Weight
+            </Button>
+          </CardContent>
+        </Card>
 
-        <div className="font-medium text-gray-700">Maintenance:</div>
-        <div>{macros.maintenanceCalories} kcal</div>
+        {/* Logs List Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Weight Logs</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {logsLoading ? (
+              <p className="text-muted-foreground text-center">Loading…</p>
+            ) : logs.length === 0 ? (
+              <p className="text-muted-foreground text-center">No logs yet.</p>
+            ) : (
+              <ul className="space-y-2">
+                {logs.map((log) => (
+                  <li
+                    key={log.id}
+                    className="flex justify-between items-center border-b border-border py-2"
+                  >
+                    {editingId === log.id ? (
+                      <>
+                        <input
+                          type="number"
+                          value={editingWeight}
+                          onChange={(e) => setEditingWeight(e.target.value)}
+                          className="
+                            w-20
+                            border-border
+                            bg-input
+                            text-foreground
+                            rounded-[var(--radius)]
+                            px-2 py-1
+                            focus:outline-none focus:ring focus:ring-primary-300
+                          "
+                        />
+                        <div className="flex gap-2">
+                          <Button
+                            variant="primary"
+                            size="sm"
+                            onClick={() => {
+                              updateLog(log.id, Number(editingWeight));
+                              setEditingId(null);
+                              setEditingWeight("");
+                            }}
+                          >
+                            Save
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setEditingId(null)}
+                            className="text-destructive-foreground hover:text-destructive-foreground/80"
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <span>{log.date}</span>
+                        <span className="flex gap-2 items-center">
+                          <span className="font-semibold">
+                            {log.weight_kg} kg
+                          </span>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              setEditingId(log.id);
+                              setEditingWeight(log.weight_kg.toString());
+                            }}
+                            className="text-primary hover:underline"
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => deleteLog(log.id)}
+                            className="text-destructive-foreground hover:text-destructive-foreground/80"
+                          >
+                            Delete
+                          </Button>
+                        </span>
+                      </>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </CardContent>
+        </Card>
 
-        <div className="font-medium text-gray-700">Target Calories:</div>
-        <div>{macros.targetCalories} kcal</div>
-
-        <div className="font-medium text-gray-700">Protein:</div>
-        <div>{macros.proteinGrams} g</div>
-
-        <div className="font-medium text-gray-700">Fat:</div>
-        <div>{macros.fatGrams} g</div>
-
-        <div className="font-medium text-gray-700">Carbs:</div>
-        <div>{macros.carbGrams} g</div>
-      </CardContent>
-    </Card>
+        {/* Chart Section */}
+        {!logsLoading && logs.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Progress Chart</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <WeightChart logs={logs} goalWeight={goalWeight ?? undefined} />
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    </main>
   );
 }
 </file>
 
 <file path="tailwind.config.ts">
-import type { Config } from "tailwindcss";
-
-export default {
-    darkMode: ["class"],
-    content: [
-    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+// tailwind.config.js
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: [
+    "./src/app/**/*.{js,ts,jsx,tsx}",
+    "./src/components/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-  	extend: {
-  		colors: {
-  			background: 'hsl(var(--background))',
-  			foreground: 'hsl(var(--foreground))',
-  			card: {
-  				DEFAULT: 'hsl(var(--card))',
-  				foreground: 'hsl(var(--card-foreground))'
-  			},
-  			popover: {
-  				DEFAULT: 'hsl(var(--popover))',
-  				foreground: 'hsl(var(--popover-foreground))'
-  			},
-  			primary: {
-  				DEFAULT: 'hsl(var(--primary))',
-  				foreground: 'hsl(var(--primary-foreground))'
-  			},
-  			secondary: {
-  				DEFAULT: 'hsl(var(--secondary))',
-  				foreground: 'hsl(var(--secondary-foreground))'
-  			},
-  			muted: {
-  				DEFAULT: 'hsl(var(--muted))',
-  				foreground: 'hsl(var(--muted-foreground))'
-  			},
-  			accent: {
-  				DEFAULT: 'hsl(var(--accent))',
-  				foreground: 'hsl(var(--accent-foreground))'
-  			},
-  			destructive: {
-  				DEFAULT: 'hsl(var(--destructive))',
-  				foreground: 'hsl(var(--destructive-foreground))'
-  			},
-  			border: 'hsl(var(--border))',
-  			input: 'hsl(var(--input))',
-  			ring: 'hsl(var(--ring))',
-  			chart: {
-  				'1': 'hsl(var(--chart-1))',
-  				'2': 'hsl(var(--chart-2))',
-  				'3': 'hsl(var(--chart-3))',
-  				'4': 'hsl(var(--chart-4))',
-  				'5': 'hsl(var(--chart-5))'
-  			}
-  		},
-  		borderRadius: {
-  			lg: 'var(--radius)',
-  			md: 'calc(var(--radius) - 2px)',
-  			sm: 'calc(var(--radius) - 4px)'
-  		}
-  	}
+    extend: {
+      colors: {
+        primary: {
+          50: "#f0f9ff",
+          100: "#e0f2fe",
+          200: "#bae6fd",
+          300: "#7dd3fc",
+          400: "#38bdf8",
+          500: "#0ea5e9",
+          600: "#0284c7",
+          700: "#0369a1",
+          800: "#075985",
+          900: "#0c4a6e",
+        },
+        secondary: {
+          50: "#fdf2f8",
+          100: "#fce7f3",
+          200: "#fbcfe8",
+          300: "#f9a8d4",
+          400: "#f472b6",
+          500: "#ec4899",
+          600: "#db2777",
+          700: "#be185d",
+          800: "#9d174d",
+          900: "#831843",
+        },
+        neutral: {
+          50: "#fafafa",
+          100: "#f5f5f5",
+          200: "#e5e5e5",
+          300: "#d4d4d4",
+          400: "#a3a3a3",
+          500: "#737373",
+          600: "#525252",
+          700: "#404040",
+          800: "#262626",
+          900: "#171717",
+        },
+      },
+      fontFamily: {
+        sans: ["Inter", "sans-serif"],
+      },
+    },
   },
-  plugins: [require("tailwindcss-animate")],
-} satisfies Config;
+  plugins: [],
+};
 </file>
 
 <file path="README.md">
 # optimize.ai 🧠⚡
 
-A self-improvement web app built with **Next.js**, **Supabase**, and **Tailwind CSS**.  
-Track your habits, meal plans, and workouts — all in one place.
+A modern full-stack wellness and self-optimization platform built with **Next.js**, **Supabase**, and **Tailwind CSS**.
+Track your habits, macros, and weight—all in one place.
 
 ---
 
 ## 🚀 Features
 
-- ✅ User authentication (Supabase Auth)
+- ✅ Secure user authentication (Supabase Auth)
 - 🔄 Habit tracker with daily check-offs and streaks
-- 🔔 Toast notifications for actions
-- 💨 Skeleton loaders for smooth UX
-- 📦 Supabase integration for real-time data
-- 🧠 Plans for meal tracking, workout planning, and more
+- 📈 Weight tracker with history, editing, and goal reference line
+- 🥗 Macro nutrition calculator (BMR, maintenance, target calories, macros)
+- 🛡️ Row-Level Security so users only access their own data
+- 🔔 Toast notifications for success/error feedback
+- 📊 Responsive charts (Chart.js) for weight progress
 
 ---
 
 ## 🖥️ Tech Stack
 
 - [Next.js (App Router)](https://nextjs.org/)
-- [Supabase](https://supabase.com/)
+- [Supabase (PostgreSQL, Auth, Edge Functions, RLS)](https://supabase.com/)
 - [Tailwind CSS](https://tailwindcss.com/)
-- [react-hot-toast](https://react-hot-toast.com/)
-- TypeScript
+- [shadcn/ui (for accessible components)](https://ui.shadcn.com/)
+- [react-chartjs-2](https://github.com/reactchartjs/react-chartjs-2)
+- [react-hot-toast (for notifications)](https://react-hot-toast.com/)
+- TypeScript, ESLint, Prettier
 
 ---
 
@@ -1622,13 +2332,58 @@ Coming soon!
 
 ---
 
+## 📚 Project Structure
+
+```php
+.
+├── .github/
+│   └── workflows/
+│       └── ci.yml           # CI workflow for lint & type-check
+├── public/                  # Static assets (favicon, etc.)
+├── src/
+│   ├── app/
+│   │   ├── auth/             # Login & signup pages
+│   │   ├── dashboard/
+│   │   │   ├── habits/       # Habit tracker pages
+│   │   │   ├── weight/       # Weight tracker pages
+│   │   │   └── profile/      # Profile setup & edit pages
+│   │   └── layout.tsx        # Global app layout
+│   ├── components/           # Reusable UI components
+│   │   ├── AuthForm.tsx
+│   │   ├── ProfileForm.tsx
+│   │   ├── MacroSummary.tsx
+│   │   └── WeightChart.tsx
+│   ├── hooks/                # Custom React hooks
+│   │   ├── useUser.ts
+│   │   ├── useAuthAndProfileGuard.ts
+│   │   ├── useHabits.ts
+│   │   ├── useWeightLogs.ts
+│   │   └── useMacros.ts
+│   ├── lib/
+│   │   └── supabaseClient.ts  # Supabase client initialization
+│   ├── schemas/
+│   │   └── profileSchema.ts   # Zod validation schema
+│   ├── types/
+│   │   └── database.ts        # TS interfaces for Supabase tables
+│   ├── utils/
+│   │   └── calculateMacros.ts # Macro calculation logic
+│   └── styles/                # Custom CSS (if any)
+├── .env.example
+├── .eslintrc.js
+├── package.json
+└── README.md                  # (this file)
+```
+
 ## ✅ To Do (Future Features)
 
 - [ ] Meal planner with macro targets
 - [ ] Workout routine builder
+- [ ] Habit templates (e.g., "Morning Routine")
 - [ ] Calendar view for habit logs
+- [ ] Custom notifications/reminders (e.g., “Log your weight”)
 - [ ] Dark mode
 - [ ] Settings & profile
+- [ ] Native iOS app (Expo/React Native or Swift + Supabase)
 
 ---
 
@@ -1637,589 +2392,400 @@ Coming soon!
 MIT — use this freely to build your own system of discipline and progress.
 </file>
 
-<file path="src/app/dashboard/profile/edit/page.tsx">
+<file path="src/app/dashboard/layout.tsx">
+// src/app/dashboard/layout.tsx
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import toast from "react-hot-toast";
+import { useUser } from "@/hooks/useUser";
+import Link from "next/link";
+import { Button } from "@/components/ui/Button";
 
-export default function EditProfilePage() {
-  const router = useRouter();
-
-  const [form, setForm] = useState({
-    name: "",
-    age: "",
-    height_cm: "",
-    weight_kg: "",
-    sex: "male",
-    goal: "fat_loss",
-    activity_level: "moderate",
-    goal_weight_kg: "",
-  });
-
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchProfile = async () => {
-      const user = (await supabase.auth.getUser()).data.user;
-      if (!user) return;
-
-      const { data, error } = await supabase
-        .from("user_profiles")
-        .select(
-          "name, age, height_cm, weight_kg, sex, goal, activity_level, goal_weight_kg"
-        )
-        .eq("user_id", user.id)
-        .maybeSingle();
-
-      if (error || !data) {
-        toast.error("Failed to load profile");
-        setLoading(false);
-        return;
-      }
-
-      setForm({
-        name: data.name ?? "",
-        age: data.age.toString(),
-        height_cm: data.height_cm.toString(),
-        weight_kg: data.weight_kg.toString(),
-        sex: data.sex,
-        goal: data.goal,
-        activity_level: data.activity_level,
-        goal_weight_kg: data.goal_weight_kg?.toString() ?? "",
-      });
-
-      setLoading(false);
-    };
-
-    fetchProfile();
-  }, []);
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const user = (await supabase.auth.getUser()).data.user;
-    if (!user) return;
-
-    const { error } = await supabase
-      .from("user_profiles")
-      .update({
-        name: form.name,
-        age: Number(form.age),
-        height_cm: Number(form.height_cm),
-        weight_kg: Number(form.weight_kg),
-        sex: form.sex,
-        goal: form.goal,
-        activity_level: form.activity_level,
-        goal_weight_kg: form.goal_weight_kg
-          ? Number(form.goal_weight_kg)
-          : null,
-      })
-      .eq("user_id", user.id);
-
-    if (error) {
-      console.error(error.message);
-      toast.error("Failed to update profile");
-      return;
-    }
-
-    toast.success("Profile updated!");
-    router.push("/dashboard");
-  };
-
-  if (loading) {
-    return (
-      <main className="min-h-screen flex items-center justify-center">
-        <div className="h-6 w-6 animate-spin rounded-full border-2 border-blue-500 border-t-transparent"></div>
-      </main>
-    );
-  }
-
-  return (
-    <main className="max-w-md mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-4">Edit Your Profile</h1>
-
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium">Name</label>
-          <input
-            name="name"
-            value={form.name}
-            onChange={handleChange}
-            type="text"
-            required
-            className="w-full border p-2 rounded"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium">Age</label>
-          <input
-            name="age"
-            value={form.age}
-            onChange={handleChange}
-            type="number"
-            required
-            className="w-full border p-2 rounded"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium">Height (cm)</label>
-          <input
-            name="height_cm"
-            value={form.height_cm}
-            onChange={handleChange}
-            type="number"
-            required
-            className="w-full border p-2 rounded"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium">Weight (kg)</label>
-          <input
-            name="weight_kg"
-            value={form.weight_kg}
-            onChange={handleChange}
-            type="number"
-            required
-            className="w-full border p-2 rounded"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium">Goal Weight (kg)</label>
-          <input
-            name="goal_weight_kg"
-            value={form.goal_weight_kg}
-            onChange={handleChange}
-            type="number"
-            className="w-full border p-2 rounded"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium">Sex</label>
-          <select
-            name="sex"
-            value={form.sex}
-            onChange={handleChange}
-            className="w-full border p-2 rounded"
-          >
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-          </select>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium">Goal</label>
-          <select
-            name="goal"
-            value={form.goal}
-            onChange={handleChange}
-            className="w-full border p-2 rounded"
-          >
-            <option value="fat_loss">Fat Loss</option>
-            <option value="muscle_gain">Muscle Gain</option>
-            <option value="recomp">Body Recomp</option>
-          </select>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium">Activity Level</label>
-          <select
-            name="activity_level"
-            value={form.activity_level}
-            onChange={handleChange}
-            className="w-full border p-2 rounded"
-          >
-            <option value="sedentary">Sedentary</option>
-            <option value="moderate">Moderate</option>
-            <option value="active">Active</option>
-          </select>
-        </div>
-
-        <button
-          type="submit"
-          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
-        >
-          Save Changes
-        </button>
-      </form>
-    </main>
-  );
+interface DashboardLayoutProps {
+  children: React.ReactNode;
 }
-</file>
 
-<file path="src/app/dashboard/profile/setup/page.tsx">
-"use client";
-
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabaseClient";
-import toast from "react-hot-toast";
-
-export default function SetupProfilePage() {
+export default function DashboardLayout({ children }: DashboardLayoutProps) {
+  const { user, loading: userLoading } = useUser();
   const router = useRouter();
+  const pathname = usePathname();
 
-  const [form, setForm] = useState({
-    name: "",
-    age: "",
-    height_cm: "",
-    weight_kg: "",
-    sex: "male",
-    goal: "fat_loss",
-    activity_level: "moderate",
-    goal_weight_kg: "",
-  });
-
-  const [checking, setChecking] = useState(true);
-
+  // ─── Unconditional Hook ──────────────────────────────────────────────────────
   useEffect(() => {
-    const checkProfile = async () => {
-      const { data: userData } = await supabase.auth.getUser();
-      const user = userData?.user;
-      if (!user) return;
+    // Only run once userLoading is false and user is non-null
+    if (userLoading || !user) return;
 
-      const { data, error } = await supabase
+    // Check if the user has a profile; if not, send them to setup
+    const checkProfile = async () => {
+      const { data: profile, error } = await supabase
         .from("user_profiles")
-        .select(
-          "name, age, height_cm, weight_kg, sex, goal, activity_level, goal_weight_kg"
-        )
+        .select("user_id")
         .eq("user_id", user.id)
         .maybeSingle();
 
       if (error) {
         console.error("Error checking profile:", error.message);
-        toast.error("Could not check user profile.");
+        toast.error("Error checking profile.");
         return;
       }
-
-      if (data) {
-        setForm({
-          name: data.name ?? "",
-          age: data.age.toString(),
-          height_cm: data.height_cm.toString(),
-          weight_kg: data.weight_kg.toString(),
-          sex: data.sex,
-          goal: data.goal,
-          activity_level: data.activity_level,
-          goal_weight_kg: data.goal_weight_kg?.toString() ?? "",
-        });
-        router.push("/dashboard");
-      } else {
-        setChecking(false); // No profile exists, show the form
+      if (!profile && pathname !== "/dashboard/profile/setup") {
+        router.push("/dashboard/profile/setup");
       }
     };
 
     checkProfile();
-  }, [router]);
+  }, [user, userLoading, pathname, router]);
+  // ──────────────────────────────────────────────────────────────────────────────
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const user = (await supabase.auth.getUser()).data.user;
-    if (!user) return;
-
-    const { error } = await supabase.from("user_profiles").insert({
-      user_id: user.id,
-      name: form.name,
-      age: Number(form.age),
-      height_cm: Number(form.height_cm),
-      weight_kg: Number(form.weight_kg),
-      sex: form.sex,
-      goal: form.goal,
-      activity_level: form.activity_level,
-      goal_weight_kg: form.goal_weight_kg ? Number(form.goal_weight_kg) : null,
-    });
-
-    if (error) {
-      console.error(error.message);
-      toast.error("Failed to save profile");
-      return;
-    }
-
-    toast.success("Profile saved!");
-    router.push("/dashboard");
-  };
-
-  if (checking) {
+  // While Supabase is checking auth, show a loading spinner
+  if (userLoading) {
     return (
-      <main className="min-h-screen flex items-center justify-center">
-        <div className="h-6 w-6 animate-spin rounded-full border-2 border-blue-500 border-t-transparent"></div>
+      <div className="flex items-center justify-center min-h-screen bg-background text-foreground">
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
+      </div>
+    );
+  }
+
+  // If not logged in, redirect to login immediately
+  if (!user) {
+    router.push("/auth/login");
+    return null;
+  }
+
+  const navLinks = [
+    { href: "/dashboard", label: "Dashboard" },
+    { href: "/dashboard/habits", label: "Habits" },
+    { href: "/dashboard/weight", label: "Weight" },
+    { href: "/dashboard/macros/history", label: "Macro History" },
+    { href: "/dashboard/profile/edit", label: "Edit Profile" },
+  ];
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.push("/auth/login");
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col bg-background text-foreground">
+      <nav className="border-b border-border bg-card px-6 py-4 shadow-sm flex items-center justify-between">
+        <h1 className="text-xl font-semibold tracking-tight text-primary">
+          optimize.ai
+        </h1>
+        <div className="flex items-center gap-6">
+          <ul className="flex gap-6">
+            {navLinks.map((link) => (
+              <li key={link.href}>
+                <Link
+                  href={link.href}
+                  className={`
+                    text-sm font-medium 
+                    ${
+                      pathname === link.href
+                        ? "text-primary border-b-2 border-primary pb-1"
+                        : "text-muted-foreground hover:text-primary hover:border-b-2 hover:border-primary pb-1"
+                    }
+                    transition-all
+                  `}
+                >
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleLogout}
+            className="text-destructive hover:text-destructive-foreground"
+          >
+            Log Out
+          </Button>
+        </div>
+      </nav>
+      <main className="p-6">{children}</main>
+    </div>
+  );
+}
+</file>
+
+<file path="src/app/dashboard/page.tsx">
+// src/app/dashboard/page.tsx
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabaseClient";
+import { useUser } from "@/hooks/useUser";
+import MacroSummary from "@/components/MacroSummary";
+import { Card, CardHeader } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
+
+export default function DashboardPage() {
+  const { user, loading: userLoading } = useUser();
+  const router = useRouter();
+  const [userName, setUserName] = useState<string>("");
+
+  // Redirect if not logged in
+  useEffect(() => {
+    if (userLoading) return;
+    if (!user) {
+      router.push("/auth/login");
+    }
+  }, [user, userLoading, router]);
+
+  // Fetch profile name once we have a user
+  useEffect(() => {
+    if (!user) return;
+    const loadProfileName = async () => {
+      const { data: profile, error: profileError } = await supabase
+        .from("user_profiles")
+        .select("name")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (profileError) {
+        console.error("Failed to load profile name:", profileError.message);
+        setUserName("User");
+      } else {
+        setUserName(profile?.name ?? "User");
+      }
+    };
+    loadProfileName();
+  }, [user]);
+
+  // While checking auth or loading name, show a loading state
+  if (userLoading || !user || !userName) {
+    return (
+      <main className="flex items-center justify-center min-h-screen bg-background text-foreground">
+        <div className="text-sm text-muted-foreground">
+          Loading your dashboard...
+        </div>
       </main>
     );
   }
 
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.push("/auth/login");
+  };
+
   return (
-    <main className="max-w-md mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-4">Set Up Your Profile</h1>
+    <div className="min-h-screen flex flex-col bg-background text-foreground">
+      <main className="flex-grow max-w-3xl mx-auto p-6 space-y-6">
+        {/* Greeting & Logout */}
+        <Card>
+          <CardHeader className="flex justify-between items-center">
+            <div>
+              <h1 className="text-2xl font-semibold text-foreground mb-1">
+                Welcome back, {userName} 👋
+              </h1>
+              <p className="text-sm text-muted-foreground">
+                Here’s your progress and targets.
+              </p>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleLogout}
+              className="text-destructive hover:text-destructive-foreground"
+            >
+              Log Out
+            </Button>
+          </CardHeader>
+        </Card>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium">Name</label>
-          <input
-            name="name"
-            value={form.name}
-            onChange={handleChange}
-            type="text"
-            required
-            className="w-full border p-2 rounded"
-          />
-        </div>
+        {/* Macro Summary */}
+        <MacroSummary />
 
-        <div>
-          <label className="block text-sm font-medium">Age</label>
-          <input
-            name="age"
-            value={form.age}
-            onChange={handleChange}
-            type="number"
-            required
-            className="w-full border p-2 rounded"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium">Height (cm)</label>
-          <input
-            name="height_cm"
-            value={form.height_cm}
-            onChange={handleChange}
-            type="number"
-            required
-            className="w-full border p-2 rounded"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium">Weight (kg)</label>
-          <input
-            name="weight_kg"
-            value={form.weight_kg}
-            onChange={handleChange}
-            type="number"
-            required
-            className="w-full border p-2 rounded"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium">Goal Weight (kg)</label>
-          <input
-            name="goal_weight_kg"
-            value={form.goal_weight_kg}
-            onChange={handleChange}
-            type="number"
-            className="w-full border p-2 rounded"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium">Sex</label>
-          <select
-            name="sex"
-            value={form.sex}
-            onChange={handleChange}
-            className="w-full border p-2 rounded"
-          >
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-          </select>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium">Goal</label>
-          <select
-            name="goal"
-            value={form.goal}
-            onChange={handleChange}
-            className="w-full border p-2 rounded"
-          >
-            <option value="fat_loss">Fat Loss</option>
-            <option value="muscle_gain">Muscle Gain</option>
-            <option value="recomp">Body Recomp</option>
-          </select>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium">Activity Level</label>
-          <select
-            name="activity_level"
-            value={form.activity_level}
-            onChange={handleChange}
-            className="w-full border p-2 rounded"
-          >
-            <option value="sedentary">Sedentary</option>
-            <option value="moderate">Moderate</option>
-            <option value="active">Active</option>
-          </select>
-        </div>
-
-        <button
-          type="submit"
-          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
-        >
-          Save Profile
-        </button>
-      </form>
-    </main>
+        {/* Future modules go here */}
+        {/* e.g., <YourNextModule /> */}
+      </main>
+    </div>
   );
 }
 </file>
 
 <file path="src/app/globals.css">
+@import "@fontsource/inter/400.css";
+@import "@fontsource/inter/500.css";
+@import "@fontsource/inter/600.css";
+@import "@fontsource/inter/700.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-
-
-@layer base {
-  :root {
-
-    --background: 0 0% 100%;
-
-    --foreground: 0 0% 3.9%;
-
-    --card: 0 0% 100%;
-
-    --card-foreground: 0 0% 3.9%;
-
-    --popover: 0 0% 100%;
-
-    --popover-foreground: 0 0% 3.9%;
-
-    --primary: 0 0% 9%;
-
-    --primary-foreground: 0 0% 98%;
-
-    --secondary: 0 0% 96.1%;
-
-    --secondary-foreground: 0 0% 9%;
-
-    --muted: 0 0% 96.1%;
-
-    --muted-foreground: 0 0% 45.1%;
-
-    --accent: 0 0% 96.1%;
-
-    --accent-foreground: 0 0% 9%;
-
-    --destructive: 0 84.2% 60.2%;
-
-    --destructive-foreground: 0 0% 98%;
-
-    --border: 0 0% 89.8%;
-
-    --input: 0 0% 89.8%;
-
-    --ring: 0 0% 3.9%;
-
-    --chart-1: 12 76% 61%;
-
-    --chart-2: 173 58% 39%;
-
-    --chart-3: 197 37% 24%;
-
-    --chart-4: 43 74% 66%;
-
-    --chart-5: 27 87% 67%;
-
-    --radius: 0.5rem
+/* ----------------------------------------
+   Map your CSS variables to Tailwind utilities
+   ---------------------------------------- */
+@layer utilities {
+  /* Backgrounds & Foregrounds */
+  .bg-background {
+    background-color: hsl(var(--background));
   }
-  .dark {
+  .text-foreground {
+    color: hsl(var(--foreground));
+  }
 
-    --background: 0 0% 3.9%;
+  /* Card */
+  .bg-card {
+    background-color: hsl(var(--card));
+  }
+  .text-card-foreground {
+    color: hsl(var(--card-foreground));
+  }
 
-    --foreground: 0 0% 98%;
+  /* Popover (if used) */
+  .bg-popover {
+    background-color: hsl(var(--popover));
+  }
+  .text-popover-foreground {
+    color: hsl(var(--popover-foreground));
+  }
 
-    --card: 0 0% 3.9%;
+  /* Primary & Secondary */
+  .bg-primary {
+    background-color: hsl(var(--primary));
+  }
+  .text-primary-foreground {
+    color: hsl(var(--primary-foreground));
+  }
+  .bg-secondary {
+    background-color: hsl(var(--secondary));
+  }
+  .text-secondary-foreground {
+    color: hsl(var(--secondary-foreground));
+  }
 
-    --card-foreground: 0 0% 98%;
+  /* Muted & Accent (rarely used directly) */
+  .bg-muted {
+    background-color: hsl(var(--muted));
+  }
+  .text-muted-foreground {
+    color: hsl(var(--muted-foreground));
+  }
+  .bg-accent {
+    background-color: hsl(var(--accent));
+  }
+  .text-accent-foreground {
+    color: hsl(var(--accent-foreground));
+  }
 
-    --popover: 0 0% 3.9%;
+  /* Borders & Inputs & Rings */
+  .border-border {
+    border-color: hsl(var(--border));
+  }
+  .bg-input {
+    background-color: hsl(var(--input));
+  }
+  .ring-ring {
+    --tw-ring-color: hsl(var(--ring));
+  }
 
-    --popover-foreground: 0 0% 98%;
+  /* Destructive (e.g. delete buttons) */
+  .bg-destructive {
+    background-color: hsl(var(--destructive));
+  }
+  .text-destructive-foreground {
+    color: hsl(var(--destructive-foreground));
+  }
 
-    --primary: 0 0% 98%;
-
-    --primary-foreground: 0 0% 9%;
-
-    --secondary: 0 0% 14.9%;
-
-    --secondary-foreground: 0 0% 98%;
-
-    --muted: 0 0% 14.9%;
-
-    --muted-foreground: 0 0% 63.9%;
-
-    --accent: 0 0% 14.9%;
-
-    --accent-foreground: 0 0% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-
-    --destructive-foreground: 0 0% 98%;
-
-    --border: 0 0% 14.9%;
-
-    --input: 0 0% 14.9%;
-
-    --ring: 0 0% 83.1%;
-
-    --chart-1: 220 70% 50%;
-
-    --chart-2: 160 60% 45%;
-
-    --chart-3: 30 80% 55%;
-
-    --chart-4: 280 65% 60%;
-
-    --chart-5: 340 75% 55%
+  /* Chart colors (if you style charts manually) */
+  .fill-chart-1 {
+    fill: hsl(var(--chart-1));
+  }
+  .fill-chart-2 {
+    fill: hsl(var(--chart-2));
+  }
+  .fill-chart-3 {
+    fill: hsl(var(--chart-3));
+  }
+  .fill-chart-4 {
+    fill: hsl(var(--chart-4));
+  }
+  .fill-chart-5 {
+    fill: hsl(var(--chart-5));
   }
 }
 
-
-
+/* ----------------------------------------
+   Your existing root variables & base styles
+   ---------------------------------------- */
 @layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
+    --primary: 0 0% 9%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+    --accent: 0 0% 96.1%;
+    --accent-foreground: 0 0% 9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 0 0% 3.9%;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 0 0% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 9%;
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 0 0% 83.1%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+  }
+
+  /* Apply default borders/background/text using your variables */
   * {
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans;
   }
 }
 </file>
 
 <file path="src/app/layout.tsx">
+// src/app/layout.tsx
+
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "Optimize AI",
@@ -2233,13 +2799,412 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-gradient-to-br from-gray-100 via-white to-gray-200 text-gray-900`}
-      >
+      <body className="font-sans antialiased min-h-screen bg-background text-foreground">
         <Toaster position="top-right" />
         {children}
       </body>
     </html>
+  );
+}
+</file>
+
+<file path="src/components/MacroSummary.tsx">
+// src/components/MacroSummary.tsx
+"use client";
+
+import { useState, useEffect } from "react";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/Card";
+import { useUser } from "@/hooks/useUser";
+import { useMacros } from "@/hooks/useMacros";
+import { supabase } from "@/lib/supabaseClient";
+import toast from "react-hot-toast";
+
+export default function MacroSummary() {
+  const { user, loading: userLoading } = useUser();
+  const { macros, loading: macrosLoading, refresh } = useMacros();
+
+  // Local state for editable fields (all strings so that inputs remain controlled)
+  const [targetCalories, setTargetCalories] = useState("");
+  const [proteinGrams, setProteinGrams] = useState("");
+  const [fatGrams, setFatGrams] = useState("");
+  const [carbGrams, setCarbGrams] = useState("");
+
+  // Loading flags
+  const [isRecalculating, setIsRecalculating] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  // When macros arrive, populate override fields:
+  useEffect(() => {
+    if (macros) {
+      setTargetCalories(macros.targetCalories.toString());
+      setProteinGrams(macros.proteinGrams.toString());
+      setFatGrams(macros.fatGrams.toString());
+      setCarbGrams(macros.carbGrams.toString());
+    }
+  }, [macros]);
+
+  // 1) Auth check in progress
+  if (userLoading) {
+    return (
+      <Card className="w-full max-w-md mx-auto animate-pulse">
+        <CardHeader>
+          <CardTitle className="text-foreground">
+            Calculating Macros...
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground">
+            Checking authentication...
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // 2) User not logged in
+  if (!user) {
+    return (
+      <Card className="w-full max-w-md mx-auto animate-pulse">
+        <CardHeader>
+          <CardTitle className="text-foreground">
+            Calculating Macros...
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground">Waiting for login...</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // 3) Macros loading or not ready
+  if (macrosLoading || !macros) {
+    return (
+      <Card className="w-full max-w-md mx-auto animate-pulse">
+        <CardHeader>
+          <CardTitle className="text-foreground">
+            Calculating Macros...
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground">
+            Loading profile data...
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // “Recalculate” button handler
+  const handleRecalculate = async () => {
+    setIsRecalculating(true);
+    await refresh();
+    setIsRecalculating(false);
+  };
+
+  // “Save” button handler
+  const handleSave = async () => {
+    // Convert overrides to numbers
+    const tc = Number(targetCalories);
+    const p = Number(proteinGrams);
+    const f = Number(fatGrams);
+    const c = Number(carbGrams);
+
+    // Basic validation
+    if ([tc, p, f, c].some((v) => isNaN(v))) {
+      toast.error("Please enter valid numeric values before saving.");
+      return;
+    }
+
+    setIsSaving(true);
+
+    // Build payload (note: bmr and maintenance are read-only from macros)
+    const payload = {
+      user_id: user.id,
+      bmr: macros.bmr,
+      maintenance_calories: macros.maintenanceCalories,
+      target_calories: tc,
+      protein_grams: p,
+      fat_grams: f,
+      carb_grams: c,
+    };
+
+    // Insert into user_macros
+    const { error } = await supabase.from("user_macros").insert(payload);
+
+    if (error) {
+      console.error("Error saving macros:", error.message);
+      toast.error("Failed to save macros.");
+    } else {
+      toast.success("Macros saved!");
+    }
+    setIsSaving(false);
+  };
+
+  return (
+    <Card className="w-full max-w-md mx-auto shadow-md bg-card rounded-[var(--radius)] border-border">
+      <CardHeader className="flex justify-between items-center">
+        <CardTitle className="text-foreground">Macro Breakdown</CardTitle>
+        <button
+          onClick={handleRecalculate}
+          disabled={isRecalculating}
+          className={`
+            text-sm px-3 py-1 rounded-[var(--radius)]
+            ${
+              isRecalculating
+                ? "bg-muted text-muted-foreground"
+                : "bg-primary text-primary-foreground hover:bg-primary-600"
+            }
+            disabled:opacity-50
+          `}
+        >
+          {isRecalculating ? "Recalculating…" : "Recalculate"}
+        </button>
+      </CardHeader>
+
+      <CardContent className="grid grid-cols-2 gap-3 text-sm text-foreground">
+        {/* BMR (read-only display) */}
+        <div className="font-medium">BMR (kcal):</div>
+        <div>{macros.bmr}</div>
+
+        {/* Maintenance (read-only display) */}
+        <div className="font-medium">Maintenance (kcal):</div>
+        <div>{macros.maintenanceCalories}</div>
+
+        {/* Target Calories (editable) */}
+        <div className="font-medium">Target Calories (kcal):</div>
+        <input
+          type="number"
+          value={targetCalories}
+          onChange={(e) => setTargetCalories(e.target.value)}
+          className={`
+            border-border bg-input text-foreground rounded-[var(--radius)]
+            px-2 py-1 focus:outline-none focus:ring focus:ring-primary-300 w-full
+          `}
+        />
+
+        {/* Protein (editable) */}
+        <div className="font-medium">Protein (g):</div>
+        <input
+          type="number"
+          value={proteinGrams}
+          onChange={(e) => setProteinGrams(e.target.value)}
+          className={`
+            border-border bg-input text-foreground rounded-[var(--radius)]
+            px-2 py-1 focus:outline-none focus:ring focus:ring-primary-300 w-full
+          `}
+        />
+
+        {/* Fat (editable) */}
+        <div className="font-medium">Fat (g):</div>
+        <input
+          type="number"
+          value={fatGrams}
+          onChange={(e) => setFatGrams(e.target.value)}
+          className={`
+            border-border bg-input text-foreground rounded-[var(--radius)]
+            px-2 py-1 focus:outline-none focus:ring focus:ring-primary-300 w-full
+          `}
+        />
+
+        {/* Carbs (editable) */}
+        <div className="font-medium">Carbs (g):</div>
+        <input
+          type="number"
+          value={carbGrams}
+          onChange={(e) => setCarbGrams(e.target.value)}
+          className={`
+            border-border bg-input text-foreground rounded-[var(--radius)]
+            px-2 py-1 focus:outline-none focus:ring focus:ring-primary-300 w-full
+          `}
+        />
+      </CardContent>
+
+      <CardFooter className="flex justify-end border-border">
+        <button
+          onClick={handleSave}
+          disabled={isSaving}
+          className={`
+            px-4 py-1 rounded-[var(--radius)]
+            ${
+              isSaving
+                ? "bg-muted text-muted-foreground"
+                : "bg-primary text-primary-foreground hover:bg-primary-600"
+            }
+            disabled:opacity-50
+          `}
+        >
+          {isSaving ? "Saving…" : "Save"}
+        </button>
+      </CardFooter>
+    </Card>
+  );
+}
+</file>
+
+<file path="src/app/dashboard/profile/edit/page.tsx">
+// src/app/dashboard/profile/edit/page.tsx
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabaseClient";
+import toast from "react-hot-toast";
+import { useUser } from "@/hooks/useUser";
+import { ProfileForm } from "@/components/ProfileForm";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
+import type { UserProfile } from "@/types/database";
+
+export default function EditProfilePage() {
+  const { user, loading: userLoading } = useUser();
+  const router = useRouter();
+  const [initialData, setInitialData] = useState<UserProfile | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // 1) Wait for auth status
+    if (userLoading) return;
+
+    // 2) If not logged in, redirect to login
+    if (!user) {
+      router.push("/auth/login");
+      return;
+    }
+
+    // 3) If logged in, fetch profile data
+    const fetchProfile = async () => {
+      const { data, error } = await supabase
+        .from("user_profiles")
+        .select("*")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (error || !data) {
+        toast.error("Failed to load profile");
+        setLoading(false);
+        return;
+      }
+
+      setInitialData(data as UserProfile);
+      setLoading(false);
+    };
+
+    fetchProfile();
+  }, [user, userLoading, router]);
+
+  if (userLoading || loading) {
+    return (
+      <main className="flex items-center justify-center min-h-screen bg-background text-foreground">
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
+      </main>
+    );
+  }
+
+  if (!initialData) {
+    // If no profile was found, send the user to setup
+    router.push("/dashboard/profile/setup");
+    return null;
+  }
+
+  return (
+    <main className="min-h-screen bg-background text-foreground p-4">
+      <div className="max-w-md mx-auto">
+        <Card>
+          <CardHeader>
+            <CardTitle>Edit Your Profile</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ProfileForm
+              initialData={initialData}
+              onSuccessRedirect="/dashboard"
+            />
+          </CardContent>
+        </Card>
+      </div>
+    </main>
+  );
+}
+</file>
+
+<file path="src/app/dashboard/profile/setup/page.tsx">
+// src/app/dashboard/profile/setup/page.tsx
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabaseClient";
+import toast from "react-hot-toast";
+import { useUser } from "@/hooks/useUser";
+import { ProfileForm } from "@/components/ProfileForm";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
+
+export default function SetupProfilePage() {
+  const { user, loading: userLoading } = useUser();
+  const router = useRouter();
+  const [checking, setChecking] = useState(true);
+
+  useEffect(() => {
+    // 1) Wait until we know the user status
+    if (userLoading) return;
+
+    // 2) If not logged in, send to login
+    if (!user) {
+      router.push("/auth/login");
+      return;
+    }
+
+    // 3) If logged in, check if profile exists
+    const checkProfile = async () => {
+      const { data, error } = await supabase
+        .from("user_profiles")
+        .select("user_id")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (error) {
+        console.error("Error checking profile:", error.message);
+        toast.error("Could not check user profile.");
+        return;
+      }
+
+      if (data) {
+        // Profile exists → skip setup
+        router.push("/dashboard");
+      } else {
+        setChecking(false);
+      }
+    };
+
+    checkProfile();
+  }, [user, userLoading, router]);
+
+  if (userLoading || checking) {
+    return (
+      <main className="flex items-center justify-center min-h-screen bg-background text-foreground">
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
+      </main>
+    );
+  }
+
+  return (
+    <main className="min-h-screen bg-background text-foreground p-4">
+      <div className="max-w-md mx-auto">
+        <Card>
+          <CardHeader>
+            <CardTitle>Set Up Your Profile</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ProfileForm onSuccessRedirect="/dashboard" />
+          </CardContent>
+        </Card>
+      </div>
+    </main>
   );
 }
 </file>
@@ -2253,10 +3218,11 @@ export default function RootLayout({
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.49.8",
+    "@fontsource/inter": "^5.2.5",
     "chart.js": "^4.4.9",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -2267,10 +3233,12 @@ export default function RootLayout({
     "react-dom": "^19.0.0",
     "react-hot-toast": "^2.5.2",
     "tailwind-merge": "^3.3.0",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "zod": "^3.25.56"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@supabase/supabase-js": "^2.50.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

@@ -4,8 +4,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
-import { useUser } from "@/hooks/useUser";
-import MacroSummary from "@/components/MacroSummary";
+import { useUser } from "@/hooks/profile/useUser";
+import MacroSummary from "@/components/macros/MacroSummary";
 import { Card, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 

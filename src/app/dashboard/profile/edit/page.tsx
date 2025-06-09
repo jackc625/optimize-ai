@@ -5,8 +5,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import toast from "react-hot-toast";
-import { useUser } from "@/hooks/useUser";
-import { ProfileForm } from "@/components/ProfileForm";
+import { useUser } from "@/hooks/profile/useUser";
+import { ProfileForm } from "@/components/profile/ProfileForm";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import type { UserProfile } from "@/types/database";
 

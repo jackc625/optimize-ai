@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import toast from "react-hot-toast";
-import type { ProfileInput, MacroOutput } from "@/utils/calculateMacros";
+import { calculateMacros } from "@/utils/macros/calculateMacros";
+import type { ProfileInput, MacroOutput } from "@/utils/macros/calculateMacros";
 
 /**
  * Fetch the user’s profile, calculate macros, and return the results.
@@ -39,11 +40,11 @@ export function useMacros() {
       // 3) Build ProfileInput shape
       const input: ProfileInput = {
         age: profileData.age,
-        height_cm: profileData.height_cm,
-        weight_kg: profileData.weight_kg,
+        heightCm: profileData.height_cm,
+        weightKg: profileData.weight_kg,
         sex: profileData.sex,
         goal: profileData.goal,
-        activity_level: profileData.activity_level || "moderate",
+        activityLevel: profileData.activity_level || "moderate",
       };
 
       // 4) Calculate macros
@@ -64,6 +65,3 @@ export function useMacros() {
 
   return { macros, loading, refresh };
 }
-
-// Import calculateMacros here
-import { calculateMacros } from "@/utils/calculateMacros";

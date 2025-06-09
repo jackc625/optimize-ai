@@ -3,8 +3,8 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useUser } from "@/hooks/useUser";
-import { useHabits, type HabitWithStreak } from "@/hooks/useHabits";
+import { useUser } from "@/hooks/profile/useUser";
+import { useHabits, type HabitWithStreak } from "@/hooks/habits/useHabits";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 

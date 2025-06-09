@@ -4,7 +4,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
-import { useUser } from "@/hooks/useUser";
+import { useUser } from "@/hooks/profile/useUser";
 import toast from "react-hot-toast";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 

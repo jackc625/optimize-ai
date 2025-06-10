@@ -1,9 +1,3 @@
-// src/types/database.ts
-
-/**
- * Represents the “user_profiles” table
- * (each column must match exactly what your Supabase schema uses)
- */
 export interface UserProfile {
   user_id: string;
   name: string;

@@ -1,5 +1,3 @@
-// src/hooks/workouts/useWorkoutExercises.ts
-
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabaseClient";
 import {

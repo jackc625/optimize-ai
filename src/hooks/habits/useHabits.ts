@@ -1,12 +1,7 @@
-// src/hooks/useHabits.ts
-
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import toast from "react-hot-toast";
 
-/**
- * Represents a habit with its current streak.
- */
 export type HabitWithStreak = {
   id: string;
   title: string;

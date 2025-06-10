@@ -1,4 +1,3 @@
-// src/components/WeightChart.tsx
 "use client";
 
 import {

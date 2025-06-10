@@ -1,5 +1,3 @@
-// src/components/ui/Button.tsx
-
 import { ReactNode } from "react";
 
 type ButtonProps = {

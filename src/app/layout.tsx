@@ -1,9 +1,7 @@
-// src/app/layout.tsx  (server component)
-
 import type { Metadata } from "next";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
-import { Providers } from "./providers"; // ← new
+import { Providers } from "./providers";
 
 export const metadata: Metadata = {
   title: "Optimize AI",

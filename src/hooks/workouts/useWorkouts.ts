@@ -1,5 +1,3 @@
-// src/hooks/workouts/useWorkouts.ts
-
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabaseClient";
 import {
@@ -8,7 +6,6 @@ import {
   ExerciseTemplate,
 } from "@/schemas/workoutSchema";
 
-/** One exercise row as returned by Supabase (we’ll cast at runtime) */
 type ExerciseRow = {
   id: string;
   workout_id: string;

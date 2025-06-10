@@ -1,5 +1,3 @@
-// src/hooks/useMacros.ts
-
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import toast from "react-hot-toast";

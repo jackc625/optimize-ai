@@ -1,4 +1,3 @@
-// src/app/dashboard/workouts/[id]/page.tsx
 "use client";
 
 import { useState, useEffect, FormEvent } from "react";

@@ -1,4 +1,3 @@
-// src/app/workouts/page.tsx
 "use client";
 
 import { useRouter } from "next/navigation";

@@ -1,4 +1,3 @@
-// src/app/dashboard/macros/history/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -10,7 +9,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 
 type MacroRecord = {
   id: string;
-  created_at: string; // timestamp when inserted
+  created_at: string;
   bmr: number;
   maintenance_calories: number;
   target_calories: number;

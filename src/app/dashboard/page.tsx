@@ -1,4 +1,3 @@
-// src/app/dashboard/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -15,7 +14,6 @@ export default function DashboardPage() {
   const router = useRouter();
   const [userName, setUserName] = useState<string>("");
 
-  // **Call hooks unconditionally**
   const {
     data: workouts,
     isLoading: workoutsLoading,
@@ -121,7 +119,6 @@ export default function DashboardPage() {
         </Card>
 
         {/* Future modules go here */}
-        {/* e.g., <YourNextModule /> */}
       </main>
     </div>
   );

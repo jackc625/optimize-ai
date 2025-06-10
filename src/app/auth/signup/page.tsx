@@ -45,7 +45,6 @@ export default function Signup() {
             {error && (
               <p className="text-destructive-foreground text-sm">{error}</p>
             )}
-            {/* The submit button has no onClick—form submission handles it */}
             <Button type="submit" variant="primary" size="md">
               Sign Up
             </Button>

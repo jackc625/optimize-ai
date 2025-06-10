@@ -1,4 +1,3 @@
-// src/components/MacroSummary.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -18,7 +17,7 @@ export default function MacroSummary() {
   const { user, loading: userLoading } = useUser();
   const { macros, loading: macrosLoading, refresh } = useMacros();
 
-  // Formatter: rounds finite numbers, or returns a dash
+  // Formatter
   const fmt = (n: number | undefined) =>
     Number.isFinite(n ?? NaN) ? Math.round(n as number).toString() : "—";
 

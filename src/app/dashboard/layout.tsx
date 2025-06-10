@@ -1,4 +1,3 @@
-// src/app/dashboard/layout.tsx
 "use client";
 
 import { useEffect } from "react";
@@ -18,9 +17,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const router = useRouter();
   const pathname = usePathname();
 
-  // ─── Unconditional Hook ──────────────────────────────────────────────────────
   useEffect(() => {
-    // Only run once userLoading is false and user is non-null
     if (userLoading || !user) return;
 
     // Check if the user has a profile; if not, send them to setup
@@ -43,9 +40,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
     checkProfile();
   }, [user, userLoading, pathname, router]);
-  // ──────────────────────────────────────────────────────────────────────────────
 
-  // While Supabase is checking auth, show a loading spinner
   if (userLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-background text-foreground">

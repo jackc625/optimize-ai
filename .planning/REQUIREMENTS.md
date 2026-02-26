@@ -1,0 +1,106 @@
+# Requirements: Optimize AI
+
+**Defined:** 2026-02-26
+**Core Value:** Every user sees only their own data and can trust that data to be correct — security and correctness are non-negotiable for a public production app.
+
+## v1 Requirements
+
+Requirements for the audit and hardening milestone. Each maps to roadmap phases.
+
+### Critical Safety
+
+- [ ] **SAFE-01**: `@supabase/supabase-js` is moved from `devDependencies` to `dependencies` so production builds include it
+- [ ] **SAFE-02**: App throws a clear startup error if `NEXT_PUBLIC_SUPABASE_URL` or `NEXT_PUBLIC_SUPABASE_ANON_KEY` are missing, rather than failing silently at runtime
+- [ ] **SAFE-03**: All Supabase tables (user_profiles, habits, habit_logs, weight_logs, user_macros, workouts, workout_exercises, workout_logs, workout_log_exercises) have RLS policies verified to enforce `auth.uid() = user_id` on SELECT, INSERT, UPDATE, and DELETE
+- [ ] **SAFE-04**: Auth redirect in `dashboard/layout.tsx` is moved from render body to `useEffect` to eliminate the race condition where unauthenticated users briefly see protected content
+
+### Type Safety
+
+- [ ] **TYPE-01**: All Supabase query results in hooks use Zod `.safeParse()` instead of `as TypeName` casts — applies to `useWorkouts`, `useWorkoutLogs`, macros history page, profile edit page, and `MacroSummary`
+- [ ] **TYPE-02**: ESLint `react-hooks/exhaustive-deps` rule is enabled and all `useEffect` dependency arrays are corrected — targets `useMacros` (empty `[]`), `dashboard/page.tsx` (stale user ref), and all other hooks
+- [ ] **TYPE-03**: `ProfileForm` string-to-enum conversions (activity level, goal, gender) are validated against Zod enum schemas before use, eliminating silent type errors from invalid form values
+- [ ] **TYPE-04**: `useHabits` and `useMacros` are migrated from manual `useState`/`useEffect` to React Query hooks, making them consistent with the rest of the codebase and testable
+
+### Bug Fixes
+
+- [ ] **BUG-01**: All `.toISOString().split('T')[0]` date patterns are replaced with `date-fns` `format(new Date(), 'yyyy-MM-dd')` — fixes habit streak accuracy for users in non-UTC timezones
+- [ ] **BUG-02**: Double-slash URL in `workouts/page.tsx` is corrected from `/dashboard//workouts/${id}/log` to `/dashboard/workouts/${id}/log`
+- [ ] **BUG-03**: `QueryClient` in `providers.tsx` is instantiated inside `useState` (not at module scope) to prevent SSR cache leaks between requests
+
+### Quality
+
+- [ ] **QUAL-01**: Vitest 4 test infrastructure is configured; `calculateMacros` utility has unit tests covering BMR, TDEE, and macro split calculations; `useWorkouts` hook has integration tests using React Query test utilities
+- [ ] **QUAL-02**: A `logError(context: string, err: unknown)` utility is created and replaces all raw `console.error()` calls in hooks and pages, logging full error objects with contextual operation names
+- [ ] **QUAL-03**: `window.confirm()` in `workouts/page.tsx` is replaced with an accessible `ConfirmDialog` component using `@radix-ui/react-alert-dialog`
+- [ ] **QUAL-04**: Loading skeleton components are created for the workouts list, weight log, and habits pages, replacing generic "Loading..." text with layout-matched placeholders
+
+## v2 Requirements
+
+Deferred — not in current roadmap.
+
+### Auth Hardening
+
+- **AUTH-01**: Middleware-based auth using `@supabase/ssr` replaces client-side `useEffect` guards in `DashboardLayout` — requires server client setup
+- **AUTH-02**: Auth flow integration tests (sign up, sign in, session persistence, redirect behavior)
+
+### Performance
+
+- **PERF-01**: List queries (workouts, workout logs, habits) implement pagination via `.range()` with `useInfiniteQuery` or page state
+- **PERF-02**: Query key factory pattern implemented to ensure correct `invalidateQueries` behavior after pagination is added
+
+### Form Management
+
+- **FORM-01**: `ProfileForm` migrated to `react-hook-form` + Zod resolver, replacing 8+ `useState` fields
+
+### UX Polish
+
+- **UX-01**: Error boundaries (`error.tsx`) added at `/dashboard/` and per-feature segment level
+- **UX-02**: Optimistic updates implemented for habit logging and weight log mutations
+
+## Out of Scope
+
+Explicitly excluded from the audit milestone. Documented to prevent scope creep.
+
+| Feature | Reason |
+|---------|--------|
+| Meal planner with macro targets | Next milestone — audit first |
+| Workout routine builder | Future milestone |
+| Habit templates (e.g., "Morning Routine") | Future milestone |
+| Calendar view for habit logs | Future milestone |
+| Custom notifications/reminders | Future milestone |
+| Dark mode | Future milestone |
+| Settings & profile page overhaul | Future milestone |
+| Native iOS app | Long-term roadmap |
+| Zod v4 migration | Breaking API changes — separate dedicated effort after audit |
+| Database migration system | Infrastructure concern, separate from audit scope |
+
+## Traceability
+
+Which phases cover which requirements. Updated during roadmap creation.
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| SAFE-01 | Phase 1 | Pending |
+| SAFE-02 | Phase 1 | Pending |
+| SAFE-03 | Phase 1 | Pending |
+| SAFE-04 | Phase 1 | Pending |
+| BUG-02 | Phase 1 | Pending |
+| BUG-03 | Phase 1 | Pending |
+| TYPE-01 | Phase 2 | Pending |
+| TYPE-02 | Phase 2 | Pending |
+| TYPE-03 | Phase 2 | Pending |
+| TYPE-04 | Phase 2 | Pending |
+| BUG-01 | Phase 2 | Pending |
+| QUAL-01 | Phase 3 | Pending |
+| QUAL-02 | Phase 3 | Pending |
+| QUAL-03 | Phase 3 | Pending |
+| QUAL-04 | Phase 3 | Pending |
+
+**Coverage:**
+- v1 requirements: 15 total
+- Mapped to phases: 15
+- Unmapped: 0 ✓
+
+---
+*Requirements defined: 2026-02-26*
+*Last updated: 2026-02-26 after initial definition*

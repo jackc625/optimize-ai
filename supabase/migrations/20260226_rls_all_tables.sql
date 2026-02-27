@@ -161,6 +161,7 @@ ON public.workouts FOR DELETE TO authenticated
 USING ((SELECT auth.uid()) = user_id);
 
 -- === workout_exercises ===
+-- No direct user_id column — ownership via parent workouts.user_id
 
 DROP POLICY IF EXISTS "workout_exercises: users can select own rows" ON public.workout_exercises;
 DROP POLICY IF EXISTS "workout_exercises: users can insert own rows" ON public.workout_exercises;
@@ -171,20 +172,40 @@ ALTER TABLE public.workout_exercises ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "workout_exercises: users can select own rows"
 ON public.workout_exercises FOR SELECT TO authenticated
-USING ((SELECT auth.uid()) = user_id);
+USING (EXISTS (
+  SELECT 1 FROM public.workouts
+  WHERE id = workout_exercises.workout_id
+  AND user_id = (SELECT auth.uid())
+));
 
 CREATE POLICY "workout_exercises: users can insert own rows"
 ON public.workout_exercises FOR INSERT TO authenticated
-WITH CHECK ((SELECT auth.uid()) = user_id);
+WITH CHECK (EXISTS (
+  SELECT 1 FROM public.workouts
+  WHERE id = workout_exercises.workout_id
+  AND user_id = (SELECT auth.uid())
+));
 
 CREATE POLICY "workout_exercises: users can update own rows"
 ON public.workout_exercises FOR UPDATE TO authenticated
-USING ((SELECT auth.uid()) = user_id)
-WITH CHECK ((SELECT auth.uid()) = user_id);
+USING (EXISTS (
+  SELECT 1 FROM public.workouts
+  WHERE id = workout_exercises.workout_id
+  AND user_id = (SELECT auth.uid())
+))
+WITH CHECK (EXISTS (
+  SELECT 1 FROM public.workouts
+  WHERE id = workout_exercises.workout_id
+  AND user_id = (SELECT auth.uid())
+));
 
 CREATE POLICY "workout_exercises: users can delete own rows"
 ON public.workout_exercises FOR DELETE TO authenticated
-USING ((SELECT auth.uid()) = user_id);
+USING (EXISTS (
+  SELECT 1 FROM public.workouts
+  WHERE id = workout_exercises.workout_id
+  AND user_id = (SELECT auth.uid())
+));
 
 -- === workout_logs ===
 
@@ -213,6 +234,7 @@ ON public.workout_logs FOR DELETE TO authenticated
 USING ((SELECT auth.uid()) = user_id);
 
 -- === workout_log_exercises ===
+-- No direct user_id column — ownership via parent workout_logs.user_id
 
 DROP POLICY IF EXISTS "workout_log_exercises: users can select own rows" ON public.workout_log_exercises;
 DROP POLICY IF EXISTS "workout_log_exercises: users can insert own rows" ON public.workout_log_exercises;
@@ -223,17 +245,37 @@ ALTER TABLE public.workout_log_exercises ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "workout_log_exercises: users can select own rows"
 ON public.workout_log_exercises FOR SELECT TO authenticated
-USING ((SELECT auth.uid()) = user_id);
+USING (EXISTS (
+  SELECT 1 FROM public.workout_logs
+  WHERE id = workout_log_exercises.workout_log_id
+  AND user_id = (SELECT auth.uid())
+));
 
 CREATE POLICY "workout_log_exercises: users can insert own rows"
 ON public.workout_log_exercises FOR INSERT TO authenticated
-WITH CHECK ((SELECT auth.uid()) = user_id);
+WITH CHECK (EXISTS (
+  SELECT 1 FROM public.workout_logs
+  WHERE id = workout_log_exercises.workout_log_id
+  AND user_id = (SELECT auth.uid())
+));
 
 CREATE POLICY "workout_log_exercises: users can update own rows"
 ON public.workout_log_exercises FOR UPDATE TO authenticated
-USING ((SELECT auth.uid()) = user_id)
-WITH CHECK ((SELECT auth.uid()) = user_id);
+USING (EXISTS (
+  SELECT 1 FROM public.workout_logs
+  WHERE id = workout_log_exercises.workout_log_id
+  AND user_id = (SELECT auth.uid())
+))
+WITH CHECK (EXISTS (
+  SELECT 1 FROM public.workout_logs
+  WHERE id = workout_log_exercises.workout_log_id
+  AND user_id = (SELECT auth.uid())
+));
 
 CREATE POLICY "workout_log_exercises: users can delete own rows"
 ON public.workout_log_exercises FOR DELETE TO authenticated
-USING ((SELECT auth.uid()) = user_id);
+USING (EXISTS (
+  SELECT 1 FROM public.workout_logs
+  WHERE id = workout_log_exercises.workout_log_id
+  AND user_id = (SELECT auth.uid())
+));

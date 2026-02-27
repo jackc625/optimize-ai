@@ -28,6 +28,8 @@ function LoginForm() {
       password,
     });
     if (error) return setError(error.message);
+    // Set cookie before navigation so middleware sees it on the next request
+    document.cookie = "sb-authed=true; path=/; SameSite=Lax";
     router.push(safeRedirect);
   };
 

@@ -28,12 +28,12 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Every table in the database (including child tables `workout_exercises`, `habit_logs`, `workout_log_exercises`) has RLS policies verified to enforce `auth.uid() = user_id` on SELECT, INSERT, UPDATE, and DELETE — no user can read or modify another user's data
   4. Navigating to any `/dashboard/*` route while unauthenticated redirects to the login page without ever rendering protected page content
   5. Navigating to the workout log route produces a correctly formed URL (`/dashboard/workouts/{id}/log`) with no double-slash, and the `QueryClient` is instantiated inside `useState` so SSR requests do not share cache state
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 01-01: Move supabase-js to dependencies, add env var validation, fix QueryClient instantiation
-- [ ] 01-02: Audit and verify RLS policies on all tables
-- [ ] 01-03: Fix auth redirect race condition in dashboard layout and correct workout URL bug
+- [ ] 01-01-PLAN.md — Move @supabase/supabase-js to dependencies, add module-load env var validation, fix SSR QueryClient cache leak
+- [ ] 01-02-PLAN.md — Write and apply RLS SQL migration for all 9 Supabase tables
+- [ ] 01-03-PLAN.md — Implement middleware auth guard, wire cookie signal, fix login redirect flow, fix workout URL double-slash
 
 ### Phase 2: Type Safety
 **Goal**: Every Supabase response is validated by Zod at the hook boundary, all hooks use React Query, TypeScript types derive from Zod inferences rather than `as` casts, and ESLint enforces correct useEffect dependencies going forward

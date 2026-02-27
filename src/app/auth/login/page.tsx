@@ -1,13 +1,22 @@
 // src/app/auth/login/page.tsx
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 
-export default function Login() {
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get("redirect");
+  const cameFromRedirect = !!redirectTo;
+  // Validate redirect is a safe relative path (prevents open redirect)
+  const safeRedirect =
+    redirectTo && redirectTo.startsWith("/") && !redirectTo.startsWith("//")
+      ? redirectTo
+      : "/dashboard";
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -19,7 +28,7 @@ export default function Login() {
       password,
     });
     if (error) return setError(error.message);
-    router.push("/dashboard");
+    router.push(safeRedirect);
   };
 
   return (
@@ -31,6 +40,11 @@ export default function Login() {
         <h2 className="text-2xl font-semibold text-foreground text-center">
           Log In
         </h2>
+        {cameFromRedirect && (
+          <p className="text-sm text-muted-foreground text-center">
+            Please sign in to continue
+          </p>
+        )}
         <input
           type="email"
           placeholder="Email"
@@ -61,5 +75,13 @@ export default function Login() {
         </Button>
       </form>
     </main>
+  );
+}
+
+export default function Login() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
   );
 }

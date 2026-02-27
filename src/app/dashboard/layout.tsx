@@ -49,12 +49,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     );
   }
 
-  // If not logged in, redirect to login immediately
-  if (!user) {
-    router.push("/auth/login");
-    return null;
-  }
-
   const navLinks = [
     { href: "/dashboard", label: "Dashboard" },
     { href: "/dashboard/habits", label: "Habits" },
@@ -66,6 +60,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
+    document.cookie = "sb-authed=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
     router.push("/auth/login");
   };
 

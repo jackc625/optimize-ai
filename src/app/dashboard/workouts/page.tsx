@@ -101,7 +101,7 @@ export default function WorkoutsPage() {
                         variant="ghost"
                         size="sm"
                         onClick={() =>
-                          router.push(`/dashboard//workouts/${w.id}/log`)
+                          router.push(`/dashboard/workouts/${w.id}/log`)
                         }
                       >
                         Log Today

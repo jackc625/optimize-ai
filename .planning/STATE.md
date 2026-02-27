@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: unknown
-last_updated: "2026-02-27T00:43:37.935Z"
+status: in_progress
+last_updated: "2026-02-27T01:05:00.000Z"
 progress:
-  total_phases: 1
-  completed_phases: 0
-  total_plans: 3
-  completed_plans: 2
+  total_phases: 3
+  completed_phases: 1
+  total_plans: 9
+  completed_plans: 3
 ---
 
 # Project State
@@ -18,32 +18,32 @@ progress:
 See: .planning/PROJECT.md (updated 2026-02-26)
 
 **Core value:** Every user sees only their own data and can trust that data to be correct — security and correctness are non-negotiable for a public production app.
-**Current focus:** Phase 1 — Critical Safety
+**Current focus:** Phase 2 — Data Integrity (next phase)
 
 ## Current Position
 
-Phase: 1 of 3 (Critical Safety)
-Plan: 3 of 3 in current phase
-Status: Checkpoint — awaiting human verification
-Last activity: 2026-02-27 — Completed Plan 01-03 tasks 1-2: middleware auth guard, cookie management, login redirect, workout URL fix
+Phase: 1 of 3 COMPLETE (Critical Safety)
+Plan: Phase 1 fully complete — all 3 plans done
+Status: Active — ready for Phase 2
+Last activity: 2026-02-27 — Completed Plan 01-03: middleware auth guard human-verified (all 6 tests passed); login cookie race fixed; RLS child table policies corrected
 
-Progress: [█░░░░░░░░░] 11%
+Progress: [███░░░░░░░] 33%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 2
-- Average duration: 11.5 min
-- Total execution time: 23 min
+- Total plans completed: 3
+- Average duration: ~14 min
+- Total execution time: ~43 min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 01-critical-safety | 2 | 23 min | 11.5 min |
+| 01-critical-safety | 3 | ~43 min | ~14 min |
 
 **Recent Trend:**
-- Last 5 plans: 8 min, 15 min
+- Last 5 plans: 8 min, 15 min, ~20 min
 - Trend: baseline
 
 *Updated after each plan completion*
@@ -62,6 +62,9 @@ Recent decisions affecting current work:
 - [01-01]: React.ReactNode inline rather than importing ReactNode named export — cleaner with updated import structure
 - [Phase 01-03]: Cookie bridge (sb-authed) for middleware auth routing — Supabase uses localStorage (inaccessible to Edge runtime); cookie is routing signal only, not security guarantee; proper SSR auth deferred to v2 AUTH-01
 - [Phase 01-03]: Suspense wrapper required for useSearchParams in Next.js 15 — LoginForm inner component holds logic, Login export wraps in Suspense
+- [Phase 01-03]: Login page must set sb-authed cookie synchronously before router.push — onAuthStateChange does not fire on the login page itself, so middleware would see no cookie on the next request causing a redirect loop
+- [Phase 01-02]: EXISTS subquery for child table RLS (workout_exercises, workout_log_exercises) — these tables lack direct user_id column; ownership enforced via join to parent workouts/workout_logs
+- [Phase 01-02]: Subquery form (SELECT auth.uid()) used throughout RLS policies — evaluates once per query, Supabase-recommended pattern
 
 ### Pending Todos
 
@@ -69,12 +72,11 @@ None yet.
 
 ### Blockers/Concerns
 
-- [Phase 1]: RLS policy completeness on child tables (`workout_exercises`, `habit_logs`, `workout_log_exercises`) is unknown — treat as a discovery task; audit in Supabase dashboard, do not assume coverage
 - [Phase 2]: `supabase gen types typescript` output shape is unknown until run — nullable fields or join shapes may require Zod schema adjustments after type generation
 - [Phase 2]: `useMacros` migration scope — derived calculations (calculateBMR, calculateTDEE) must remain in the query function or as selectors, not split into separate derived state
 
 ## Session Continuity
 
 Last session: 2026-02-27
-Stopped at: Checkpoint 01-03 (human-verify) — middleware auth guard built; awaiting manual verification of 6 test cases
+Stopped at: Completed Plan 01-03 — Phase 1 (Critical Safety) fully complete. All 3 plans done and human-verified. Ready to begin Phase 2 (Data Integrity).
 Resume file: None

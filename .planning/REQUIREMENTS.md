@@ -11,7 +11,7 @@ Requirements for the audit and hardening milestone. Each maps to roadmap phases.
 
 - [x] **SAFE-01**: `@supabase/supabase-js` is moved from `devDependencies` to `dependencies` so production builds include it
 - [x] **SAFE-02**: App throws a clear startup error if `NEXT_PUBLIC_SUPABASE_URL` or `NEXT_PUBLIC_SUPABASE_ANON_KEY` are missing, rather than failing silently at runtime
-- [ ] **SAFE-03**: All Supabase tables (user_profiles, habits, habit_logs, weight_logs, user_macros, workouts, workout_exercises, workout_logs, workout_log_exercises) have RLS policies verified to enforce `auth.uid() = user_id` on SELECT, INSERT, UPDATE, and DELETE
+- [x] **SAFE-03**: All Supabase tables (user_profiles, habits, habit_logs, weight_logs, user_macros, workouts, workout_exercises, workout_logs, workout_log_exercises) have RLS policies verified to enforce `auth.uid() = user_id` on SELECT, INSERT, UPDATE, and DELETE
 - [x] **SAFE-04**: Auth redirect in `dashboard/layout.tsx` is moved from render body to `useEffect` to eliminate the race condition where unauthenticated users briefly see protected content
 
 ### Type Safety
@@ -82,7 +82,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 |-------------|-------|--------|
 | SAFE-01 | Phase 1 | Complete |
 | SAFE-02 | Phase 1 | Complete |
-| SAFE-03 | Phase 1 | Pending |
+| SAFE-03 | Phase 1 | Complete |
 | SAFE-04 | Phase 1 | Complete |
 | BUG-02 | Phase 1 | Complete |
 | BUG-03 | Phase 1 | Complete |
@@ -103,4 +103,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-02-26*
-*Last updated: 2026-02-27 after 01-01-PLAN.md completion (SAFE-01, SAFE-02, BUG-03 complete)*
+*Last updated: 2026-02-27 after 01-02-PLAN.md completion (SAFE-03 complete — RLS applied to all 9 tables)*

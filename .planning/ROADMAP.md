@@ -12,7 +12,7 @@ This is a codebase audit and hardening milestone for an existing production heal
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Critical Safety** - Establish a production-safe baseline with no silent crashes, no auth race conditions, no malformed URLs, and audited RLS policies
+- [x] **Phase 1: Critical Safety** - Establish a production-safe baseline with no silent crashes, no auth race conditions, no malformed URLs, and audited RLS policies
 - [ ] **Phase 2: Type Safety** - Eliminate unsafe `as` casts at every Supabase boundary, standardize all hooks on React Query, and enforce correct useEffect dependencies via ESLint
 - [ ] **Phase 3: Test Infrastructure + Quality** - Install Vitest with baseline tests for critical paths, add structured logging, replace inaccessible confirm dialogs, and fix timezone-unsafe date handling
 
@@ -32,8 +32,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 Plans:
 - [x] 01-01-PLAN.md — Move @supabase/supabase-js to dependencies, add module-load env var validation, fix SSR QueryClient cache leak
-- [ ] 01-02-PLAN.md — Write and apply RLS SQL migration for all 9 Supabase tables
-- [ ] 01-03-PLAN.md — Implement middleware auth guard, wire cookie signal, fix login redirect flow, fix workout URL double-slash
+- [x] 01-02-PLAN.md — Write and apply RLS SQL migration for all 9 Supabase tables
+- [x] 01-03-PLAN.md — Implement middleware auth guard, wire cookie signal, fix login redirect flow, fix workout URL double-slash
 
 ### Phase 2: Type Safety
 **Goal**: Every Supabase response is validated by Zod at the hook boundary, all hooks use React Query, TypeScript types derive from Zod inferences rather than `as` casts, and ESLint enforces correct useEffect dependencies going forward
@@ -73,6 +73,6 @@ Phases execute in numeric order: 1 → 2 → 3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Critical Safety | 2/3 | In Progress|  |
+| 1. Critical Safety | 3/3 | Complete | 2026-02-27 |
 | 2. Type Safety | 0/2 | Not started | - |
 | 3. Test Infrastructure + Quality | 0/2 | Not started | - |

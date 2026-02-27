@@ -9,8 +9,8 @@ Requirements for the audit and hardening milestone. Each maps to roadmap phases.
 
 ### Critical Safety
 
-- [ ] **SAFE-01**: `@supabase/supabase-js` is moved from `devDependencies` to `dependencies` so production builds include it
-- [ ] **SAFE-02**: App throws a clear startup error if `NEXT_PUBLIC_SUPABASE_URL` or `NEXT_PUBLIC_SUPABASE_ANON_KEY` are missing, rather than failing silently at runtime
+- [x] **SAFE-01**: `@supabase/supabase-js` is moved from `devDependencies` to `dependencies` so production builds include it
+- [x] **SAFE-02**: App throws a clear startup error if `NEXT_PUBLIC_SUPABASE_URL` or `NEXT_PUBLIC_SUPABASE_ANON_KEY` are missing, rather than failing silently at runtime
 - [ ] **SAFE-03**: All Supabase tables (user_profiles, habits, habit_logs, weight_logs, user_macros, workouts, workout_exercises, workout_logs, workout_log_exercises) have RLS policies verified to enforce `auth.uid() = user_id` on SELECT, INSERT, UPDATE, and DELETE
 - [ ] **SAFE-04**: Auth redirect in `dashboard/layout.tsx` is moved from render body to `useEffect` to eliminate the race condition where unauthenticated users briefly see protected content
 
@@ -25,7 +25,7 @@ Requirements for the audit and hardening milestone. Each maps to roadmap phases.
 
 - [ ] **BUG-01**: All `.toISOString().split('T')[0]` date patterns are replaced with `date-fns` `format(new Date(), 'yyyy-MM-dd')` — fixes habit streak accuracy for users in non-UTC timezones
 - [ ] **BUG-02**: Double-slash URL in `workouts/page.tsx` is corrected from `/dashboard//workouts/${id}/log` to `/dashboard/workouts/${id}/log`
-- [ ] **BUG-03**: `QueryClient` in `providers.tsx` is instantiated inside `useState` (not at module scope) to prevent SSR cache leaks between requests
+- [x] **BUG-03**: `QueryClient` in `providers.tsx` is instantiated inside `useState` (not at module scope) to prevent SSR cache leaks between requests
 
 ### Quality
 
@@ -80,12 +80,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SAFE-01 | Phase 1 | Pending |
-| SAFE-02 | Phase 1 | Pending |
+| SAFE-01 | Phase 1 | Complete |
+| SAFE-02 | Phase 1 | Complete |
 | SAFE-03 | Phase 1 | Pending |
 | SAFE-04 | Phase 1 | Pending |
 | BUG-02 | Phase 1 | Pending |
-| BUG-03 | Phase 1 | Pending |
+| BUG-03 | Phase 1 | Complete |
 | TYPE-01 | Phase 2 | Pending |
 | TYPE-02 | Phase 2 | Pending |
 | TYPE-03 | Phase 2 | Pending |
@@ -103,4 +103,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-02-26*
-*Last updated: 2026-02-26 after roadmap creation*
+*Last updated: 2026-02-27 after 01-01-PLAN.md completion (SAFE-01, SAFE-02, BUG-03 complete)*

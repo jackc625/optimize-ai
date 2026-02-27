@@ -31,7 +31,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 3 plans
 
 Plans:
-- [ ] 01-01-PLAN.md — Move @supabase/supabase-js to dependencies, add module-load env var validation, fix SSR QueryClient cache leak
+- [x] 01-01-PLAN.md — Move @supabase/supabase-js to dependencies, add module-load env var validation, fix SSR QueryClient cache leak
 - [ ] 01-02-PLAN.md — Write and apply RLS SQL migration for all 9 Supabase tables
 - [ ] 01-03-PLAN.md — Implement middleware auth guard, wire cookie signal, fix login redirect flow, fix workout URL double-slash
 
@@ -73,6 +73,6 @@ Phases execute in numeric order: 1 → 2 → 3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Critical Safety | 0/3 | Not started | - |
+| 1. Critical Safety | 1/3 | In progress | - |
 | 2. Type Safety | 0/2 | Not started | - |
 | 3. Test Infrastructure + Quality | 0/2 | Not started | - |

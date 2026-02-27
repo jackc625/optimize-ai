@@ -10,28 +10,28 @@ See: .planning/PROJECT.md (updated 2026-02-26)
 ## Current Position
 
 Phase: 1 of 3 (Critical Safety)
-Plan: 0 of 3 in current phase
-Status: Ready to plan
-Last activity: 2026-02-26 — Roadmap created; phases derived from codebase audit requirements
+Plan: 1 of 3 in current phase
+Status: In progress
+Last activity: 2026-02-27 — Completed Plan 01-01: critical safety fixes (dependency, env validation, SSR QueryClient)
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [█░░░░░░░░░] 11%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 0
-- Average duration: -
-- Total execution time: -
+- Total plans completed: 1
+- Average duration: 8 min
+- Total execution time: 8 min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| - | - | - | - |
+| 01-critical-safety | 1 | 8 min | 8 min |
 
 **Recent Trend:**
-- Last 5 plans: -
-- Trend: -
+- Last 5 plans: 8 min
+- Trend: baseline
 
 *Updated after each plan completion*
 
@@ -45,6 +45,8 @@ Recent decisions affecting current work:
 - [Init]: Audit-first milestone before new features — code quality and security must be resolved before building on top of them
 - [Init]: Vitest for test framework — recommended for Next.js; fast, Jest-compatible, works with TypeScript
 - [Init]: react-hook-form for ProfileForm — deferred to v2; Phase 2 fixes only the enum cast ordering
+- [01-01]: Presence-only validation for env vars — no URL format check (per CONTEXT.md guidance; format validation out of scope)
+- [01-01]: React.ReactNode inline rather than importing ReactNode named export — cleaner with updated import structure
 
 ### Pending Todos
 
@@ -58,6 +60,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-26
-Stopped at: Roadmap created; STATE.md initialized; ready to plan Phase 1
+Last session: 2026-02-27
+Stopped at: Completed 01-01-PLAN.md — runtime dep fix, env validation, SSR QueryClient fix
 Resume file: None

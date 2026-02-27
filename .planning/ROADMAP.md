@@ -73,6 +73,6 @@ Phases execute in numeric order: 1 → 2 → 3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Critical Safety | 1/3 | In progress | - |
+| 1. Critical Safety | 2/3 | In Progress|  |
 | 2. Type Safety | 0/2 | Not started | - |
 | 3. Test Infrastructure + Quality | 0/2 | Not started | - |

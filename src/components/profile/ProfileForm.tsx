@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import toast from "react-hot-toast";
 import { ZodError } from "zod";
-import type { UserProfile } from "@/types/database";
+import type { UserProfile } from "@/schemas/profileSchema";
 import { ProfileSchema } from "@/schemas/profileSchema";
 import { Button } from "@/components/ui/Button";
 
@@ -47,12 +47,9 @@ export function ProfileForm({
       age: Number(form.age),
       height_cm: Number(form.height_cm),
       weight_kg: Number(form.weight_kg),
-      sex: form.sex as "male" | "female",
-      goal: form.goal as "fat_loss" | "muscle_gain" | "recomp",
-      activity_level: form.activity_level as
-        | "sedentary"
-        | "moderate"
-        | "active",
+      sex: form.sex,
+      goal: form.goal,
+      activity_level: form.activity_level,
       goal_weight_kg:
         form.goal_weight_kg.trim() !== ""
           ? Number(form.goal_weight_kg)
@@ -60,8 +57,9 @@ export function ProfileForm({
     };
 
     // 2) Validate with Zod
+    let validated;
     try {
-      ProfileSchema.parse(parsedInput);
+      validated = ProfileSchema.parse(parsedInput);
     } catch (err) {
       if (err instanceof ZodError) {
         const firstError = err.errors[0];
@@ -85,14 +83,14 @@ export function ProfileForm({
     // 4) Build payload for Supabase
     const payload = {
       user_id: user.id,
-      name: parsedInput.name,
-      age: parsedInput.age,
-      height_cm: parsedInput.height_cm,
-      weight_kg: parsedInput.weight_kg,
-      sex: parsedInput.sex,
-      goal: parsedInput.goal,
-      activity_level: parsedInput.activity_level,
-      goal_weight_kg: parsedInput.goal_weight_kg ?? null,
+      name: validated.name,
+      age: validated.age,
+      height_cm: validated.height_cm,
+      weight_kg: validated.weight_kg,
+      sex: validated.sex,
+      goal: validated.goal,
+      activity_level: validated.activity_level,
+      goal_weight_kg: validated.goal_weight_kg ?? null,
     };
 
     // 5) Insert or update

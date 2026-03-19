@@ -3,7 +3,6 @@ import { supabase } from "@/lib/supabaseClient";
 import {
   WorkoutLogSchema,
   WorkoutLog,
-  WorkoutLogExercise,
 } from "@/schemas/workoutSchema";
 
 // --- Row types for runtime casting ---
@@ -57,17 +56,23 @@ export function useWorkoutLogs() {
 
       if (error) throw error;
       const rows = (data ?? []) as LogRow[];
-      return rows.map((row) =>
-        WorkoutLogSchema.parse({
+      return rows.map((row) => {
+        const result = WorkoutLogSchema.safeParse({
           id: row.id,
           workout_id: row.workout_id,
           user_id: row.user_id,
           log_date: row.log_date,
           notes: row.notes ?? undefined,
           created_at: row.created_at,
-          exercises: row.workout_log_exercises as WorkoutLogExercise[],
-        })
-      );
+          exercises: row.workout_log_exercises,
+        });
+        if (!result.success) {
+          throw new Error(
+            `Zod validation failed in useWorkoutLogs: ${JSON.stringify(result.error.issues)}`
+          );
+        }
+        return result.data;
+      });
     },
     staleTime: 1000 * 60 * 5, // cache 5m
   });
@@ -130,15 +135,21 @@ export function useCreateWorkoutLog() {
         throw exError || new Error("Failed to create log exercises");
 
       // 2c) Parse into our typed schema
-      return WorkoutLogSchema.parse({
+      const result = WorkoutLogSchema.safeParse({
         id: logData.id,
         workout_id: logData.workout_id,
         user_id: logData.user_id,
         log_date: logData.log_date,
         notes: logData.notes ?? undefined,
         created_at: logData.created_at,
-        exercises: exData as WorkoutLogExercise[],
+        exercises: exData,
       });
+      if (!result.success) {
+        throw new Error(
+          `Zod validation failed in useCreateWorkoutLog: ${JSON.stringify(result.error.issues)}`
+        );
+      }
+      return result.data;
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["workoutLogs"] });

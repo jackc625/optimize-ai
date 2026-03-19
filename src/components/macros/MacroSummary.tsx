@@ -18,8 +18,10 @@ export default function MacroSummary() {
   const { macros, loading: macrosLoading, refresh } = useMacros();
 
   // Formatter
-  const fmt = (n: number | undefined) =>
-    Number.isFinite(n ?? NaN) ? Math.round(n as number).toString() : "—";
+  const fmt = (n: number | undefined): string => {
+    if (n === undefined || !Number.isFinite(n)) return "—";
+    return Math.round(n).toString();
+  };
 
   // Local state for editable override fields
   const [targetCalories, setTargetCalories] = useState("");

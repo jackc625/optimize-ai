@@ -3,7 +3,6 @@ import { supabase } from "@/lib/supabaseClient";
 import {
   WorkoutTemplateSchema,
   WorkoutTemplate,
-  ExerciseTemplate,
 } from "@/schemas/workoutSchema";
 
 type ExerciseRow = {
@@ -55,15 +54,21 @@ export function useWorkouts() {
 
       if (error) throw error;
       const rows = (data ?? []) as WorkoutRow[];
-      return rows.map((row) =>
-        WorkoutTemplateSchema.parse({
+      return rows.map((row) => {
+        const result = WorkoutTemplateSchema.safeParse({
           id: row.id,
           user_id: row.user_id,
           name: row.name,
           created_at: row.created_at,
-          exercises: row.workout_exercises as ExerciseTemplate[],
-        })
-      );
+          exercises: row.workout_exercises,
+        });
+        if (!result.success) {
+          throw new Error(
+            `Zod validation failed in useWorkouts: ${JSON.stringify(result.error.issues)}`
+          );
+        }
+        return result.data;
+      });
     },
     staleTime: 1000 * 60 * 5,
   });
@@ -99,13 +104,19 @@ export function useWorkout(workoutId: string) {
 
       if (error || !data) throw error || new Error("Workout not found");
       const row = data as WorkoutRow;
-      return WorkoutTemplateSchema.parse({
+      const result = WorkoutTemplateSchema.safeParse({
         id: row.id,
         user_id: row.user_id,
         name: row.name,
         created_at: row.created_at,
-        exercises: row.workout_exercises as ExerciseTemplate[],
+        exercises: row.workout_exercises,
       });
+      if (!result.success) {
+        throw new Error(
+          `Zod validation failed in useWorkout: ${JSON.stringify(result.error.issues)}`
+        );
+      }
+      return result.data;
     },
     enabled: Boolean(workoutId),
   });
@@ -123,7 +134,13 @@ export function useCreateWorkout() {
           .select("id, user_id, name, created_at")
           .single();
         if (error || !data) throw error;
-        return WorkoutTemplateSchema.parse({ ...data, exercises: [] });
+        const result = WorkoutTemplateSchema.safeParse({ ...data, exercises: [] });
+        if (!result.success) {
+          throw new Error(
+            `Zod validation failed in useCreateWorkout: ${JSON.stringify(result.error.issues)}`
+          );
+        }
+        return result.data;
       },
       onSuccess: () => {
         qc.invalidateQueries({ queryKey: ["workouts"] });
@@ -144,7 +161,13 @@ export function useUpdateWorkout() {
         .select("id, user_id, name, created_at")
         .single();
       if (error || !data) throw error;
-      return WorkoutTemplateSchema.parse({ ...data, exercises: [] });
+      const result = WorkoutTemplateSchema.safeParse({ ...data, exercises: [] });
+      if (!result.success) {
+        throw new Error(
+          `Zod validation failed in useUpdateWorkout: ${JSON.stringify(result.error.issues)}`
+        );
+      }
+      return result.data;
     },
     onSuccess: (_resp, vars) => {
       qc.invalidateQueries({ queryKey: ["workouts"] });

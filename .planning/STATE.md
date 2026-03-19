@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 02-02-PLAN.md
-last_updated: "2026-03-19T02:03:18.278Z"
+stopped_at: Completed 02-03-PLAN.md
+last_updated: "2026-03-19T02:32:50.675Z"
 progress:
   total_phases: 3
   completed_phases: 2
-  total_plans: 5
-  completed_plans: 5
+  total_plans: 6
+  completed_plans: 6
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-02-26)
 
 **Core value:** Every user sees only their own data and can trust that data to be correct — security and correctness are non-negotiable for a public production app.
-**Current focus:** Phase 02 — type-safety (COMPLETE), Phase 03 next
+**Current focus:** Phase 02 — type-safety
 
 ## Current Position
 
 Phase: 02 (type-safety) — COMPLETE
-Plan: 2 of 2 (all plans done)
+Plan: 3 of 3
 
 ## Performance Metrics
 
@@ -47,6 +47,7 @@ Plan: 2 of 2 (all plans done)
 - Trend: consistent ~7 min for type-safety phase
 
 *Updated after each plan completion*
+| Phase 02-type-safety P03 | 4 | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -72,6 +73,8 @@ Recent decisions affecting current work:
 - [Phase 02-02]: todayCompleted returned as string[] from useHabits, reconstructed to Set in consumer — React Query cannot cache Set objects
 - [Phase 02-02]: ACTIVITY_MULTIPLIERS map fixes pre-existing NaN bug where activityLevel string was passed to numeric calculateMacros parameter
 - [Phase 02-02]: fmt() moved to module scope in MacroSummary.tsx for stable reference, avoiding exhaustive-deps violation
+- [Phase 02-type-safety]: Promise.all with 400ms minimum delay for recalculate button — ensures loading state visible even when refetch completes in ~50ms
+- [Phase 02-type-safety]: result.error from refetch() checked to distinguish success from failure without throwing; outer catch handles network/auth exceptions
 
 ### Pending Todos
 
@@ -84,6 +87,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-19T01:55:14.078Z
-Stopped at: Completed 02-02-PLAN.md
+Last session: 2026-03-19T02:32:50.671Z
+Stopped at: Completed 02-03-PLAN.md
 Resume file: None

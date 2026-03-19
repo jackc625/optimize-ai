@@ -30,3 +30,20 @@ export const ProfileSchema = z.object({
     .max(300, "Goal weight cannot exceed 300 kg")
     .optional(),
 });
+
+/**
+ * Zod schema for validating a Supabase user_profiles row (read from DB).
+ * Separate from ProfileSchema which validates form input.
+ */
+export const UserProfileSchema = z.object({
+  user_id: z.string().uuid(),
+  name: z.string(),
+  age: z.number(),
+  height_cm: z.number(),
+  weight_kg: z.number(),
+  sex: z.enum(["male", "female"]),
+  goal: z.enum(["fat_loss", "muscle_gain", "recomp"]),
+  activity_level: z.enum(["sedentary", "moderate", "active"]),
+  goal_weight_kg: z.number().nullable(),
+});
+export type UserProfile = z.infer<typeof UserProfileSchema>;

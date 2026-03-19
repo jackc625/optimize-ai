@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Critical Safety** - Establish a production-safe baseline with no silent crashes, no auth race conditions, no malformed URLs, and audited RLS policies
 - [x] **Phase 2: Type Safety** - Eliminate unsafe `as` casts at every Supabase boundary, standardize all hooks on React Query, and enforce correct useEffect dependencies via ESLint (completed 2026-03-19)
 - [x] **Phase 3: Test Infrastructure + Quality** - Install Vitest with baseline tests for critical paths, add structured logging, replace inaccessible confirm dialogs, and fix timezone-unsafe date handling (completed 2026-03-19)
-- [ ] **Phase 4: SAFE-04 Cookie Fix + Milestone Hygiene** - Close audit-identified SAFE-04 cookie gap in handleLogout and resolve documentation debt (SUMMARY frontmatter, ROADMAP checkboxes)
+- [x] **Phase 4: SAFE-04 Cookie Fix + Milestone Hygiene** - Close audit-identified SAFE-04 cookie gap in handleLogout and resolve documentation debt (SUMMARY frontmatter, ROADMAP checkboxes) (completed 2026-03-19)
 
 ## Phase Details
 
@@ -91,4 +91,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | 1. Critical Safety | 3/3 | Complete | 2026-02-27 |
 | 2. Type Safety | 3/3 | Complete | 2026-03-19 |
 | 3. Test Infrastructure + Quality | 2/2 | Complete | 2026-03-19 |
-| 4. SAFE-04 Cookie Fix + Hygiene | 0/1 | Gap Closure | - |
+| 4. SAFE-04 Cookie Fix + Hygiene | 1/1 | Complete   | 2026-03-19 |

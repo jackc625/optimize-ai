@@ -60,6 +60,10 @@ decisions:
   - "ConfirmDialog Cancel rendered before Action to ensure Tab order is Cancel -> Confirm per UI-SPEC"
   - "Destructive button uses className override (bg-destructive) since Button variant='destructive' does not exist"
   - "Habits page loading: removed animate-pulse from li wrapper since each Skeleton child applies its own animation"
+requirements_satisfied:
+  - QUAL-02
+  - QUAL-03
+  - QUAL-04
 metrics:
   duration: "11 min"
   completed: "2026-03-19"

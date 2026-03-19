@@ -13,8 +13,9 @@ This is a codebase audit and hardening milestone for an existing production heal
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Critical Safety** - Establish a production-safe baseline with no silent crashes, no auth race conditions, no malformed URLs, and audited RLS policies
-- [ ] **Phase 2: Type Safety** - Eliminate unsafe `as` casts at every Supabase boundary, standardize all hooks on React Query, and enforce correct useEffect dependencies via ESLint (completed 2026-03-19; UAT gap closure in progress)
+- [x] **Phase 2: Type Safety** - Eliminate unsafe `as` casts at every Supabase boundary, standardize all hooks on React Query, and enforce correct useEffect dependencies via ESLint (completed 2026-03-19)
 - [x] **Phase 3: Test Infrastructure + Quality** - Install Vitest with baseline tests for critical paths, add structured logging, replace inaccessible confirm dialogs, and fix timezone-unsafe date handling (completed 2026-03-19)
+- [ ] **Phase 4: SAFE-04 Cookie Fix + Milestone Hygiene** - Close audit-identified SAFE-04 cookie gap in handleLogout and resolve documentation debt (SUMMARY frontmatter, ROADMAP checkboxes)
 
 ## Phase Details
 
@@ -50,7 +51,7 @@ Plans:
 Plans:
 - [x] 02-01-PLAN.md — Create Zod schemas and date utility foundation; convert all workout hooks to safeParse; fix ProfileForm enum casts, MacroSummary fmt cast, macros history and profile edit page casts
 - [x] 02-02-PLAN.md — Migrate useHabits and useMacros to React Query; fix all BUG-01 date patterns; enable ESLint exhaustive-deps rule
-- [ ] 02-03-PLAN.md — (GAP CLOSURE) Fix macro recalculate button: add toast feedback, error handling, and minimum loading duration
+- [x] 02-03-PLAN.md — (GAP CLOSURE) Fix macro recalculate button: add toast feedback, error handling, and minimum loading duration
 
 ### Phase 3: Test Infrastructure + Quality
 **Goal**: The codebase has a working test suite covering critical utilities and hooks, structured error logging replaces raw `console.error()` calls, accessible UI replaces browser-native dialogs, and timezone-safe date utilities replace all fragile `.toISOString().split('T')[0]` patterns
@@ -64,16 +65,27 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 03-01-PLAN.md — Install Vitest 4 + RTL + MSW test infrastructure; write calculateMacros unit tests, useWorkouts integration tests, date utility tests, and Zod schema tests
-- [ ] 03-02-PLAN.md — Create logError() utility and replace all console.error() calls; replace window.confirm() with accessible ConfirmDialog; add loading skeleton components to workouts, weight, and habits pages
+- [x] 03-01-PLAN.md — Install Vitest 4 + RTL + MSW test infrastructure; write calculateMacros unit tests, useWorkouts integration tests, date utility tests, and Zod schema tests
+- [x] 03-02-PLAN.md — Create logError() utility and replace all console.error() calls; replace window.confirm() with accessible ConfirmDialog; add loading skeleton components to workouts, weight, and habits pages
+
+### Phase 4: SAFE-04 Cookie Fix + Milestone Hygiene
+**Goal**: Close the last audit gap (SAFE-04 cookie clear in handleLogout) and resolve all documentation debt identified in the v1.0 milestone audit
+**Depends on**: Phase 1 (auth system)
+**Requirements**: SAFE-04
+**Gap Closure**: Closes gaps from v1.0-MILESTONE-AUDIT.md
+**Success Criteria** (what must be TRUE):
+  1. `dashboard/page.tsx` `handleLogout` clears the `sb-authed` cookie before calling `router.push`, eliminating the brief window where middleware admits a signed-out user
+  2. All SUMMARY frontmatter `requirements_satisfied` fields accurately list the requirements completed by their respective plans
+**Plans**: TBD (via `/gsd:plan-phase 4`)
 
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3
+Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Critical Safety | 3/3 | Complete | 2026-02-27 |
-| 2. Type Safety | 2/3 | Gap closure   | - |
-| 3. Test Infrastructure + Quality | 2/2 | Complete   | 2026-03-19 |
+| 2. Type Safety | 3/3 | Complete | 2026-03-19 |
+| 3. Test Infrastructure + Quality | 2/2 | Complete | 2026-03-19 |
+| 4. SAFE-04 Cookie Fix + Hygiene | 0/? | Gap Closure | - |

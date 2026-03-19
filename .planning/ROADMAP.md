@@ -61,11 +61,11 @@ Plans:
   2. Every error caught in a hook or page is logged via a `logError(context, err)` utility that includes the operation name and full error object — no bare `console.error(err)` calls remain
   3. Deleting a workout requires confirming via a keyboard-accessible modal dialog (not `window.confirm()`), so the action is completable without a mouse and is announced correctly to screen readers
   4. All "Loading..." text placeholders on the workouts list, weight log, and habits pages are replaced with skeleton components that match the final layout shape, so the page does not experience a layout shift when data loads
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 03-01: Configure Vitest 4 + RTL + msw; write `calculateMacros` unit tests and `useWorkouts` integration tests
-- [ ] 03-02: Add `logError()` utility and replace all `console.error()` calls; replace `window.confirm()` with accessible `ConfirmDialog`; add loading skeleton components
+- [ ] 03-01-PLAN.md — Install Vitest 4 + RTL + MSW test infrastructure; write calculateMacros unit tests, useWorkouts integration tests, date utility tests, and Zod schema tests
+- [ ] 03-02-PLAN.md — Create logError() utility and replace all console.error() calls; replace window.confirm() with accessible ConfirmDialog; add loading skeleton components to workouts, weight, and habits pages
 
 ## Progress
 

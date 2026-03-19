@@ -2,16 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Active — ready for Phase 2
-stopped_at: Phase 2 context gathered
-last_updated: "2026-03-19T00:56:41.457Z"
-last_activity: "2026-02-27 — Completed Plan 01-03: middleware auth guard human-verified (all 6 tests passed); login cookie race fixed; RLS child table policies corrected"
+status: executing
+stopped_at: "Completed 02-01-PLAN.md"
+last_updated: "2026-03-19T01:42:00Z"
 progress:
   total_phases: 3
   completed_phases: 1
-  total_plans: 3
-  completed_plans: 3
-  percent: 33
+  total_plans: 5
+  completed_plans: 4
 ---
 
 # Project State
@@ -21,34 +19,31 @@ progress:
 See: .planning/PROJECT.md (updated 2026-02-26)
 
 **Core value:** Every user sees only their own data and can trust that data to be correct — security and correctness are non-negotiable for a public production app.
-**Current focus:** Phase 2 — Data Integrity (next phase)
+**Current focus:** Phase 02 — type-safety
 
 ## Current Position
 
-Phase: 1 of 3 COMPLETE (Critical Safety)
-Plan: Phase 1 fully complete — all 3 plans done
-Status: Active — ready for Phase 2
-Last activity: 2026-02-27 — Completed Plan 01-03: middleware auth guard human-verified (all 6 tests passed); login cookie race fixed; RLS child table policies corrected
-
-Progress: [███░░░░░░░] 33%
+Phase: 02 (type-safety) — EXECUTING
+Plan: 2 of 2
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 3
-- Average duration: ~14 min
-- Total execution time: ~43 min
+- Total plans completed: 4
+- Average duration: ~13 min
+- Total execution time: ~50 min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-critical-safety | 3 | ~43 min | ~14 min |
+| 02-type-safety | 1 | ~7 min | ~7 min |
 
 **Recent Trend:**
 
-- Last 5 plans: 8 min, 15 min, ~20 min
+- Last 5 plans: 8 min, 15 min, ~20 min, 7 min
 - Trend: baseline
 
 *Updated after each plan completion*
@@ -70,6 +65,10 @@ Recent decisions affecting current work:
 - [Phase 01-03]: Login page must set sb-authed cookie synchronously before router.push — onAuthStateChange does not fire on the login page itself, so middleware would see no cookie on the next request causing a redirect loop
 - [Phase 01-02]: EXISTS subquery for child table RLS (workout_exercises, workout_log_exercises) — these tables lack direct user_id column; ownership enforced via join to parent workouts/workout_logs
 - [Phase 01-02]: Subquery form (SELECT auth.uid()) used throughout RLS policies — evaluates once per query, Supabase-recommended pattern
+- [02-01]: safeParse failure in queryFn throws (React Query catches); failure in useEffect logs + toasts — no unhandled rejection
+- [02-01]: Intermediate as WorkoutRow[] / as LogRow[] shaping casts acceptable before safeParse validation — plan-approved pattern
+- [02-01]: UserProfile type switched to z.infer<typeof UserProfileSchema> — single source of truth in profileSchema.ts
+- [02-01]: date-fns format uses lowercase yyyy-MM-dd (NOT YYYY which is ISO week year)
 
 ### Pending Todos
 
@@ -82,6 +81,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-19T00:56:41.453Z
-Stopped at: Phase 2 context gathered
-Resume file: .planning/phases/02-type-safety/02-CONTEXT.md
+Last session: 2026-03-19T01:42:00Z
+Stopped at: Completed 02-01-PLAN.md
+Resume file: .planning/phases/02-type-safety/02-02-PLAN.md

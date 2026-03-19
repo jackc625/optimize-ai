@@ -16,9 +16,9 @@ Requirements for the audit and hardening milestone. Each maps to roadmap phases.
 
 ### Type Safety
 
-- [ ] **TYPE-01**: All Supabase query results in hooks use Zod `.safeParse()` instead of `as TypeName` casts — applies to `useWorkouts`, `useWorkoutLogs`, macros history page, profile edit page, and `MacroSummary`
+- [x] **TYPE-01**: All Supabase query results in hooks use Zod `.safeParse()` instead of `as TypeName` casts — applies to `useWorkouts`, `useWorkoutLogs`, macros history page, profile edit page, and `MacroSummary`
 - [ ] **TYPE-02**: ESLint `react-hooks/exhaustive-deps` rule is enabled and all `useEffect` dependency arrays are corrected — targets `useMacros` (empty `[]`), `dashboard/page.tsx` (stale user ref), and all other hooks
-- [ ] **TYPE-03**: `ProfileForm` string-to-enum conversions (activity level, goal, gender) are validated against Zod enum schemas before use, eliminating silent type errors from invalid form values
+- [x] **TYPE-03**: `ProfileForm` string-to-enum conversions (activity level, goal, gender) are validated against Zod enum schemas before use, eliminating silent type errors from invalid form values
 - [ ] **TYPE-04**: `useHabits` and `useMacros` are migrated from manual `useState`/`useEffect` to React Query hooks, making them consistent with the rest of the codebase and testable
 
 ### Bug Fixes
@@ -86,9 +86,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SAFE-04 | Phase 1 | Complete |
 | BUG-02 | Phase 1 | Complete |
 | BUG-03 | Phase 1 | Complete |
-| TYPE-01 | Phase 2 | Pending |
+| TYPE-01 | Phase 2 | Complete |
 | TYPE-02 | Phase 2 | Pending |
-| TYPE-03 | Phase 2 | Pending |
+| TYPE-03 | Phase 2 | Complete |
 | TYPE-04 | Phase 2 | Pending |
 | BUG-01 | Phase 2 | Pending |
 | QUAL-01 | Phase 3 | Pending |

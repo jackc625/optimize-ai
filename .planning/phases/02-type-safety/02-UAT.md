@@ -1,5 +1,5 @@
 ---
-status: complete
+status: diagnosed
 phase: 02-type-safety
 source: [02-01-SUMMARY.md, 02-02-SUMMARY.md]
 started: 2026-03-18T12:00:00Z
@@ -61,7 +61,12 @@ skipped: 0
   reason: "User reported: the recalculate button isnt doing anything"
   severity: major
   test: 2
-  root_cause: ""
-  artifacts: []
-  missing: []
-  debug_session: ""
+  root_cause: "handleRecalculate in MacroSummary.tsx lacks toast feedback and error handling. Refetch completes in ~50-100ms with no visible confirmation. Identical data triggers no re-render due to React Query structuralSharing. No try/catch means errors leave button stuck in disabled state."
+  artifacts:
+    - path: "src/components/macros/MacroSummary.tsx"
+      issue: "handleRecalculate (lines 99-103) missing toast.success, try/catch, and minimum loading duration"
+  missing:
+    - "Add toast.success('Macros recalculated!') after refetch"
+    - "Wrap in try/catch with toast.error on failure"
+    - "Use finally block for setIsRecalculating(false)"
+  debug_session: ".planning/debug/macro-recalculate-noop.md"

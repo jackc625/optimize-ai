@@ -79,7 +79,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] 04-01-PLAN.md — Add sb-authed cookie clear to handleLogout and normalize SUMMARY frontmatter
+- [x] 04-01-PLAN.md — Add sb-authed cookie clear to handleLogout and normalize SUMMARY frontmatter
 
 ## Progress
 

@@ -30,10 +30,10 @@ Every user sees only their own data and can trust that data to be correct — se
 - [ ] Resolve URL routing bug (double-slash path)
 - [x] Fix date handling timezone edge cases — Validated in Phase 02: type-safety (localDate utility)
 - [ ] Add pagination to unbounded list queries
-- [ ] Set up test infrastructure and baseline tests for critical paths
-- [ ] Replace window.confirm() with accessible modal dialog
-- [ ] Improve error logging with structured context
-- [ ] Add loading skeleton components
+- [x] Set up test infrastructure and baseline tests for critical paths — Validated in Phase 03: test-infrastructure-quality
+- [x] Replace window.confirm() with accessible modal dialog — Validated in Phase 03: test-infrastructure-quality
+- [x] Improve error logging with structured context — Validated in Phase 03: test-infrastructure-quality
+- [x] Add loading skeleton components — Validated in Phase 03: test-infrastructure-quality
 - [ ] Create .env.example and document setup process
 
 ### Out of Scope
@@ -54,7 +54,7 @@ Key technical context:
 - Stack: Next.js 15.3.2, React 19, TanStack React Query 5, Supabase JS 2.50, Zod, Tailwind
 - Architecture: Pages → Components → Hooks → Utils (no backend API layer; direct Supabase calls from hooks)
 - Supabase SDK is in devDependencies (should be in dependencies)
-- No test infrastructure currently exists
+- Vitest 4 test infrastructure with 31 tests (macro calc, date utils, Zod schemas, useWorkouts hook)
 - Date handling uses `.toISOString().split('T')[0]` which has timezone edge cases near midnight
 
 ## Constraints
@@ -68,8 +68,8 @@ Key technical context:
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
 | Audit-first milestone before new features | Code quality and security issues should be resolved before building on top of them | — Pending |
-| Vitest for test framework | Recommended for Next.js; fast, Jest-compatible, works with TypeScript | — Pending |
+| Vitest for test framework | Recommended for Next.js; fast, Jest-compatible, works with TypeScript | ✓ Implemented in Phase 03 |
 | react-hook-form for ProfileForm | Replaces 8+ useState fields; built-in validation and dirty tracking | — Pending |
 
 ---
-*Last updated: 2026-03-19 after Phase 02 gap closure completion*
+*Last updated: 2026-03-19 after Phase 03 completion (test infrastructure + quality improvements)*

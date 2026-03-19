@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useUser } from "@/hooks/profile/useUser";
 import { useWorkout } from "@/hooks/workouts/useWorkouts";
 import { useCreateWorkoutLog } from "@/hooks/workouts/useWorkoutLogs";
+import { getLocalDate } from "@/utils/dates/localDate";
 import {
   Card,
   CardHeader,
@@ -77,7 +78,7 @@ export default function LogWorkoutPage() {
     );
   }
 
-  const today = new Date().toISOString().slice(0, 10);
+  const today = getLocalDate();
 
   // 5) Handle form submit
   const handleSubmit = async (e: FormEvent) => {

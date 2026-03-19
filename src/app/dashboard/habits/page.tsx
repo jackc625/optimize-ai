@@ -3,21 +3,25 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/hooks/profile/useUser";
-import { useHabits, type HabitWithStreak } from "@/hooks/habits/useHabits";
+import {
+  useHabits,
+  useAddHabit,
+  useCompleteHabit,
+  useDeleteHabit,
+  type HabitWithStreak,
+} from "@/hooks/habits/useHabits";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 
 export default function HabitsPage() {
   const { user, loading: userLoading } = useUser();
   const router = useRouter();
-  const {
-    habits,
-    todayCompleted,
-    loading: habitsLoading,
-    addHabit,
-    completeHabit,
-    deleteHabit,
-  } = useHabits();
+  const { data, isLoading: habitsLoading } = useHabits();
+  const habits = data?.habits ?? [];
+  const todayCompleted = new Set(data?.todayCompleted ?? []);
+  const addHabitMutation = useAddHabit();
+  const completeHabitMutation = useCompleteHabit();
+  const deleteHabitMutation = useDeleteHabit();
   const [newHabit, setNewHabit] = useState("");
 
   // Redirect if not logged in
@@ -64,7 +68,7 @@ export default function HabitsPage() {
             size="md"
             onClick={() => {
               if (newHabit.trim()) {
-                addHabit(newHabit);
+                addHabitMutation.mutate(newHabit);
                 setNewHabit("");
               }
             }}
@@ -105,7 +109,7 @@ export default function HabitsPage() {
                     type="checkbox"
                     checked={isDone}
                     disabled={isDone}
-                    onChange={() => completeHabit(habit.id)}
+                    onChange={() => completeHabitMutation.mutate(habit.id)}
                     className="
                       w-5 h-5
                       border-border
@@ -115,7 +119,7 @@ export default function HabitsPage() {
                     "
                   />
                   <button
-                    onClick={() => deleteHabit(habit.id)}
+                    onClick={() => deleteHabitMutation.mutate(habit.id)}
                     className="text-destructive-foreground hover:text-destructive-foreground/80 text-sm"
                     title="Delete habit"
                   >

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import toast from "react-hot-toast";
+import { getLocalDate } from "@/utils/dates/localDate";
 
 /**
  * Represents a row in `weight_logs`
@@ -59,7 +60,7 @@ export function useWeightLogs() {
     const user = sessionData?.user;
     if (!user) return;
 
-    const today = new Date().toISOString().split("T")[0];
+    const today = getLocalDate();
 
     // Prevent duplicate per day
     const { data: existing, error: checkError } = await supabase

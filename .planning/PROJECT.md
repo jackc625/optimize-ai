@@ -24,11 +24,11 @@ Every user sees only their own data and can trust that data to be correct — se
 ### Active
 
 - [ ] Fix all critical/high-priority concerns identified in codebase audit
-- [ ] Resolve type safety issues (unsafe `as` casts, unvalidated form enums)
+- [x] Resolve type safety issues (unsafe `as` casts, unvalidated form enums) — Validated in Phase 02: type-safety
 - [ ] Fix authentication race conditions and missing env var validation
-- [ ] Fix useEffect dependency arrays causing stale data
+- [x] Fix useEffect dependency arrays causing stale data — Validated in Phase 02: type-safety (React Query migration)
 - [ ] Resolve URL routing bug (double-slash path)
-- [ ] Fix date handling timezone edge cases
+- [x] Fix date handling timezone edge cases — Validated in Phase 02: type-safety (localDate utility)
 - [ ] Add pagination to unbounded list queries
 - [ ] Set up test infrastructure and baseline tests for critical paths
 - [ ] Replace window.confirm() with accessible modal dialog
@@ -72,4 +72,4 @@ Key technical context:
 | react-hook-form for ProfileForm | Replaces 8+ useState fields; built-in validation and dirty tracking | — Pending |
 
 ---
-*Last updated: 2026-02-26 after initialization*
+*Last updated: 2026-03-18 after Phase 02 completion*

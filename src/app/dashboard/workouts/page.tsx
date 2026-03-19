@@ -12,19 +12,21 @@ import {
 } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import toast from "react-hot-toast";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 
 export default function WorkoutsPage() {
   const router = useRouter();
   const { data: workouts = [], isLoading, error } = useWorkouts();
   const deleteWorkout = useDeleteWorkout();
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
   const handleDelete = (id: string) => {
-    if (
-      window.confirm(
-        "Are you sure you want to delete this workout? This cannot be undone."
-      )
-    ) {
-      deleteWorkout.mutate(id, {
+    setPendingDeleteId(id);
+  };
+
+  const confirmDelete = () => {
+    if (pendingDeleteId) {
+      deleteWorkout.mutate(pendingDeleteId, {
         onError: (err) => {
           logError("deleteWorkout", err);
           toast.error("Could not delete workout.");
@@ -33,6 +35,7 @@ export default function WorkoutsPage() {
           toast.success("Workout deleted.");
         },
       });
+      setPendingDeleteId(null);
     }
   };
 
@@ -125,6 +128,18 @@ export default function WorkoutsPage() {
           </CardContent>
         </Card>
       </main>
+      <ConfirmDialog
+        open={pendingDeleteId !== null}
+        onOpenChange={(open) => {
+          if (!open) setPendingDeleteId(null);
+        }}
+        title="Delete Workout"
+        description="This workout and all its exercises will be permanently deleted. This cannot be undone."
+        confirmLabel="Delete Workout"
+        cancelLabel="Keep Workout"
+        onConfirm={confirmDelete}
+        variant="destructive"
+      />
     </div>
   );
 }

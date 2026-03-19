@@ -83,7 +83,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SAFE-01 | Phase 1 | Complete |
 | SAFE-02 | Phase 1 | Complete |
 | SAFE-03 | Phase 1 | Complete |
-| SAFE-04 | Phase 4 | Pending |
+| SAFE-04 | Phase 4 | Complete |
 | BUG-02 | Phase 1 | Complete |
 | BUG-03 | Phase 1 | Complete |
 | TYPE-01 | Phase 2 | Complete |

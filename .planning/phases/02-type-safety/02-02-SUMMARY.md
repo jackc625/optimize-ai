@@ -43,7 +43,7 @@ metrics:
   tasks_completed: 3
   tasks_total: 3
   files_modified: 7
-requirements_satisfied:
+requirements-completed:
   - TYPE-02
   - TYPE-04
   - BUG-01

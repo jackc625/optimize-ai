@@ -45,11 +45,11 @@ Plans:
   3. The ESLint `react-hooks/exhaustive-deps` rule is enabled and passes with zero violations — all `useEffect` dependency arrays are complete and correct
   4. `ProfileForm` enum values (activity level, goal, gender) are validated against Zod schemas before being written to the database, so invalid form submissions cannot persist malformed enum strings
   5. Habit streak data displayed for a user in a non-UTC timezone reflects the correct local date, not a UTC-shifted date
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 02-01: Remove unsafe `as` casts and apply Zod `.safeParse()` at all Supabase hook boundaries
-- [ ] 02-02: Migrate `useHabits` and `useMacros` to React Query; fix `ProfileForm` enum validation; add ESLint exhaustive-deps rule
+- [ ] 02-01-PLAN.md — Create Zod schemas and date utility foundation; convert all workout hooks to safeParse; fix ProfileForm enum casts, MacroSummary fmt cast, macros history and profile edit page casts
+- [ ] 02-02-PLAN.md — Migrate useHabits and useMacros to React Query; fix all BUG-01 date patterns; enable ESLint exhaustive-deps rule
 
 ### Phase 3: Test Infrastructure + Quality
 **Goal**: The codebase has a working test suite covering critical utilities and hooks, structured error logging replaces raw `console.error()` calls, accessible UI replaces browser-native dialogs, and timezone-safe date utilities replace all fragile `.toISOString().split('T')[0]` patterns

@@ -75,8 +75,11 @@ Plans:
 **Gap Closure**: Closes gaps from v1.0-MILESTONE-AUDIT.md
 **Success Criteria** (what must be TRUE):
   1. `dashboard/page.tsx` `handleLogout` clears the `sb-authed` cookie before calling `router.push`, eliminating the brief window where middleware admits a signed-out user
-  2. All SUMMARY frontmatter `requirements_satisfied` fields accurately list the requirements completed by their respective plans
-**Plans**: TBD (via `/gsd:plan-phase 4`)
+  2. All SUMMARY frontmatter uses consistent `requirements-completed` field name across all plans
+**Plans**: 1 plan
+
+Plans:
+- [ ] 04-01-PLAN.md — Add sb-authed cookie clear to handleLogout and normalize SUMMARY frontmatter
 
 ## Progress
 
@@ -88,4 +91,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | 1. Critical Safety | 3/3 | Complete | 2026-02-27 |
 | 2. Type Safety | 3/3 | Complete | 2026-03-19 |
 | 3. Test Infrastructure + Quality | 2/2 | Complete | 2026-03-19 |
-| 4. SAFE-04 Cookie Fix + Hygiene | 0/? | Gap Closure | - |
+| 4. SAFE-04 Cookie Fix + Hygiene | 0/1 | Gap Closure | - |

@@ -12,6 +12,7 @@ import {
 } from "@/hooks/habits/useHabits";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 export default function HabitsPage() {
   const { user, loading: userLoading } = useUser();
@@ -80,12 +81,12 @@ export default function HabitsPage() {
 
       {habitsLoading ? (
         // Skeleton loader
-        <ul className="max-w-md mx-auto space-y-4">
+        <ul className="max-w-md mx-auto space-y-4" aria-label="Loading habits">
           {[...Array(3)].map((_, i) => (
-            <li key={i} className="flex items-center animate-pulse space-x-4">
-              <div className="h-4 w-32 bg-muted rounded"></div>
-              <div className="h-4 w-12 bg-muted rounded"></div>
-              <div className="h-5 w-5 bg-muted rounded-full"></div>
+            <li key={i} className="flex items-center space-x-4">
+              <Skeleton className="h-4 w-32" />
+              <Skeleton className="h-4 w-12" />
+              <Skeleton className="h-5 w-5 rounded-full" />
             </li>
           ))}
         </ul>

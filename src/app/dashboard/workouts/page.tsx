@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/Button";
 import toast from "react-hot-toast";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 export default function WorkoutsPage() {
   const router = useRouter();
@@ -41,9 +42,35 @@ export default function WorkoutsPage() {
 
   if (isLoading) {
     return (
-      <main className="flex items-center justify-center min-h-screen bg-background text-foreground">
-        <div className="text-sm text-muted-foreground">Loading workouts…</div>
-      </main>
+      <div className="min-h-screen flex flex-col bg-background text-foreground">
+        <main className="flex-grow max-w-3xl mx-auto p-6 space-y-6">
+          <Card>
+            <CardHeader className="flex items-center justify-between">
+              <Skeleton className="h-8 w-40" />
+              <Skeleton className="h-10 w-36" />
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4" aria-label="Loading workouts">
+                {[...Array(3)].map((_, i) => (
+                  <Card key={i}>
+                    <CardHeader>
+                      <Skeleton className="h-6 w-48" />
+                    </CardHeader>
+                    <div className="px-6 pb-4">
+                      <Skeleton className="h-4 w-32 mt-2" />
+                    </div>
+                    <CardFooter className="flex space-x-2">
+                      <Skeleton className="h-8 w-16" />
+                      <Skeleton className="h-8 w-16" />
+                      <Skeleton className="h-8 w-16" />
+                    </CardFooter>
+                  </Card>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </main>
+      </div>
     );
   }
   if (error) {

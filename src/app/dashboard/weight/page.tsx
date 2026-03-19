@@ -7,6 +7,7 @@ import { useWeightLogs } from "@/hooks/weight/useWeightLogs";
 import WeightChart from "@/components/weight/WeightChart";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { Skeleton } from "@/components/ui/Skeleton";
 
 export default function WeightTrackerPage() {
   const { user, loading: userLoading } = useUser();
@@ -85,7 +86,17 @@ export default function WeightTrackerPage() {
           </CardHeader>
           <CardContent className="space-y-2">
             {logsLoading ? (
-              <p className="text-muted-foreground text-center">Loading…</p>
+              <ul className="space-y-2" aria-label="Loading weight logs">
+                {[...Array(3)].map((_, i) => (
+                  <li
+                    key={i}
+                    className="flex justify-between items-center border-b border-border py-2"
+                  >
+                    <Skeleton className="h-4 w-24" />
+                    <Skeleton className="h-4 w-24" />
+                  </li>
+                ))}
+              </ul>
             ) : logs.length === 0 ? (
               <p className="text-muted-foreground text-center">No logs yet.</p>
             ) : (

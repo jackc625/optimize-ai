@@ -13,7 +13,7 @@ This is a codebase audit and hardening milestone for an existing production heal
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Critical Safety** - Establish a production-safe baseline with no silent crashes, no auth race conditions, no malformed URLs, and audited RLS policies
-- [ ] **Phase 2: Type Safety** - Eliminate unsafe `as` casts at every Supabase boundary, standardize all hooks on React Query, and enforce correct useEffect dependencies via ESLint
+- [x] **Phase 2: Type Safety** - Eliminate unsafe `as` casts at every Supabase boundary, standardize all hooks on React Query, and enforce correct useEffect dependencies via ESLint (completed 2026-03-19)
 - [ ] **Phase 3: Test Infrastructure + Quality** - Install Vitest with baseline tests for critical paths, add structured logging, replace inaccessible confirm dialogs, and fix timezone-unsafe date handling
 
 ## Phase Details
@@ -74,5 +74,5 @@ Phases execute in numeric order: 1 → 2 → 3
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Critical Safety | 3/3 | Complete | 2026-02-27 |
-| 2. Type Safety | 1/2 | In Progress|  |
+| 2. Type Safety | 2/2 | Complete   | 2026-03-19 |
 | 3. Test Infrastructure + Quality | 0/2 | Not started | - |

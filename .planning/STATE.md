@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: "Completed 02-01-PLAN.md"
-last_updated: "2026-03-19T01:42:00Z"
+status: unknown
+stopped_at: Completed 02-02-PLAN.md
+last_updated: "2026-03-19T01:55:14.082Z"
 progress:
   total_phases: 3
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 5
-  completed_plans: 4
+  completed_plans: 5
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-02-26)
 
 **Core value:** Every user sees only their own data and can trust that data to be correct — security and correctness are non-negotiable for a public production app.
-**Current focus:** Phase 02 — type-safety
+**Current focus:** Phase 02 — type-safety (COMPLETE), Phase 03 next
 
 ## Current Position
 
-Phase: 02 (type-safety) — EXECUTING
-Plan: 2 of 2
+Phase: 02 (type-safety) — COMPLETE
+Plan: 2 of 2 (all plans done)
 
 ## Performance Metrics
 
@@ -39,12 +39,12 @@ Plan: 2 of 2
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-critical-safety | 3 | ~43 min | ~14 min |
-| 02-type-safety | 1 | ~7 min | ~7 min |
+| 02-type-safety | 2 | ~14 min | ~7 min |
 
 **Recent Trend:**
 
-- Last 5 plans: 8 min, 15 min, ~20 min, 7 min
-- Trend: baseline
+- Last 5 plans: 8 min, 15 min, ~20 min, 7 min, 7 min
+- Trend: consistent ~7 min for type-safety phase
 
 *Updated after each plan completion*
 
@@ -69,6 +69,9 @@ Recent decisions affecting current work:
 - [02-01]: Intermediate as WorkoutRow[] / as LogRow[] shaping casts acceptable before safeParse validation — plan-approved pattern
 - [02-01]: UserProfile type switched to z.infer<typeof UserProfileSchema> — single source of truth in profileSchema.ts
 - [02-01]: date-fns format uses lowercase yyyy-MM-dd (NOT YYYY which is ISO week year)
+- [Phase 02-02]: todayCompleted returned as string[] from useHabits, reconstructed to Set in consumer — React Query cannot cache Set objects
+- [Phase 02-02]: ACTIVITY_MULTIPLIERS map fixes pre-existing NaN bug where activityLevel string was passed to numeric calculateMacros parameter
+- [Phase 02-02]: fmt() moved to module scope in MacroSummary.tsx for stable reference, avoiding exhaustive-deps violation
 
 ### Pending Todos
 
@@ -81,6 +84,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-19T01:42:00Z
-Stopped at: Completed 02-01-PLAN.md
-Resume file: .planning/phases/02-type-safety/02-02-PLAN.md
+Last session: 2026-03-19T01:55:14.078Z
+Stopped at: Completed 02-02-PLAN.md
+Resume file: None

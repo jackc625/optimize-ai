@@ -62,6 +62,7 @@ export default function DashboardPage() {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
+    document.cookie = "sb-authed=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
     router.push("/auth/login");
   };
 

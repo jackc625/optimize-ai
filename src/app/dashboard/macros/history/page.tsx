@@ -6,17 +6,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { useUser } from "@/hooks/profile/useUser";
 import toast from "react-hot-toast";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
-
-type MacroRecord = {
-  id: string;
-  created_at: string;
-  bmr: number;
-  maintenance_calories: number;
-  target_calories: number;
-  protein_grams: number;
-  fat_grams: number;
-  carb_grams: number;
-};
+import { MacroRecordArraySchema, type MacroRecord } from "@/schemas/macroSchema";
 
 export default function MacroHistoryPage() {
   const { user, loading: userLoading } = useUser();
@@ -46,8 +36,19 @@ export default function MacroHistoryPage() {
       if (error) {
         console.error("Error fetching macro history:", error.message);
         toast.error("Failed to load macro history");
+        setLoading(false);
+        return;
+      }
+
+      const result = MacroRecordArraySchema.safeParse(data ?? []);
+      if (!result.success) {
+        console.error(
+          `Zod validation failed in macros history: ${JSON.stringify(result.error.issues)}`
+        );
+        toast.error("Failed to load macro history");
+        setHistory([]);
       } else {
-        setHistory((data as MacroRecord[]) || []);
+        setHistory(result.data);
       }
       setLoading(false);
     };

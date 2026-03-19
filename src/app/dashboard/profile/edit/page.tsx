@@ -7,7 +7,7 @@ import toast from "react-hot-toast";
 import { useUser } from "@/hooks/profile/useUser";
 import { ProfileForm } from "@/components/profile/ProfileForm";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
-import type { UserProfile } from "@/types/database";
+import { UserProfileSchema, type UserProfile } from "@/schemas/profileSchema";
 
 export default function EditProfilePage() {
   const { user, loading: userLoading } = useUser();
@@ -39,7 +39,16 @@ export default function EditProfilePage() {
         return;
       }
 
-      setInitialData(data as UserProfile);
+      const result = UserProfileSchema.safeParse(data);
+      if (!result.success) {
+        console.error(
+          `Zod validation failed in profile edit: ${JSON.stringify(result.error.issues)}`
+        );
+        toast.error("Failed to load profile");
+        setLoading(false);
+        return;
+      }
+      setInitialData(result.data);
       setLoading(false);
     };
 

@@ -30,9 +30,9 @@ Requirements for the audit and hardening milestone. Each maps to roadmap phases.
 ### Quality
 
 - [x] **QUAL-01**: Vitest 4 test infrastructure is configured; `calculateMacros` utility has unit tests covering BMR, TDEE, and macro split calculations; `useWorkouts` hook has integration tests using React Query test utilities
-- [ ] **QUAL-02**: A `logError(context: string, err: unknown)` utility is created and replaces all raw `console.error()` calls in hooks and pages, logging full error objects with contextual operation names
-- [ ] **QUAL-03**: `window.confirm()` in `workouts/page.tsx` is replaced with an accessible `ConfirmDialog` component using `@radix-ui/react-alert-dialog`
-- [ ] **QUAL-04**: Loading skeleton components are created for the workouts list, weight log, and habits pages, replacing generic "Loading..." text with layout-matched placeholders
+- [x] **QUAL-02**: A `logError(context: string, err: unknown)` utility is created and replaces all raw `console.error()` calls in hooks and pages, logging full error objects with contextual operation names
+- [x] **QUAL-03**: `window.confirm()` in `workouts/page.tsx` is replaced with an accessible `ConfirmDialog` component using `@radix-ui/react-alert-dialog`
+- [x] **QUAL-04**: Loading skeleton components are created for the workouts list, weight log, and habits pages, replacing generic "Loading..." text with layout-matched placeholders
 
 ## v2 Requirements
 
@@ -92,9 +92,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | TYPE-04 | Phase 2 | Complete |
 | BUG-01 | Phase 2 | Complete |
 | QUAL-01 | Phase 3 | Complete |
-| QUAL-02 | Phase 3 | Pending |
-| QUAL-03 | Phase 3 | Pending |
-| QUAL-04 | Phase 3 | Pending |
+| QUAL-02 | Phase 3 | Complete |
+| QUAL-03 | Phase 3 | Complete |
+| QUAL-04 | Phase 3 | Complete |
 
 **Coverage:**
 - v1 requirements: 15 total

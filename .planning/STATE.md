@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 03-01-PLAN.md
-last_updated: "2026-03-19T17:49:46.227Z"
+stopped_at: Completed 03-02-PLAN.md
+last_updated: "2026-03-19T18:06:22.320Z"
 progress:
   total_phases: 3
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 8
-  completed_plans: 7
+  completed_plans: 8
 ---
 
 # Project State
@@ -49,6 +49,7 @@ Plan: 2 of 2
 *Updated after each plan completion*
 | Phase 02-type-safety P03 | 4 | 1 tasks | 1 files |
 | Phase 03-test-infrastructure-quality P01 | 11min | 2 tasks | 11 files |
+| Phase 03-test-infrastructure-quality P02 | 11min | 3 tasks | 16 files |
 
 ## Accumulated Context
 
@@ -79,6 +80,9 @@ Recent decisions affecting current work:
 - [Phase 03-01]: vi.mock used for supabaseClient in useWorkouts tests — @supabase/node-fetch bypasses MSW global fetch interception entirely
 - [Phase 03-01]: __mockOrder/__mockSelect pattern exposes vi.fn from hoisted vi.mock factory via module re-import
 - [Phase 03-01]: vitest.config.ts env block required — supabaseClient.ts throws at import time without NEXT_PUBLIC_SUPABASE_URL and ANON_KEY
+- [Phase 03-02]: logError collapses if/else error type checks — accepts unknown and handles Supabase error code detection internally via isSupabaseError type guard
+- [Phase 03-02]: ConfirmDialog Cancel rendered before Action (Tab order: Cancel -> Confirm per UI-SPEC), destructive variant via className override since Button has no destructive variant
+- [Phase 03-02]: Habits skeleton: removed animate-pulse from li wrapper since shared Skeleton component applies its own animation to each child
 
 ### Pending Todos
 
@@ -91,6 +95,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-19T17:49:46.221Z
-Stopped at: Completed 03-01-PLAN.md
+Last session: 2026-03-19T18:06:22.316Z
+Stopped at: Completed 03-02-PLAN.md
 Resume file: None

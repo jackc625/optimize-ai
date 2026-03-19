@@ -30,7 +30,7 @@ created: 2026-03-18
 | Preset | new-york / neutral / cssVariables=true | `components.json` |
 | Component library | Custom (`Button.tsx`, `Card.tsx`) built on shadcn CSS variables | `src/components/ui/` |
 | Icon library | lucide | `components.json` — `"iconLibrary": "lucide"` |
-| Font | Inter (400, 500, 600, 700) | `globals.css` @fontsource imports |
+| Font | Inter (400, 600) | `globals.css` @fontsource imports — only 400 and 600 are declared in contract |
 | CSS variable scope | `:root` (light) + `.dark` override | `globals.css` |
 
 ---
@@ -58,17 +58,24 @@ do not normalize during refactor.
 ## Typography
 
 Derived from `globals.css` (`font-sans` = Inter), `Card.tsx` (`text-xl font-semibold`),
-`ProfileForm.tsx` (`text-sm font-medium`), and `MacroSummary.tsx` (`text-sm`).
+and `MacroSummary.tsx` (`text-sm`).
 
 | Role | Size | Weight | Line Height | CSS Class |
 |------|------|--------|-------------|-----------|
 | Body | 16px (text-base) | 400 (regular) | 1.5 | `text-base` |
-| Label | 14px (text-sm) | 500 (medium) | 1.5 | `text-sm font-medium` |
+| Label | 14px (text-sm) | 400 (regular) | 1.5 | `text-sm` |
 | Card heading | 20px (text-xl) | 600 (semibold) | 1.2 | `text-xl font-semibold` |
 | Display | 28px (text-2xl) | 600 (semibold) | 1.2 | `text-2xl font-semibold` |
 
-Four sizes declared. Two weights in use: 400 (regular) and 600 (semibold).
-The 500 (medium) weight is loaded from @fontsource and used on labels only.
+Four sizes declared. Two weights: 400 (regular) and 600 (semibold).
+
+Note: `font-medium` (weight 500) currently appears on label elements in
+`ProfileForm.tsx`, `MacroSummary.tsx`, `Button.tsx`, and page files. These
+instances are outside the two-weight contract. Phase 2 executors must normalize
+all `font-medium` label instances to `text-sm` (weight 400) when touching those
+files as part of type-safety refactoring. `Button.tsx` uses `font-medium` for
+button text — that instance should be updated to `font-semibold` to align with
+the 600 weight on interactive primary elements.
 
 ---
 

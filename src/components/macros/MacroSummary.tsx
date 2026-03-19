@@ -98,8 +98,21 @@ export default function MacroSummary() {
   // "Recalculate" button handler
   const handleRecalculate = async () => {
     setIsRecalculating(true);
-    await refetch();
-    setIsRecalculating(false);
+    try {
+      const [result] = await Promise.all([
+        refetch(),
+        new Promise((r) => setTimeout(r, 400)),
+      ]);
+      if (result.error) {
+        toast.error("Failed to recalculate macros.");
+      } else {
+        toast.success("Macros recalculated!");
+      }
+    } catch {
+      toast.error("Failed to recalculate macros.");
+    } finally {
+      setIsRecalculating(false);
+    }
   };
 
   // "Save" button handler

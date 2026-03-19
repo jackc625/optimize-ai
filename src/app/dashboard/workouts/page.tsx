@@ -1,7 +1,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { useWorkouts, useDeleteWorkout } from "@/hooks/workouts/useWorkouts";
+import { logError } from "@/utils/logger";
 import {
   Card,
   CardHeader,
@@ -24,7 +26,7 @@ export default function WorkoutsPage() {
     ) {
       deleteWorkout.mutate(id, {
         onError: (err) => {
-          console.error("Failed to delete workout:", err.message);
+          logError("deleteWorkout", err);
           toast.error("Could not delete workout.");
         },
         onSuccess: () => {

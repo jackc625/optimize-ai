@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import { useUser } from "@/hooks/profile/useUser";
+import { logError } from "@/utils/logger";
 import MacroSummary from "@/components/macros/MacroSummary";
 import { useWorkouts } from "@/hooks/workouts/useWorkouts";
 import { Card, CardHeader } from "@/components/ui/Card";
@@ -39,7 +40,7 @@ export default function DashboardPage() {
         .maybeSingle();
 
       if (profileError) {
-        console.error("Failed to load profile name:", profileError.message);
+        logError("loadProfileName", profileError);
         setUserName("User");
       } else {
         setUserName(profile?.name ?? "User");

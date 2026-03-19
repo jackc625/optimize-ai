@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import { useUser } from "@/hooks/profile/useUser";
 import toast from "react-hot-toast";
+import { logError } from "@/utils/logger";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { MacroRecordArraySchema, type MacroRecord } from "@/schemas/macroSchema";
 
@@ -34,7 +35,7 @@ export default function MacroHistoryPage() {
         .order("created_at", { ascending: false });
 
       if (error) {
-        console.error("Error fetching macro history:", error.message);
+        logError("fetchMacroHistory", error);
         toast.error("Failed to load macro history");
         setLoading(false);
         return;
@@ -42,9 +43,7 @@ export default function MacroHistoryPage() {
 
       const result = MacroRecordArraySchema.safeParse(data ?? []);
       if (!result.success) {
-        console.error(
-          `Zod validation failed in macros history: ${JSON.stringify(result.error.issues)}`
-        );
+        logError("parseMacroHistory", result.error);
         toast.error("Failed to load macro history");
         setHistory([]);
       } else {

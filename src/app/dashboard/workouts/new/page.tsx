@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState, FormEvent } from "react";
 import { useCreateWorkout } from "@/hooks/workouts/useWorkouts";
+import { logError } from "@/utils/logger";
 import {
   Card,
   CardHeader,
@@ -28,11 +29,7 @@ export default function NewWorkoutPage() {
       });
       router.push(`/dashboard/workouts/${workout.id}`);
     } catch (err: unknown) {
-      if (err instanceof Error) {
-        console.error("Create workout error:", err.message);
-      } else {
-        console.error("Unexpected error:", String(err));
-      }
+      logError("createWorkout", err);
     }
   };
 

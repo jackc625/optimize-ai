@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import toast from "react-hot-toast";
+import { logError } from "@/utils/logger";
 import { getLocalDate } from "@/utils/dates/localDate";
 
 /**
@@ -26,7 +27,7 @@ export function useWeightLogs() {
       .order("date", { ascending: false });
     if (error) {
       toast.error("Failed to load weight logs");
-      console.error(error.message);
+      logError("fetchWeightLogs", error);
     } else {
       setLogs(data || []);
     }
@@ -44,7 +45,7 @@ export function useWeightLogs() {
       .eq("user_id", user.id)
       .maybeSingle();
     if (error) {
-      console.error(error.message);
+      logError("fetchGoalWeight", error);
     } else {
       setGoalWeight(data?.goal_weight_kg ?? null);
     }
@@ -71,7 +72,7 @@ export function useWeightLogs() {
       .maybeSingle();
     if (checkError) {
       toast.error("Error checking existing entry");
-      console.error(checkError.message);
+      logError("checkExistingLog", checkError);
       return;
     }
     if (existing) {
@@ -86,7 +87,7 @@ export function useWeightLogs() {
     });
     if (error) {
       toast.error("Error saving weight log");
-      console.error(error.message);
+      logError("addWeightLog", error);
     } else {
       toast.success("Weight logged!");
       fetchLogs();
@@ -100,7 +101,7 @@ export function useWeightLogs() {
       .eq("id", logId);
     if (error) {
       toast.error("Failed to delete entry");
-      console.error(error.message);
+      logError("deleteWeightLog", error);
     } else {
       toast.success("Entry deleted");
       fetchLogs();
@@ -114,7 +115,7 @@ export function useWeightLogs() {
       .eq("id", logId);
     if (error) {
       toast.error("Update failed");
-      console.error(error.message);
+      logError("updateWeightLog", error);
     } else {
       toast.success("Weight updated");
       fetchLogs();

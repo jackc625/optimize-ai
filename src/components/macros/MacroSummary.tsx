@@ -12,6 +12,7 @@ import { useUser } from "@/hooks/profile/useUser";
 import { useMacros } from "@/hooks/macros/useMacros";
 import { supabase } from "@/lib/supabaseClient";
 import toast from "react-hot-toast";
+import { logError } from "@/utils/logger";
 
 /** Format a number for display, showing "—" for undefined/non-finite values */
 const fmt = (n: number | undefined): string => {
@@ -146,7 +147,7 @@ export default function MacroSummary() {
     const { error } = await supabase.from("user_macros").insert(payload);
 
     if (error) {
-      console.error("Error saving macros:", error.message);
+      logError("saveMacros", error);
       toast.error("Failed to save macros.");
     } else {
       toast.success("Macros saved!");

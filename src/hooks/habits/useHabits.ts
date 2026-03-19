@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabaseClient";
 import toast from "react-hot-toast";
+import { logError } from "@/utils/logger";
 import { getLocalDate, formatLocalDate } from "@/utils/dates/localDate";
 
 export type HabitWithStreak = {
@@ -116,7 +117,7 @@ export function useAddHabit() {
       qc.invalidateQueries({ queryKey: ["habits"] });
     },
     onError: (err) => {
-      console.error("Error adding habit:", err.message);
+      logError("addHabit", err);
       toast.error("Failed to add habit");
     },
   });
@@ -145,7 +146,7 @@ export function useCompleteHabit() {
       qc.invalidateQueries({ queryKey: ["habits"] });
     },
     onError: (err) => {
-      console.error("Error completing habit:", err.message);
+      logError("completeHabit", err);
       toast.error("Failed to complete habit");
     },
   });
@@ -164,7 +165,7 @@ export function useDeleteHabit() {
       qc.invalidateQueries({ queryKey: ["habits"] });
     },
     onError: (err) => {
-      console.error("Error deleting habit:", err.message);
+      logError("deleteHabit", err);
       toast.error("Failed to delete habit");
     },
   });

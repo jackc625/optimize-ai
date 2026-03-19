@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import toast from "react-hot-toast";
 import { useUser } from "@/hooks/profile/useUser";
+import { logError } from "@/utils/logger";
 import { ProfileForm } from "@/components/profile/ProfileForm";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 
@@ -32,7 +33,7 @@ export default function SetupProfilePage() {
         .maybeSingle();
 
       if (error) {
-        console.error("Error checking profile:", error.message);
+        logError("checkProfile", error);
         toast.error("Could not check user profile.");
         return;
       }

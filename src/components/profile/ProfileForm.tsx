@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import toast from "react-hot-toast";
 import { ZodError } from "zod";
+import { logError } from "@/utils/logger";
 import type { UserProfile } from "@/schemas/profileSchema";
 import { ProfileSchema } from "@/schemas/profileSchema";
 import { Button } from "@/components/ui/Button";
@@ -107,7 +108,7 @@ export function ProfileForm({
     }
 
     if (resultError) {
-      console.error("Profile save error:", resultError.message);
+      logError("saveProfile", resultError);
       toast.error("Failed to save profile");
       setLoading(false);
       return;

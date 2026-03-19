@@ -13,7 +13,7 @@ This is a codebase audit and hardening milestone for an existing production heal
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Critical Safety** - Establish a production-safe baseline with no silent crashes, no auth race conditions, no malformed URLs, and audited RLS policies
-- [x] **Phase 2: Type Safety** - Eliminate unsafe `as` casts at every Supabase boundary, standardize all hooks on React Query, and enforce correct useEffect dependencies via ESLint (completed 2026-03-19)
+- [ ] **Phase 2: Type Safety** - Eliminate unsafe `as` casts at every Supabase boundary, standardize all hooks on React Query, and enforce correct useEffect dependencies via ESLint (completed 2026-03-19; UAT gap closure in progress)
 - [ ] **Phase 3: Test Infrastructure + Quality** - Install Vitest with baseline tests for critical paths, add structured logging, replace inaccessible confirm dialogs, and fix timezone-unsafe date handling
 
 ## Phase Details
@@ -45,11 +45,12 @@ Plans:
   3. The ESLint `react-hooks/exhaustive-deps` rule is enabled and passes with zero violations — all `useEffect` dependency arrays are complete and correct
   4. `ProfileForm` enum values (activity level, goal, gender) are validated against Zod schemas before being written to the database, so invalid form submissions cannot persist malformed enum strings
   5. Habit streak data displayed for a user in a non-UTC timezone reflects the correct local date, not a UTC-shifted date
-**Plans**: 2 plans
+**Plans**: 3 plans
 
 Plans:
-- [ ] 02-01-PLAN.md — Create Zod schemas and date utility foundation; convert all workout hooks to safeParse; fix ProfileForm enum casts, MacroSummary fmt cast, macros history and profile edit page casts
-- [ ] 02-02-PLAN.md — Migrate useHabits and useMacros to React Query; fix all BUG-01 date patterns; enable ESLint exhaustive-deps rule
+- [x] 02-01-PLAN.md — Create Zod schemas and date utility foundation; convert all workout hooks to safeParse; fix ProfileForm enum casts, MacroSummary fmt cast, macros history and profile edit page casts
+- [x] 02-02-PLAN.md — Migrate useHabits and useMacros to React Query; fix all BUG-01 date patterns; enable ESLint exhaustive-deps rule
+- [ ] 02-03-PLAN.md — (GAP CLOSURE) Fix macro recalculate button: add toast feedback, error handling, and minimum loading duration
 
 ### Phase 3: Test Infrastructure + Quality
 **Goal**: The codebase has a working test suite covering critical utilities and hooks, structured error logging replaces raw `console.error()` calls, accessible UI replaces browser-native dialogs, and timezone-safe date utilities replace all fragile `.toISOString().split('T')[0]` patterns
@@ -74,5 +75,5 @@ Phases execute in numeric order: 1 → 2 → 3
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Critical Safety | 3/3 | Complete | 2026-02-27 |
-| 2. Type Safety | 2/2 | Complete   | 2026-03-19 |
+| 2. Type Safety | 2/3 | Gap closure   | - |
 | 3. Test Infrastructure + Quality | 0/2 | Not started | - |

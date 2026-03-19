@@ -1,65 +1,62 @@
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabaseClient";
-import toast from "react-hot-toast";
 import { calculateMacros } from "@/utils/macros/calculateMacros";
-import type { ProfileInput, MacroOutput } from "@/utils/macros/calculateMacros";
+import type { MacroOutput } from "@/utils/macros/calculateMacros";
+import { UserProfileSchema } from "@/schemas/profileSchema";
 
 /**
- * Fetch the user’s profile, calculate macros, and return the results.
+ * Activity level string-to-multiplier mapping.
+ * calculateTDEE expects a numeric multiplier, not the string enum.
+ */
+const ACTIVITY_MULTIPLIERS: Record<string, number> = {
+  sedentary: 1.2,
+  moderate: 1.55,
+  active: 1.9,
+};
+
+/**
+ * Fetch the user's profile, validate with Zod, calculate macros, return results.
+ * Uses React Query for caching and state management.
  */
 export function useMacros() {
-  const [macros, setMacros] = useState<MacroOutput | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  const refresh = async () => {
-    setLoading(true);
-    try {
+  return useQuery<MacroOutput, Error>({
+    queryKey: ["macros"],
+    queryFn: async () => {
       // 1) Get current user
       const { data: sessionData } = await supabase.auth.getUser();
       const user = sessionData?.user;
-      if (!user) {
-        setMacros(null);
-        setLoading(false);
-        return;
-      }
+      if (!user) throw new Error("Not authenticated");
 
       // 2) Fetch profile fields needed for calculation
       const { data: profileData, error: profileError } = await supabase
         .from("user_profiles")
-        .select("age, height_cm, weight_kg, sex, goal, activity_level")
+        .select("user_id, name, age, height_cm, weight_kg, sex, goal, activity_level, goal_weight_kg")
         .eq("user_id", user.id)
         .maybeSingle();
-      if (profileError || !profileData) {
-        toast.error("Failed to load profile.");
-        setLoading(false);
-        return;
+      if (profileError) throw profileError;
+      if (!profileData) throw new Error("Profile not found");
+
+      // 3) Validate profile data with Zod
+      const parsed = UserProfileSchema.safeParse(profileData);
+      if (!parsed.success) {
+        throw new Error(
+          `Zod validation failed in useMacros: ${JSON.stringify(parsed.error.issues)}`
+        );
       }
 
-      // 3) Build ProfileInput shape
-      const input: ProfileInput = {
-        age: profileData.age,
-        heightCm: profileData.height_cm,
-        weightKg: profileData.weight_kg,
-        sex: profileData.sex,
-        goal: profileData.goal,
-        activityLevel: profileData.activity_level || "moderate",
-      };
+      // 4) Map activity_level string enum to numeric multiplier
+      const activityMultiplier = ACTIVITY_MULTIPLIERS[parsed.data.activity_level] ?? 1.55;
 
-      // 4) Calculate macros
-      const result = calculateMacros(input);
-      setMacros(result);
-    } catch (err) {
-      console.error("useMacros refresh error:", err);
-      toast.error("Failed to calculate macros");
-      setMacros(null);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    refresh();
-  }, []);
-
-  return { macros, loading, refresh };
+      // 5) Build ProfileInput and calculate
+      return calculateMacros({
+        age: parsed.data.age,
+        heightCm: parsed.data.height_cm,
+        weightKg: parsed.data.weight_kg,
+        sex: parsed.data.sex,
+        goal: parsed.data.goal,
+        activityLevel: activityMultiplier,
+      });
+    },
+    staleTime: 1000 * 60 * 5,
+  });
 }

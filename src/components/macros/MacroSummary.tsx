@@ -13,15 +13,15 @@ import { useMacros } from "@/hooks/macros/useMacros";
 import { supabase } from "@/lib/supabaseClient";
 import toast from "react-hot-toast";
 
+/** Format a number for display, showing "—" for undefined/non-finite values */
+const fmt = (n: number | undefined): string => {
+  if (n === undefined || !Number.isFinite(n)) return "—";
+  return Math.round(n).toString();
+};
+
 export default function MacroSummary() {
   const { user, loading: userLoading } = useUser();
-  const { macros, loading: macrosLoading, refresh } = useMacros();
-
-  // Formatter
-  const fmt = (n: number | undefined): string => {
-    if (n === undefined || !Number.isFinite(n)) return "—";
-    return Math.round(n).toString();
-  };
+  const { data: macros, isLoading: macrosLoading, refetch } = useMacros();
 
   // Local state for editable override fields
   const [targetCalories, setTargetCalories] = useState("");
@@ -95,14 +95,14 @@ export default function MacroSummary() {
     );
   }
 
-  // “Recalculate” button handler
+  // "Recalculate" button handler
   const handleRecalculate = async () => {
     setIsRecalculating(true);
-    await refresh();
+    await refetch();
     setIsRecalculating(false);
   };
 
-  // “Save” button handler
+  // "Save" button handler
   const handleSave = async () => {
     // Convert overrides to numbers
     const tc = Number(targetCalories);

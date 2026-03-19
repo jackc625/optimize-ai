@@ -22,7 +22,7 @@ created: 2026-03-19
 | Preset | `new-york`, baseColor: `neutral`, CSS variables: true |
 | Component library | @radix-ui/react-alert-dialog (new addition this phase) |
 | Icon library | lucide (declared in components.json) |
-| Font | Inter — weights 400, 500, 600, 700 loaded via @fontsource/inter |
+| Font | Inter — weights 400, 600 loaded via @fontsource/inter (500 and 700 are unused and must not be loaded) |
 
 Source: `components.json`, `tailwind.config.ts`, `src/app/globals.css`
 
@@ -53,13 +53,13 @@ Source: Derived from existing Card.tsx (`px-6 py-4`, `px-6 py-6`). Default: 8-po
 | Role | Size | Weight | Line Height |
 |------|------|--------|-------------|
 | Body | 16px (`text-base`) | 400 (regular) | 1.5 |
-| Label / small text | 14px (`text-sm`) | 400 (regular) | 1.5 |
+| Label / small text | 13px (`text-[13px]`) | 400 (regular) | 1.5 |
 | Heading (card title, section) | 20px (`text-xl`) | 600 (semibold) | 1.2 |
 | Display (page heading) | 24px (`text-2xl`) | 600 (semibold) | 1.2 |
 
-Maximum 4 sizes in use. Maximum 2 weights in use (400 + 600).
+Maximum 4 sizes in use. Maximum 2 weights in use (400 + 600). Label size changed from 14px to 13px to increase visual separation from 16px body text (3px gap vs 2px gap improves hierarchy legibility).
 
-Source: Existing `CardTitle` uses `text-xl font-semibold`; workouts page `h1` uses `text-2xl font-semibold`; body text uses `text-base`/`text-sm` throughout.
+Source: Existing `CardTitle` uses `text-xl font-semibold`; workouts page `h1` uses `text-2xl font-semibold`; body text uses `text-base` throughout.
 
 ---
 
@@ -79,6 +79,22 @@ Accent (`--primary`) reserved for: **Primary CTA buttons only** (e.g. "Add Habit
 Destructive (`--destructive`) reserved for: **ConfirmDialog confirm button (destructive variant) only**. Delete action text uses `text-destructive` (foreground semantic token). Do not apply destructive color to warning states or informational error messages.
 
 Source: `globals.css` CSS variable declarations. Usage pattern derived from existing page components.
+
+---
+
+## Visual Hierarchy
+
+### Primary Focal Points
+
+Each page in this phase has one declared primary visual anchor — the element the user's eye should land on first:
+
+| Page | Primary Focal Point | Rationale |
+|------|---------------------|-----------|
+| Workouts list | `+ New Workout` CTA button (top-right of page header) | User's goal on an empty or returning visit is to start a workout |
+| Weight log | Weight input field in the "Log Weight" card (top of page) | Primary action is entry, not review |
+| Habits | `Add Habit` CTA button (inline with the habit input) | Habit list only has value once habits are added |
+
+All other elements are secondary. Skeleton loading states inherit the layout of the loaded state and therefore inherit the same focal hierarchy.
 
 ---
 
@@ -114,6 +130,7 @@ interface ConfirmDialogProps {
   title: string;
   description: string;
   confirmLabel?: string;     // default: "Confirm"
+  cancelLabel?: string;      // default: "Keep Workout"
   onConfirm: () => void;
   variant?: 'destructive' | 'default';
 }
@@ -123,9 +140,9 @@ Visual specification:
 - **Overlay:** `fixed inset-0 bg-black/50 z-40` — semi-transparent dark backdrop
 - **Content panel:** `fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 bg-card rounded-[var(--radius)] border border-border shadow-lg p-6 w-full max-w-md`
 - **Title:** `text-xl font-semibold text-foreground` (matches CardTitle pattern)
-- **Description:** `text-sm text-muted-foreground mt-2`
+- **Description:** `text-[13px] text-muted-foreground mt-2`
 - **Button row:** `flex gap-3 justify-end mt-6`
-- **Cancel button:** `<Button variant="outline">Cancel</Button>` — neutral gray
+- **Cancel button:** `<Button variant="outline">{cancelLabel}</Button>` — neutral gray; default rendered label: "Keep Workout"
 - **Confirm button (destructive):** `<Button>` with className override `bg-destructive text-destructive-foreground hover:bg-destructive/90` — red
 - **Confirm button (default):** `<Button variant="primary">` — near-black
 
@@ -147,20 +164,21 @@ Not a UI component — no visual contract needed. Logging only affects browser D
 
 | Element | Copy |
 |---------|------|
-| Primary CTA — add habit | "Add" |
+| Primary CTA — add habit | "Add Habit" |
 | Primary CTA — log weight | "Log Weight" |
 | Primary CTA — new workout | "+ New Workout" |
 | ConfirmDialog title — delete workout | "Delete Workout" |
 | ConfirmDialog description — delete workout | "This workout and all its exercises will be permanently deleted. This cannot be undone." |
 | ConfirmDialog confirm label — delete workout | "Delete Workout" |
-| ConfirmDialog cancel label | "Cancel" |
+| ConfirmDialog cancel label — delete workout | "Keep Workout" |
+| Icon-only delete button on habit rows | `aria-label="Delete habit"` |
 | Empty state — workouts list | Heading: none. Body: "You haven't created any workouts yet." (existing copy — retain) |
-| Empty state — weight logs | Heading: none. Body: "No logs yet." (existing copy — retain) |
+| Empty state — weight logs | Heading: none. Body: "No weight logs yet. Add your first entry above." |
 | Empty state — habits | Not explicitly shown when list is empty (no empty state currently — out of scope to add) |
 | Error state — general | "Something went wrong. Try refreshing the page." (toast.error messages from existing code — retain existing per-action copy) |
 | Loading state — skeleton aria | Skeleton divs must include `aria-hidden="true"` since they carry no informational content; parent container should have `aria-label="Loading {resource}"` on the `<ul>` or `<main>` wrapper |
 
-Source: Existing copy from `workouts/page.tsx`, `weight/page.tsx`, `habits/page.tsx`. Dialog copy: CONTEXT.md decision ("Title states the action, body explains the consequence").
+Source: Existing copy from `workouts/page.tsx`, `weight/page.tsx`, `habits/page.tsx`. Dialog copy: CONTEXT.md decision ("Title states the action, body explains the consequence"). Cancel label changed from generic "Cancel" to "Keep Workout" (context-specific, communicates what the user is preserving).
 
 ---
 
@@ -179,7 +197,7 @@ Source: Existing copy from `workouts/page.tsx`, `weight/page.tsx`, `habits/page.
 - Dialog opens immediately (no delay)
 - While dialog is open: page content behind overlay is still visible but dimmed
 - After "Delete Workout" confirm: dialog closes, `deleteWorkout.mutate(id)` fires, existing toast pattern handles success/error feedback
-- After "Cancel": dialog closes, no mutation fires
+- After "Keep Workout": dialog closes, no mutation fires
 - Delete button in workout card shows "Deleting…" text when `deleteWorkout.isPending` is true (existing behavior — retain)
 
 ### Error logging (logError)

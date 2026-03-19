@@ -25,7 +25,7 @@ Every user sees only their own data and can trust that data to be correct — se
 
 - [ ] Fix all critical/high-priority concerns identified in codebase audit
 - [x] Resolve type safety issues (unsafe `as` casts, unvalidated form enums) — Validated in Phase 02: type-safety
-- [ ] Fix authentication race conditions and missing env var validation
+- [x] Fix authentication race conditions and missing env var validation — Validated in Phase 01 (env validation, auth guards) + Phase 04 (SAFE-04 cookie fix)
 - [x] Fix useEffect dependency arrays causing stale data — Validated in Phase 02: type-safety (React Query migration)
 - [ ] Resolve URL routing bug (double-slash path)
 - [x] Fix date handling timezone edge cases — Validated in Phase 02: type-safety (localDate utility)
@@ -67,9 +67,9 @@ Key technical context:
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Audit-first milestone before new features | Code quality and security issues should be resolved before building on top of them | — Pending |
+| Audit-first milestone before new features | Code quality and security issues should be resolved before building on top of them | ✓ v1.0 milestone complete (4 phases) |
 | Vitest for test framework | Recommended for Next.js; fast, Jest-compatible, works with TypeScript | ✓ Implemented in Phase 03 |
 | react-hook-form for ProfileForm | Replaces 8+ useState fields; built-in validation and dirty tracking | — Pending |
 
 ---
-*Last updated: 2026-03-19 after Phase 03 completion (test infrastructure + quality improvements)*
+*Last updated: 2026-03-19 after Phase 04 completion (SAFE-04 cookie fix + milestone hygiene — v1.0 audit milestone complete)*
